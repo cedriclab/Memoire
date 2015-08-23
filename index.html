@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf8">
+		
+		<title>Jeu Questionnaire</title>
+		
+		<link rel="stylesheet" type="text/css" href="Libraries/fa/css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="Libraries/materialize/css/materialize.min.css">
+		
+		<script src="Libraries/jquery.min.js"></script>
+		<script src="Libraries/underscore-min.js"></script>
+		<script src="Libraries/backbone-min.js"></script>
+		<script src="Libraries/materialize/js/materialize.min.js"></script>
+
+		
+		<script>
+			(function(window){
+				
+				window.Namespace = {};
+				window.Constants = {};
+				window.Templates = {};
+				window.App = {};
+				
+				window.onload = function(){
+					App.application = new Namespace.Application(window.App);
+					App.application.main();
+				};
+				
+			})(window);
+		</script>
+		
+		<script src="Local/Application.js"></script>
+		<script src="Local/Constants.js"></script>
+		
+	</head>
+	<body>
+		<header>
+			<nav class="top-nav teal">
+				<div class="container">
+					<div class="nav-wrapper">
+						<a class="page-title">Bienvenue !</a>
+					</div>
+				</div>
+			</nav>
+		</header>
+
+			<div class="row">
+				<div class="col s3">
+					<div class="card-panel teal lighten-2">YIHA!!!</div>
+				</div>
+				<div class="col s9">
+					<div class="card-panel teal lighten-2">Commencer</div>
+				</div>
+			</div>
+
+		
+	</body>
+</html>
