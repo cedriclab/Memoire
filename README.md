@@ -15,3 +15,4 @@ Those libraries and style packages are:
 They are assumed to be structured as follows: 
 
 Server-side, it is a NodeJS/Express app, relying on a MongoDB datastore.
+Given that the package.json file is already there, you can simply use "npm install" to install the required dependencies.
