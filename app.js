@@ -5,10 +5,13 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+var http = require("http");
+
 //var routes = require('./routes/index');
 var routes = require('./server/routes.js');
 
 var app = express();
+app.set("port", 3000);
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(__dirname + '/public/favicon.ico'));
@@ -55,9 +58,14 @@ app.use(function(err, req, res, next) {
 
 routes.routes.forEach(function(route){
 	if (!Application[route.section]) {
-		Application[route.section] = require("./server/logic/"+route.section"+.js");
+		Application[route.section] = require("./server/logic/"+route.section+".js");
 	}
 	app[route.method.toLowerCase()](route.path, Application[route.section][route.calls]);
+});
+
+http.createServer(app).listen(app.get('port'),
+  function(){
+    console.log("Express server listening on port " + app.get('port'));
 });
 
 module.exports = app;
