@@ -1,10 +1,10 @@
-window.Namespace.MainView = Backbone.View.extend({
+window.Namespace.HeaderView = Backbone.View.extend({
 	
 	initialize : function(options){
-		this.template = Templates["MainView"];
+		this.template = Templates["HeaderView"];
 	},
 	
-	className : "row",
+	tagName : "header",
 	
 	render : function(options){
 		this.$el.html(this.template(this.model.toJSON()));
