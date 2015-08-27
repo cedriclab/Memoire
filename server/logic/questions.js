@@ -10,7 +10,7 @@ exports.get = function(request, response){
 
 exports.update = function(request, response){
 	response.contentType("application/json");
-	response.send({id : request.params.id});
+	response.send(request.body);
 };
 
 exports.create = function(request, response){

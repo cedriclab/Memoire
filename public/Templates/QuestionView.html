@@ -1,3 +1,55 @@
 <div class="row">
+	<div class="col s12">
 
+		<h4 class="teal-text"><%=(title || String("Question "+index))%></h4>
+
+	</div>
 </div>
+
+<div class="row">
+	<div class="col s12">
+		
+		<div class="card teal">
+			<div class="card-content">
+				<%(text || "").split(/\n/g).forEach(function(line){ %>
+					<p class="flow-text white-text"><%=line%></p>
+				<% })%>
+				<p></p>
+			</div>
+		</div>
+
+	</div>
+</div>
+
+<div class="row">
+
+	<form class="col s12" action="#" id="question-form">
+		<div class="row">
+			<div class="input-field col s12">
+				<% if (answerForm=="text") { %>
+	        		<input placeholder="<%=hint%>" name="<%=id%>" id="<%=id%>" type="text">
+	        		<label for="<%=id%>">Réponse : </label>
+	        	<% } else if (answerForm=="select") { %>
+	        		<% _.each(options, function(option){ %>
+	        			<p>
+					    	<input name="<%=id%>" type="radio" id="<%=option.id%>" />
+					    	<label for="<%=option.id%>"><%=option.text%></label>
+					    </p>
+	        		<% }) %>
+	        	<% } %>	
+	        	
+	        </div>
+        </div>
+	</form>
+
+</div>	
+
+<div class="row">
+	<div class="col s12">
+
+	<button id="submit" class="btn-large waves-effect waves-light">Soumettre</button>
+
+	</div>
+</div>	
+
+	

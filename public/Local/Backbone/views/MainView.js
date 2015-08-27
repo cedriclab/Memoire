@@ -3,6 +3,8 @@ window.Namespace.MainView = Backbone.View.extend({
 	initialize : function(options){
 		this.template = Templates["MainView"];
 	},
+
+	tagName : "main",
 	
 	className : "row",
 	
@@ -12,7 +14,7 @@ window.Namespace.MainView = Backbone.View.extend({
 	},
 	
 	fill : function(content){
-		this.$el.empty().append(content);
+		this.$el.find('[data-anchor="MainView"]').first().empty().append(content);
 	}
 	
 });

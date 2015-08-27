@@ -1,8 +1,22 @@
 <div class="row">
-	<div class="col s3">
-		<div class="card-panel teal lighten-2">YIHA!!!</div>
+		<ul class="pagination right">
+			<li class="disabled" id="previous-question"><a href="#!"><i class="fa fa-chevron-left"></i></a></li>
+			<% _.each(questions, function(question, qindex){ %>
+				<li><a href="#!" data-questionindex="<%=qindex%>"><%=(qindex+1)%></a></li>
+			<% }) %>
+			<li><a href="#!" id="next-question"><i class="fa fa-chevron-right"></i></a></li>
+		</ul>
+</div>
+<div class="row">
+	<div class="col s12" data-anchor="Resource">
+		
 	</div>
-	<div class="col s9">
-		<div class="card-panel teal lighten-2">Commencer</div>
+</div>
+<div class="row">
+	<div class="col s4" data-anchor="Resources">
+		
+	</div>
+	<div class="col s8" data-anchor="Question">
+
 	</div>
 </div>

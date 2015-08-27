@@ -1,0 +1,22 @@
+.modal-backdrop {
+	width: 100vw;
+	height: 100vh;
+	opacity: 0.4;
+	position: absolute;
+	z-index : 999;
+	color: #000000;
+}
+
+.modal-modal {
+	width: 100vw;
+	height: 80vh;
+	margin-top: 10vh;
+	color: #ffffff;
+	position: absolute;
+	z-index : 1000;
+}
+
+iframe {
+	min-height: 400px;
+	width: 100%;
+}

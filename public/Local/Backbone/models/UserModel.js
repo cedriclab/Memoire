@@ -1,5 +1,44 @@
 window.Namespace.UserModel = Backbone.Model.extend({
 
-	urlRoot : "/user"
+	urlRoot : "/user",
+
+	questionsAnwered : {},
+
+	startAnswering : function(index){
+		if (!this.questionsAnwered[String(index)]) {
+			this.questionsAnwered[String(index)] = [];
+		}
+		this.questionsAnwered[String(index)].push({start: Date.now(), finish : null, answered: false});
+	},
+
+	stopAnswering : function(index, answered){
+		console.log(index+" "+answered)
+		var qa = this.questionsAnwered[String(index)];
+		qa[qa.length-1]["finish"] = Date.now();
+		qa[qa.length-1]["answered"] = Boolean(answered);
+	},
+
+	hasAnswered : function(index){
+		if (this.questionsAnwered[String(index)]) {
+			for (var i=0; i<this.questionsAnwered[String(index)].length; i++) {
+				if (this.questionsAnwered[String(index)][i]["answered"]) {
+					return true;
+				}
+			}
+		} 
+		return false;
+	},
+
+	isDone : function(){
+		if (App.application.gameView && App.application.gameView.collection) {
+			for (var i=0; i<App.application.gameView.collection.models.length; i++) {
+				if (!this.questionsAnwered[String(i+1)]) {
+					return false;
+				}
+			}
+			return true;
+		} 
+		return false;
+	}
 
 });

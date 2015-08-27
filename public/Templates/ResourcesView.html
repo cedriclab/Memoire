@@ -1,3 +1,28 @@
 <div class="row">
+	<div class="col s12">
 
+		<h4 class="teal-text">Ressources</h4>
+
+	</div>
+</div>
+
+<div class="row">
+	<div class="col s12">
+
+		<% _.each(resources, function(resource){ %>
+			<div class="card hoverable small">
+				<div class="card-image teal lighten-2">
+					<img src="<%=resource.thumbnail%>">
+					<span class="card-title teal lighten-2"><%=resource.title%><br /><small><%=resource.sourceName%></small></span>
+				</div>
+				<div class="card-content">
+					<p><%=resource.sample%></p>
+				</div>
+				<div class="card-action">
+					<a href="#" class="resource-link" data-url="<%=resource.link%>">Voir</a>
+				</div>
+			</div>
+		<% }) %>
+		
+	</div>
 </div>

@@ -1,4 +1,14 @@
 Application = {};
+Data = {};
+Data["questions"] = require("./server/data/questions.js");
+
+
+Data["questions"].forEach(function(question){
+	if (!Data["questions"][question.section]) {
+		Data["questions"][question.section] = [];
+	}
+	Data["questions"][question.section].push(question);
+});
 
 var express = require('express');
 var path = require('path');
@@ -12,6 +22,10 @@ var routes = require('./server/routes.js');
 
 var app = express();
 app.set("port", 3000);
+
+DBConnectionString = "mongodb://localhost:27017/memoire";
+MongoClient = require('mongodb').MongoClient;
+assert = require("assert");
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(__dirname + '/public/favicon.ico'));
