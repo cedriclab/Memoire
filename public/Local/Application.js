@@ -3,7 +3,7 @@ window.Namespace.Application = function(context){
 	this._init = function(context){
 		this._context = context;
 		this._sectionIndex = 0;
-		this._sections = ["welcome", "showExplanations", "beginWarmup", "beginGame", "beginPersonal"];
+		this._sections = ["welcome", "showExplanations", "beginWarmup", "beginGame", "beginPersonal", "thankYou"];
 	};
 
 	this.showMessage = function(message){
@@ -101,6 +101,18 @@ window.Namespace.Application = function(context){
 			}.bind(this)
 		});
 		
+	},
+		
+	this.thankYou = function(){
+		this._context.userModel.save(null, {
+			success : function(){
+				this._context.thankYouView = new Namespace.ThankYouView();
+				this._context.mainView.fill(this._context.thankYouView.render().el);
+			}.bind(this),
+			error : function(){
+				this.showMessage("ERROR");
+			}.bind(this)
+		});
 	},
 	
 	this.loadTemplates = function(path, files, callback){

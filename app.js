@@ -17,6 +17,8 @@ var bodyParser = require('body-parser');
 
 var http = require("http");
 
+HTTPRequest = require("request");
+
 //var routes = require('./routes/index');
 var routes = require('./server/routes.js');
 

@@ -6,5 +6,7 @@ exports.routes = [
 	{"method" : "GET", "path" : "/questions", "section" : "questions", "calls" : "getAll"},
 	{"method" : "GET", "path" : "/question/:id", "section" : "questions", "calls" : "get"},
 	{"method" : "PUT", "path" : "/question/:id", "section" : "questions", "calls" : "update"},
-	{"method" : "POST", "path" : "/question", "section" : "questions", "calls" : "create"}
+	{"method" : "POST", "path" : "/question", "section" : "questions", "calls" : "create"},
+	
+	{"method" : "GET", "path" : "/resource", "section" : "resources", "calls" : "get"},
 ];

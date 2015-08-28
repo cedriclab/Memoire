@@ -30,11 +30,12 @@ window.Namespace.UserModel = Backbone.Model.extend({
 	},
 
 	isDone : function(){
-		if (App.application.gameView && App.application.gameView.collection) {
-			for (var i=0; i<App.application.gameView.collection.models.length; i++) {
-				if (!this.questionsAnwered[String(i+1)]) {
+		if (App.gameView && App.gameView.collection) {
+			for (var j=0; j<App.gameView.collection.models.length; j++) {
+				if (!this.hasAnswered(j+1)) {
+					console.log(j+1);
 					return false;
-				}
+				} 
 			}
 			return true;
 		} 

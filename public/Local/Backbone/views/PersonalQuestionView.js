@@ -22,7 +22,9 @@ window.Namespace.PersonalQuestionView = Backbone.View.extend({
 	},
 
 	submit : function(event){
-
+		var values = this.$el.find("#personal-form").serializeArray().reduce(function(object, item){object[item.name] = item.value; return object;}, {});
+		App.userModel.set(values);
+		App.application.next();
 	}
 
 	

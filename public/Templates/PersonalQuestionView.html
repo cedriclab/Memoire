@@ -8,6 +8,7 @@
 		<p class="flow-text">Les questions obligatoires sont marquées d'un astérisque.</p>
 	</div>
 </div>
+<form id="personal-form">
 <% _.each(questions, function(question, qindex){ %>
 	<div class="row">
 		<div class="input-field col s12">
@@ -32,3 +33,9 @@
 	     </div>
 	</div>
 <% }) %>
+</form>	
+<div class="row center">
+	<div class="col s12">
+		<button id="submit" class="btn-large waves-effect waves-light">Soumettre</button>
+	</div>
+</div>	

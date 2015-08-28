@@ -10,6 +10,10 @@ window.Namespace.ResourceView = Backbone.View.extend({
 	events : {
 		"click #close" : "closeResource"
 	},
+	
+	hideLoader : function(){
+		this.$el.find("#loader").hide();
+	},
 
 	close : function(){
 		this.undelegateEvents();
@@ -19,6 +23,7 @@ window.Namespace.ResourceView = Backbone.View.extend({
 	render : function(options){
 		console.log(this._link)
 		this.$el.html(this.template({"link" : this._link}));
+		this.$el.find("iframe").on("load", this.hideLoader.bind(this));
 		this.delegateEvents();
 		return this;
 	},
