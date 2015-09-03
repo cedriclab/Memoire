@@ -2,7 +2,7 @@
 
 Cedric Levasseur-Laberge, 2015
 
-This is a project I worked on as a part of my research project to complete my M.Sc. Economics program at the Université de Sherbrooke. (Sherbrooke, QC, Canada) under the supervision of Dorothée Boccanfuso and Kim Lehrer.  It is basically a quiz structured as thus:
+This is a project I worked on as a part of my Master's thesis to complete my graduate Economics program at the Université de Sherbrooke (Sherbrooke, QC, Canada) under the supervision of Dorothée Boccanfuso and Kim Lehrer.  It is basically a quiz structured as thus:
 - Warmup questions
 - Game questions, where users have access to various external resources
 - Personal questions
