@@ -24,13 +24,18 @@ window.Namespace.QuestionView = Backbone.View.extend({
 	},
 
 	submit: function(event){
+		console.log(this.$el.find("#question-form").serializeArray());
 		var values = this.$el.find("#question-form").serializeArray().reduce(function(object, item){object[item.name] = item.value; return object;}, {});
+	/*
 		if (values[this.model.get("id")]) {
 			values["answeredOn"] = Date.now();
 		}
-		this.model.set({"answer" : values});
+	*/
+		//this.model.set({"answer" : values});
+		this.model.set({"answer" : values[this.model.get("id")]}); 
 		this.model.save(values, {
 			success: function(){
+				App.headerView.setScore(this.model.get("score") || 0);
 				this._superSection.next();
 			}.bind(this),
 			error : function(){

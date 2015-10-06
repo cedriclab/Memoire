@@ -3,6 +3,10 @@ window.Namespace.HeaderView = Backbone.View.extend({
 	initialize : function(options){
 		this.template = Templates["HeaderView"];
 	},
+
+	events : {
+		"click #instructions-again" : "viewInstructions"
+	},
 	
 	tagName : "header",
 	
@@ -34,6 +38,11 @@ window.Namespace.HeaderView = Backbone.View.extend({
 	startPlayTimer : function(){
 		this.$el.find(".timer").show();
 		this._gameTimer = setInterval(this.updateTime.bind(this), 1000);
+	},
+
+	viewInstructions : function(){
+		App.reInstructionView = new Namespace.ExplanationView({superSection : App.gameView, onDone : "close"});
+		App.gameView.$el.find('[data-anchor="Resource"]').first().empty().append(App.reInstructionView.render().el);
 	},
 
 	stopPlayTimer : function(){

@@ -20,3 +20,7 @@ iframe {
 	min-height: 500px;
 	width: 100%;
 }
+
+.explanation-bit {
+	display : none;
+}

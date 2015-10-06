@@ -340,7 +340,17 @@ module.exports = [
 	},
 	{
 		"id" : "21",
-		"index" : "6",
+		"index" : "5",
+		"section" : "personal",
+		"title" : "Sur une échelle de 1 à 10 (1 étant très faible et 10 étant la perfection), à combien évaluez-vous votre compréhension de l'anglais écrit?",
+		"text" : "",
+		"subText" : "",
+		"hint" : "",
+		"answerForm" : "text"
+	},
+	{
+		"id" : "22",
+		"index" : "7",
 		"section" : "personal",
 		"title" : "Parmi les suivantes, quelles sources d’information consultez-vous sur Internet?",
 		"text" : "",

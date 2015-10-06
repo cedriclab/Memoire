@@ -25,8 +25,10 @@ var routes = require('./server/routes.js');
 var app = express();
 app.set("port", 3000);
 
+MongoDB = require('mongodb');
 DBConnectionString = "mongodb://localhost:27017/memoire";
-MongoClient = require('mongodb').MongoClient;
+MongoClient = MongoDB.MongoClient;
+ObjectID = MongoDB.ObjectID;
 assert = require("assert");
 
 // uncomment after placing your favicon in /public
