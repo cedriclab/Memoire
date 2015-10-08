@@ -4,7 +4,7 @@ Data["questions"] = require("./server/data/questions.js");
 Data["impacts"] = require("./server/data/impacts.js");
 Data["randoms"] = {};
 
-var randomVariables = ["gasUp", "gasDown"];
+var randomVariables = ["gasUp", "gasDown", "caughtMeetingRecruiter", "winTicketContest"];
 randomVariables.forEach(function(variable){
   Data["randoms"][variable] = Math.random();
 });

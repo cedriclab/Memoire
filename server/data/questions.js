@@ -138,10 +138,11 @@ module.exports = [
 		"hint" : "",
 		"answerForm" : "select",
 		"options" : [
-			{"id" : "1", "text" : "X pour Y$"},
-			{"id" : "2", "text" : "X pour Y$"},
-			{"id" : "3", "text" : "X pour Y$"},
-			{"id" : "4", "text" : "X pour Y$"},
+			{"id" : "1", "text" : "Un MacBook"},
+			{"id" : "2", "text" : "Un Acer Aspire E"},
+			{"id" : "3", "text" : "Un Dell XPS 13'"},
+			{"id" : "4", "text" : "Une Surface Pro 3"},
+			{"id" : "5", "text" : "Un Chromebook Pixel 2"},
 		],
 		"resources" : [
 			{"id" : "", "sample" : "Nous avons sélectionné 44 ordinateurs portables selon des critères tels que la puissance du processeur, la capacité du disque dur et l’autonomie de la pile.", "title" : "Ordinateurs portables: 44 modèles recommandés", "thumbnail" : "", "sourceName" : "Protégez-Vous", "link" : "http://www.protegez-vous.ca/technologie/test-ordinateurs-portables.html"},

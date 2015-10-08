@@ -76,7 +76,8 @@ exports.create = function(request, response){
 				},
 				"assets" : {
 					"hourlyRate" : 20,
-					"workStatus" : 50
+					"workStatus" : 1,
+					"productivity" : 1
 				},
 				"recurringRandom" : [],
 				"age" : null, 
