@@ -32,6 +32,7 @@ exports.update = function(request, response){
 
 			var instantImpact = 0;
 			var recurringImpact = 0;
+			var previousBalance = Number(user.balance || 0);
 			var newCondition;
 
 			if (request.body.section=="warmup") {
@@ -51,6 +52,7 @@ exports.update = function(request, response){
 
 				data["answeredGameQuestions.$.instantImpact"] = instantImpact;
 				data["answeredGameQuestions.$.recurringImpact"] = recurringImpact;
+				data["answeredGameQuestions.$.previousBalance"] = previousBalance;
 			} else if (request.body.section=="personal") {
 				var userAttrDict = {
 					"1" : {"attribute" : "age", "parser" : function(value){return parseInt(value || 0) || null;}},
