@@ -18,24 +18,49 @@ window.Namespace.QuestionView = Backbone.View.extend({
 	},
 	
 	render : function(options){
+		this.model.beginQuestion();
 		this.$el.html(this.template(this.model.toJSON()));
 		this.delegateEvents();
 		return this;
 	},
 
+	getValue : function(){
+		var $form = this.$el.find("#question-form");
+		console.log($form.serializeArray());
+
+		var value = null;
+		if (this.model.get("answerForm")=="text") {
+			var values = $form.serializeArray().reduce(function(object, item){object[item.name] = item.value; return object;}, {});
+			if (values[this.model.get("id")]) {
+				value = String(values[this.model.get("id")]);
+			}
+		} else if (this.model.get("answerForm")=="select") {
+			$form.serializeArray().forEach(function(item){
+				if (item.value=="on") {
+					var id = (item.name || "").split("-");
+					value = id[1] || null;
+				}
+			});
+		} else if (this.model.get("answerForm")=="multi") {
+
+		}
+		//var values = $form.serializeArray().reduce(function(object, item){object[item.name] = item.value; return object;}, {});
+		return value;
+	},
+
 	submit: function(event){
-		console.log(this.$el.find("#question-form").serializeArray());
-		var values = this.$el.find("#question-form").serializeArray().reduce(function(object, item){object[item.name] = item.value; return object;}, {});
+		
 	/*
 		if (values[this.model.get("id")]) {
 			values["answeredOn"] = Date.now();
 		}
 	*/
 		//this.model.set({"answer" : values});
-		this.model.set({"answer" : values[this.model.get("id")]}); 
-		this.model.save(values, {
+		var values = this.getValue();
+		this.model.set({"answer" : values}); 
+		this.model.save({"answer" : values}, {
 			success: function(){
-				App.headerView.setScore(this.model.get("score") || 0);
+				App.headerView.setScore(this.model.get("balance") || 0);
 				this._superSection.next();
 			}.bind(this),
 			error : function(){

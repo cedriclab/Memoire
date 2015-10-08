@@ -1,5 +1,5 @@
 exports.get = function(request, response){
-	var data = '<DOCTYPE html><html><head></head><body><p>Le lien '+request.query.link+' est impossible à charger. :/</p></body></html>';
+	var data = '<DOCTYPE html><html><head></head><body><p>Le lien '+request.query.link+' est impossible à charger. :</p></body></html>';
 	if (request.query.link) {
 		var root = request.query.link.match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n]+)/im)[0];
 		var extensionSplit = request.query.link.split(".");

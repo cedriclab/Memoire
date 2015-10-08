@@ -11,6 +11,7 @@ window.Namespace.ExplanationView = Backbone.View.extend({
 
 	events : {
 		"click #understood" : "done",
+		"click #shut" : "shut",
 		"click #explanation-next" : "next",
 		"click #explanation-prev" : "prev"
 	},
@@ -69,8 +70,9 @@ window.Namespace.ExplanationView = Backbone.View.extend({
 		App.application.next();
 	},
 
-	close : function(){
-
+	shut : function(){
+		this.$el.remove();
+		this.close();
 	}
 	
 });

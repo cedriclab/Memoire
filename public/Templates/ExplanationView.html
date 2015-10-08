@@ -1,6 +1,11 @@
 <div class="row">
-	<div class="col s12">
+	<div class="col s10">
 		<h3 class="header teal-text">Instructions</h3>
+	</div>
+	<div class="col s2 right-align">
+		<% if (this.onDone=="shut") { %>
+			<a href="#" id="shut" class="teal-text" style="margin-top : 15px;"><i class="fa fa-times fa-2x"></i></a>
+		<% } %>
 	</div>
 </div>
 
@@ -37,11 +42,6 @@
 			<li class="collection-item">- un montant de base de 10$</li>
 			<li class="collection-item">- un supplément de 5$, en fonction de la qualité des choix que vous effectuerez dans le cadre du jeu</li>
 		</ul>
-	</div>
-</div>
-
-<div class="row explanation-bit">
-	<div class="col s12">
 		<h4 class="teal-text">Bonne chance!</h4>
 	</div>
 </div>

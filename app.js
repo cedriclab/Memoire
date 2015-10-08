@@ -1,6 +1,13 @@
 Application = {};
 Data = {};
 Data["questions"] = require("./server/data/questions.js");
+Data["impacts"] = require("./server/data/impacts.js");
+Data["randoms"] = {};
+
+var randomVariables = ["gasUp", "gasDown"];
+randomVariables.forEach(function(variable){
+  Data["randoms"][variable] = Math.random();
+});
 
 
 Data["questions"].forEach(function(question){
