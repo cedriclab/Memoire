@@ -66,7 +66,7 @@ exports.create = function(request, response){
 				}), 
 				"balance" : startBalance,
 				"recurringInflux" : {
-					"rent" : -650,
+					"rent" : -325,
 					"food" : -400,
 					"fun" : -200,
 					"phone" : -50,
@@ -75,10 +75,15 @@ exports.create = function(request, response){
 					"salary" : 0
 				},
 				"assets" : {
+					"studentLoan" : 10000,
+					"studentLoanRate" : 0.045,
 					"hourlyRate" : 20,
 					"workStatus" : 50
 				},
-				"recurringRandom" : [],
+				"recurringRandom" : [
+					{"probabiliby" : 0.05, "affects" : "assets.studentLoanRate", "method" : "inc", "value" : 0.005},
+					{"probabiliby" : 0.05, "affects" : "assets.studentLoanRate", "method" : "inc", "value" : -0.005}
+				],
 				"age" : null, 
 				"sex" : null, 
 				"studyProgram" : null, 
