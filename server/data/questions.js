@@ -70,8 +70,8 @@ module.exports = [
 		"answerForm" : "select",
 		"options" : [
 			{"id" : "1", "text" : "Vous achetez une voiture usagée à 4000$.  Elle vous coûtera 50$ par semaine en essence et 60$ par mois en assurances.  Puisqu’il s’agit d’une voiture usagée, il y a toutefois une probabilité [X] qu’elle tombe en panne et le prix des réparations peut varier entre 1000$ et 3000$.  À chaque panne, vous devrez également manquer du travail, ce qui résultera en d’autres pertes, allant jusqu’à 8h, en heures non-travaillées."},
-			{"id" : "2", "text" : "Vous achetez une voiture neuve à 15000$.  Vous devez la financer à un taux annuel de 5%.  Les assurances vous coûteront 65$ par mois et l’essence vous en coûtera 40$ par semaine.  Puisqu’il s’agit d’un véhicule neuf, la probabilité qu’elle tombe en panne (et vous fasse donc perdre encore jusqu’à 8h de travail) est de [X].  Les réparations peuvent aller de 1000$ à 5000$."},
-			{"id" : "3", "text" : "Vous continuez à utiliser le service de transport en commun et votre vélo.  Une carte mensuelle vous coûte 100$.  Toutefois, à cause des intempéries ou de retards, la probabilité que vous arriviez en retard à votre travail, et perdiez donc une heure de salaire, est de 10%.  Aussi, il vous arrive d’utiliser l’autocar pour voyager; vous faites environ deux voyages par mois, avec un billet aller-retour qui vous coûte normalement autour de 45$.  Environ une fois par an, il vous arrive aussi de louer une voiture, ce qui vous coûte 200$ à chaque fois."}
+			{"id" : "2", "text" : "Vous achetez une voiture neuve à 15000$.  Vous devez la financer, sur 5 ans, à un taux annuel de 5%.  Vos paiements sont mensuels.  Les assurances vous coûteront 65$ par mois et l’essence vous en coûtera 40$ par semaine.  Puisqu’il s’agit d’un véhicule neuf, la probabilité qu’elle tombe en panne (et vous fasse donc perdre encore jusqu’à 8h de travail) est de [X].  Les réparations peuvent aller de 1000$ à 5000$."},
+			{"id" : "3", "text" : "Vous continuez à utiliser le service de transport en commun et votre vélo.  Une carte mensuelle vous coûte 100$.  Toutefois, à cause des intempéries ou de retards, la probabilité que vous arriviez en retard à votre travail une fois par mois, et perdiez donc une heure de salaire, est de 10%.  Aussi, il vous arrive d’utiliser l’autocar pour voyager; vous faites environ deux voyages par mois, avec un billet aller-retour qui vous coûte normalement autour de 45$.  Environ une fois par an, il vous arrive aussi de louer une voiture, ce qui vous coûte 200$ à chaque fois."}
 		],
 		"resources" : [
 			{"id" : "", "sample" : "", "title" : "Calculatrice de prêt", "thumbnail" : "http://www4.bmo.com/images/bmobankpopup_fr.gif", "sourceName" : "BMO - Banque de Montréal", "link" : "http://www4.bmo.com/popup/prets/Calculator.html"},
@@ -280,6 +280,150 @@ module.exports = [
 	},
 	{
 		"id" : "16",
+		"index" : "13",
+		"section" : "game",
+		"title" : "",
+		"text" : "En rentrant chez vous, vous trouvez une mauvaise surprise: pour la deuxième fois cette semaine, votre chat Jean-Charles a vomi sur votre tapis d’entrée, que vous devez remplacer.\nQue faites-vous?",
+		"subText" : "",
+		"hint" : "",
+		"answerForm" : "select",
+		"options" : [
+			{"id" : "1", "text" : "Je l’emmène chez le vétérinaire demain matin pour le faire soigner."},
+			{"id" : "2", "text" : "Je change sa diète et je m’assure que mes plantes vertes soient hors de sa portée."},
+			{"id" : "3", "text" : "J’adopte un autre chat pour lui tenir compagnie."}
+		],
+		"resources" : [
+			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
+		]
+	},
+	{
+		"id" : "17",
+		"index" : "14",
+		"section" : "game",
+		"title" : "",
+		"text" : "Vous êtes enfin de retour dans un chez-soi digne de ce nom!  Vous en profitez pour remeubler les lieux.  Vous souhaitez également que vos meubles puissent durer (tant en intégrité physique qu’en style) afin de ne pas devoir en racheter de sitôt.\nVeuillez choisir l’un des quatre paniers suivants:",
+		"subText" : "",
+		"hint" : "",
+		"answerForm" : "select",
+		"options" : [
+			{"id" : "1", "text" : "[X1, X2, X3, X4, X5, X6, X7] pour [Y1, Y2, Y3, Y4, Y5, Y6, Y7]$"},
+			{"id" : "2", "text" : "[X1, X2, X3, X4, X5, X6, X7, X8, X9, X10] pour [Y1, Y2, Y3, Y4, Y5, Y6, Y7, Y8, Y9, Y10]$"},
+			{"id" : "3", "text" : "[X1, X2, X3, X4, X5, X6] pour [Y1, Y2, Y3, Y4, Y5, Y5]$"},
+			{"id" : "4", "text" : "[X1, X2, X3, X4, X5] pour [Y1, Y2, Y3, Y4, Y5]$"}
+		],
+		"resources" : [
+			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
+		]
+	},
+	{
+		"id" : "18",
+		"index" : "15",
+		"section" : "game",
+		"title" : "",
+		"text" : "",
+		"subText" : "",
+		"hint" : "",
+		"answerForm" : "text-multiple",
+		"fields" : [
+			{"name" : "debt", "title" : "Remboursement"},
+			{"name" : "rrsp", "title" : "RÉÉR"},
+			{"name" : "tfsa", "title" : "CÉLI"}
+		],
+		"resources" : [
+			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
+		]
+	},
+	{
+		"id" : "19",
+		"index" : "16",
+		"section" : "game",
+		"title" : "",
+		"text" : "Depuis cette semaine, vous souffrez de migraines sporadiques; elles vous coupent l’appétit et vous empêchent de vous concentrer.  Hier, vous avez même dû partir du travail quelques heures plus tôt.\nVous vous demandez si cela vaut la peine de prendre rendez-vous chez le médecin.",
+		"subText" : "",
+		"hint" : "",
+		"answerForm" : "select",
+		"options" : [
+			{"id" : "1", "text" : "Vous appelez pour prendre rendez-vous à la clinique, sachant que vous n’aurez pas de rendez-vous avant au moins un mois; si votre état persiste, vous pourriez devoir vous absenter du travail à quelques reprises d’ici-là."},
+			{"id" : "2", "text" : "Vous vous rendez à l’urgence, sachant que vous devrez manquer une journée complète de travail dans la salle d’attente."},
+			{"id" : "3", "text" : "Vous achetez une tisane biologique de gingembre citroné au marché spécialisé du coin, pour la somme de 15$."},
+			{"id" : "4", "text" : "Vous attendez quelques jours encore avant de prendre une décision.  Vous prenez des comprimés d’acétaminophène dans votre armoire d’ici-là."}
+		],
+		"resources" : [
+			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
+		]
+	},
+	{
+		"id" : "20",
+		"index" : "17",
+		"section" : "game",
+		"title" : "",
+		"text" : "Votre client préféré au travail - le même que tout à l’heure - vous rappelle et est de mauvaise humeur.  Le projet sur lequel vous avez travaillé précédemment, dont il estimait pouvoir tirer 200 000$, ne lui en a finalement rapporté que [montant dépendant du temps investi précédemment].  Après une pluie d’insulte, il demande un remboursement total des honoraires versés à votre entreprise.\nQue faites-vous?",
+		"subText" : "",
+		"hint" : "",
+		"answerForm" : "select",
+		"options" : [
+			{"id" : "1", "text" : "Vous lui expliquez poliment que les problèmes de son entreprise découlent ultimement de ses décisions, pas des vôtres."},
+			{"id" : "2", "text" : "Vous le transférez derechef à votre superviseur."},
+			{"id" : "3", "text" : "Vous tentez de négocier un remboursement de [X]% des honoraires payés."},
+			{"id" : "4", "text" : "Vous offrez de travailler [X] heures gratuitement pour lui sur un prochain projet."}
+		],
+		"resources" : [
+			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
+		]
+	},
+	{
+		"id" : "21",
+		"index" : "18",
+		"section" : "game",
+		"title" : "",
+		"text" : "Vous souhaitez prendre des vacances.\nCette année, vous jetez votre dévolu sur Austin, TX.  Vous avez deux semaines de vacances, fin octobre.\nVous devez choisir comment vous y rendre.  Veuillez indiquer le vol que vous prendrez.",
+		"subText" : "",
+		"hint" : "",
+		"answerForm" : "text-multiple",
+		"fields" : [
+			{"name" : "from", "title" : "Aéroport de départ", "hint" : "YUL, YYZ, etc..."},
+			{"name" : "flightNumber", "title" : "Numéro du vol"}
+		],
+		"resources" : [
+			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
+		]
+	},
+	{
+		"id" : "22",
+		"index" : "19",
+		"section" : "game",
+		"title" : "",
+		"text" : "De retour de vacances, on vous assigne la tâche de trouver de nouveaux bureaux pour l’entreprise où vous travaillez, en forte expansion; votre équipe compte présentement 10 personnes, mais est appelée à prendre de l’ampleur.  Vous pouvez acheter, louer ou même faire construire.\nVos options sont les suivantes:",
+		"subText" : "",
+		"hint" : "",
+		"answerForm" : "select",
+		"options" : [
+			{"id" : "1", "text" : ""},
+		],
+		"resources" : [
+			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
+		]
+	},
+	{
+		"id" : "23",
+		"index" : "20",
+		"section" : "game",
+		"title" : "",
+		"text" : "Après un an au travail, on souligne votre dévouement en vous remettant un bonus de %s.  De plus, puisque l’entreprise a été profitable, un dividende sera versé aux actionnaires; dans votre cas, cela représente %s.  Cela vous fait donc un montant total de %s. \nVous pouvez faire diverses choses avec cet argent.",
+		"subText" : "",
+		"hint" : "",
+		"answerForm" : "text-multiple",
+		"fields" : [
+			{"name" : "rrsp", "title" : "RÉÉR"},
+			{"name" : "tfsa", "title" : "CÉLI"},
+			{"name" : "spoil", "title" : "Pour me gâter"}
+		],
+		"resources" : [
+			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
+		]
+	},
+	{
+		"id" : "24",
 		"index" : "1",
 		"section" : "personal",
 		"title" : "Âge *",
@@ -289,7 +433,7 @@ module.exports = [
 		"answerForm" : "text"
 	},
 	{
-		"id" : "17",
+		"id" : "25",
 		"index" : "2",
 		"section" : "personal",
 		"title" : "Sexe *",
@@ -303,7 +447,7 @@ module.exports = [
 		]
 	},
 	{
-		"id" : "18",
+		"id" : "26",
 		"index" : "3",
 		"section" : "personal",
 		"title" : "Programme d'études *",
@@ -319,7 +463,7 @@ module.exports = [
 		],
 	},
 	{
-		"id" : "19",
+		"id" : "27",
 		"index" : "4",
 		"section" : "personal",
 		"title" : "Adresse courriel *",
@@ -329,7 +473,7 @@ module.exports = [
 		"answerForm" : "text"
 	},
 	{
-		"id" : "20",
+		"id" : "28",
 		"index" : "5",
 		"section" : "personal",
 		"title" : "Si vous occupez un emploi, quel est votre salaire horaire?",
@@ -339,8 +483,8 @@ module.exports = [
 		"answerForm" : "text"
 	},
 	{
-		"id" : "21",
-		"index" : "5",
+		"id" : "29",
+		"index" : "6",
 		"section" : "personal",
 		"title" : "Sur une échelle de 1 à 10 (1 étant très faible et 10 étant la perfection), à combien évaluez-vous votre compréhension de l'anglais écrit?",
 		"text" : "",
@@ -349,7 +493,7 @@ module.exports = [
 		"answerForm" : "text"
 	},
 	{
-		"id" : "22",
+		"id" : "30",
 		"index" : "7",
 		"section" : "personal",
 		"title" : "Parmi les suivantes, quelles sources d’information consultez-vous sur Internet?",
