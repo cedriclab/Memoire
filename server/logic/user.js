@@ -8,12 +8,128 @@ exports.getScore = function(request, response){
 	response.send({score : (Math.random()*5000).toFixed(2)});
 };
 
+exports.getResults = function(request, response){
+    var includeEmail = Boolean(request.query.email);
+    var includeFuture = Boolean(request.query.future);
+    
+    MongoClient.connect(DBConnectionString, function(err, db) {
+		db.collection("users").find({}).sort({"balance" : -1}).toArray(function(error, cursorArray){
+			db.close();
+            var fields = {};
+            (cursorArray || []).forEach(function(user){
+                Object.keys(user.financialAssets).forEach(function(assetKey){
+                    if (!fields[assetKey]) {
+                        fields[assetKey] = true;
+                    }
+                });
+            });
+            var fieldsArray = Object.keys(fields);
+            
+            if (includeFuture) {
+                (cursorArray || []).forEach(function(user){
+                    for (var i=12; i<60; i++) {
+                        Application.user.playTurn(user, 0, i);
+                    }
+                });
+            }
+            
+            var head = '<!DOCTYPE html><html><head><meta charset="utf8"><title>Résultats</title></head>';
+            var body = '<body><h1>Résultats</h1><table><thead><tr><th>ID</th>'+(includeEmail ? '<th>Courriel</th>' : '')+'<th>Balance</th>'+(fieldsArray.map(function(f){return '<th>'+f+'</th>';}).join(''))+'<th>Valeur nette</th></tr></thead><tbody>';
+            var foot = '</html>';
+            
+            (cursorArray || []).forEach(function(user){
+                var netWorth = Number(user.balance += 0);
+                var userInfo = '<tr><td>'+user._id.toString()+'</td>'+(includeEmail ? '<td>'+user.email+'</td>' : '')+'<td>'+(user.balance || 0).toFixed(2)+'</td>';
+                fieldsArray.forEach(function(assetKey){
+                    var assetValue = user.financialAssets[assetKey] || 0;
+                    netWorth += assetValue;
+                    userInfo += '<td>'+(assetValue ? assetValue.toFixed(2) : '')+'</td>'
+                });
+                userInfo += '<th>'+(netWorth.toFixed(2))+'</th></tr>';
+                body += userInfo;
+            });
+            body += '</tbody></table></body>';
+            
+			response.contentType("text/html");
+			response.send(head+body+foot);
+		});
+	});
+};
+
 exports.update = function(request, response){
 	console.log("UPDATE");
 	console.log(request.body);
 	console.log(" ");
 	response.contentType("application/json");
 	response.send({id : request.params.id});
+};
+
+exports.playTurn = function(user, baseImpact, turn, save){
+    
+    var mover = Number(baseImpact || 0);
+    turn = turn || user.questionsAnswered;
+    console.log("TURN IS: %s", turn);
+/*	
+    (user.answeredGameQuestions || []).forEach(function(q){
+        mover += q.recurringImpact;
+    });
+*/	
+    (user.recurringRandom || []).forEach(function(item, randomIndex){
+        if (!Data["randoms"]["recurring"][turn][randomIndex]) {
+            Data["randoms"]["recurring"][turn][randomIndex] = Math.random();
+        }
+        if (Data["randoms"]["recurring"][turn][randomIndex] < item.probability) {
+            if (item.affects=="balance") {
+                mover += item.value;
+            } else {
+                var namespace = item.affects.split(".");
+                if (item.method=="set") {
+                    user[namespace[0]][namespace[1]] = item.value;
+                } else if (item.method=="inc") {
+                    user[namespace[0]][namespace[1]] += item.value;
+                }
+            }
+        }
+    });
+    Object.keys(user.financialAssets).forEach(function(finKey){
+        if (user.financialAssets[finKey] && user.financialAssets[finKey] < 0) {
+            user.financialAssets[finKey] *= (1+((user.assets[String(finKey+"Rate")] || 0)/12));
+            if (user.financialAssets[finKey] < user.recurringInflux[String(finKey+"Payment")]) {
+                user.financialAssets[finKey] -= user.recurringInflux[String(finKey+"Payment")];
+            } else {
+                user.balance -= user.financialAssets[finKey];
+                delete user.financialAssets[finKey];
+                delete user.recurringInflux[String(finKey+"Payment")];
+            }
+        } 
+    });
+    Object.keys(user.savingPatterns).forEach(function(saveKey){
+        if (user.financialAssets[saveKey] !== undefined) {
+            var amount = user.savingPatterns[saveKey] || 0;
+            user.financialAssets[saveKey] *= (1+((user.assets[String(saveKey+"Rate")] || 0)/12));
+            user.financialAssets[saveKey] += amount;
+            user.balance -= amount;
+        }
+    });
+
+    var recurringInflux = user.recurringInflux || {};
+    Object.keys(recurringInflux).forEach(function(condition){
+        if (recurringInflux[condition]) {
+            mover += recurringInflux[condition];
+        }
+    });
+    
+    user.balance = (user.balance || 0) + mover;
+    
+    if (save) {
+        MongoClient.connect(DBConnectionString, function(err, db) {
+            db.collection("users").updateOne({"_id" : user._id}, {$set : {"balance" : user.balance, "savingPatterns" : user.savingPatterns, "assets" : user.assets, "recurringInflux" : user.recurringInflux, "recurringRandom" : user.recurringRandom, "financialAssets" : user.financialAssets}}, function(error){
+                db.close();
+            });
+        });  
+    }
+    
+    return user.balance;
 };
 
 exports.create = function(request, response){
@@ -32,22 +148,26 @@ exports.create = function(request, response){
 	} else {
 		var awq = [];
 		var agq = [];
-		var warmupQuestions = Data["questions"]["warmup"].map(function(q){
+		var warmupQuestions = Data["questions"]["warmup"].map(function(q, qi){
 					q.id = new ObjectID();
-					awq.push({"id" : q.id, "begunOn" : null, "answeredOn" : null, "answer" : null});
+					awq.push({"id" : q.id, "index" : qi, "begunOn" : null, "answeredOn" : null, "answer" : null});
 					return q;
 				});
-		var gameQuestions = Data["questions"]["game"].map(function(q){
+		var gameQuestions = Data["questions"]["game"].map(function(q, qi){
 					q.id = new ObjectID();
-					if (q.resources) {
+					if (q.resources) {
 						q.resources.forEach(function(r, i){
 							r.id = String(i+1);
-						})
+						});
 					}
-					agq.push({"id" : q.id, "begunOn" : null, "answeredOn" : null, "answer" : null, "usedResources" : [], "instantImpact" : 0, "recurringImpact" : 0});
+                    q.adviceCost = Data["advice"][q.index].cost;
+                    q.rawData = q.rawData || "";
+					agq.push({"id" : q.id, "index" : qi, "begunOn" : null, "answeredOn" : null, "answer" : null, "usedResources" : [], "instantImpact" : 0, "recurringImpact" : 0, "previousBalance" : 0});
 					return q;
 				});
-
+/*
+    Assets should have been class-based
+*/
 		MongoClient.connect(DBConnectionString, function(err, db) {
 			var _id = new ObjectID();
 			db.collection("users").insert({
@@ -59,27 +179,43 @@ exports.create = function(request, response){
 				"answeredGameQuestions" : agq,
 				"personalQuestions" : Data["questions"]["personal"].map(function(q){
 					q.id = new ObjectID();
-					q.begunOn = null;
-					q.answeredOn = null;
-					q.answer = null;
 					return q;
 				}), 
 				"balance" : startBalance,
 				"recurringInflux" : {
-					"rent" : -650,
+					"rent" : -325,
 					"food" : -400,
 					"fun" : -200,
 					"phone" : -50,
 					"catFood" : -20,
 					"other" : -200,
-					"salary" : 0
+					"salary" : 0,
+                    "studentLoanPayment" : -186.43
 				},
+                "financialAssets" : {
+                    "capStock" : 0,
+                    "studentLoan" : -10000,
+                    "rrsp" : 0,
+                    "tfsa" : 0
+                },
+                "savingPatterns" : {
+                    "rrsp" : 0,
+                    "tfsa" : 0,
+                    "studentLoan" : 0
+                },
 				"assets" : {
+					"studentLoanRate" : 0.045,
+                    "rrspRate" : 0,
+                    "tfsaRate" : 0,
 					"hourlyRate" : 20,
 					"workStatus" : 1,
-					"productivity" : 1
+                    "productivity" : 1
 				},
-				"recurringRandom" : [],
+				"recurringRandom" : [
+					{"probabiliby" : 0.05, "affects" : "assets.studentLoanRate", "method" : "inc", "value" : 0.005},
+					{"probabiliby" : 0.05, "affects" : "assets.studentLoanRate", "method" : "inc", "value" : -0.005}
+				],
+                "questionsAnswered" : 0,
 				"age" : null, 
 				"sex" : null, 
 				"studyProgram" : null, 
@@ -96,3 +232,4 @@ exports.create = function(request, response){
 	}
 	
 };
+

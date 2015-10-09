@@ -6,7 +6,6 @@ exports.getAll = function(request, response){
 	MongoClient.connect(DBConnectionString, function(err, db) {
 		var _id = new ObjectID(request.cookies.id);
 		db.collection("users").find({"_id" : _id}, attrs).toArray(function(error, cursorArray){
-			console.log(cursorArray);
 			db.close();
 			response.contentType("application/json");
 			response.send({questions : cursorArray[0][attr] || []});
@@ -32,6 +31,7 @@ exports.update = function(request, response){
 
 			var instantImpact = 0;
 			var recurringImpact = 0;
+			var previousBalance = Number(user.balance || 0);
 			var newCondition;
 
 			if (request.body.section=="warmup") {
@@ -51,6 +51,7 @@ exports.update = function(request, response){
 
 				data["answeredGameQuestions.$.instantImpact"] = instantImpact;
 				data["answeredGameQuestions.$.recurringImpact"] = recurringImpact;
+				data["answeredGameQuestions.$.previousBalance"] = previousBalance;
 			} else if (request.body.section=="personal") {
 				var userAttrDict = {
 					"1" : {"attribute" : "age", "parser" : function(value){return parseInt(value || 0) || null;}},
@@ -67,53 +68,21 @@ exports.update = function(request, response){
 				}
 			}
 	
-			db.collection("users").updateOne(query, {$set : data}, function(error){
+			db.collection("users").updateOne(query, {$set : data, $inc : {"questionsAnswered" : (request.body.section=="game" ? 1 : 0)}}, function(error){
 				console.log(error);
+                db.close();
+                response.contentType("application/json");
+                request.body.balance = (user.balance || 0);
 				if (request.body.section=="game") {
-					
-
-					var mover = instantImpact;
-				/*	
-					(user.answeredGameQuestions || []).forEach(function(q){
-						mover += q.recurringImpact;
-					});
-				*/	
-					(user.recurringRandom || []).forEach(function(item){
-						if (Math.random() < item.probability) {
-							if (item.affects=="balance") {
-								mover += item.value;
-							} else {
-								var namespace = item.affects.split(".");
-								if (item.method=="set") {
-									user[namespace[0]][namespace[1]] = item.value;
-								} else if (item.method=="inc") {
-									user[namespace[0]][namespace[1]] += item.value;
-								}
-							}
-						}
-					});
-					var recurringInflux = user.recurringInflux || {};
-					Object.keys(recurringInflux).forEach(function(condition){
-						if (recurringInflux[condition]) {
-							mover += recurringInflux[condition];
-						}
-					});
-					
-					var newBalance = (user.balance || 0) + mover;
-
-					db.collection("users").updateOne({"_id" : _id}, {$set : {"balance" : newBalance, "assets" : user.assets, "recurringInflux" : user.recurringInflux, "recurringRandom" : user.recurringRandom}}, function(error){
-						db.close();
-					});
-
-					response.contentType("application/json");
+                    var newBalance = 0;
+                    try {
+                        newBalance = Application.user.playTurn(user, instantImpact, null, true);
+                    } catch (e) {
+                        console.log(e);
+                    }
 					request.body.balance = newBalance.toFixed(2);
-					response.send(request.body);
-				} else {
-					db.close();
-					response.contentType("application/json");
-					request.body.balance = (user.balance || 0);
-					response.send(request.body);
-				}
+				} 
+                response.send(request.body);
 			}.bind(this));
 		}.bind(this));	
 	}.bind(this));
@@ -153,17 +122,12 @@ exports.useLink = function(request, response){
 	var query = {};
 	var _id = new ObjectID(request.cookies.id);
 	query["_id"] = _id;
-	if (request.body.section=="game") {
-		var attrTime = "answeredGameQuestions.$.usedResources";
-		query["gameQuestions.id"] = new ObjectID(request.params.id);
-		data[attrTime] = {"linkID" : request.body.linkID, "timeUsed" : Date.now()};
-	} 
+	query["gameQuestions.id"] = new ObjectID(request.params.id);
+	data["answeredGameQuestions.$.usedResources"] = {"resource" : request.body.linkID, "timeUsed" : Date.now()};
+
 console.log("USE LINK");
-console.log(query);
-console.log(data);
-console.log(" ");
 	MongoClient.connect(DBConnectionString, function(err, db) {
-		db.collection("users").updateOne(query, {$addToSet : data}, function(){
+		db.collection("users").updateOne(query, {$push : data}, function(){
 			db.close();
 			response.contentType("application/json");
 			response.send({});
@@ -172,7 +136,47 @@ console.log(" ");
 };
 
 exports.useAdvice = function(request, response){
+    var data = {};
+	var query = {};
+	var _id = new ObjectID(request.cookies.id);
+	query["_id"] = _id;
+    query["gameQuestions.id"] = new ObjectID(request.params.id);
+    data["answeredGameQuestions.$.usedResources"] = {"resource" : "advice", "timeUsed" : Date.now()};
 
+    var advice = Data["advice"][request.query.questionIndex] || {};
+    var cost = advice.cost || 0;
+    console.log(cost);
+console.log("USE ADVICE");
+	MongoClient.connect(DBConnectionString, function(err, db) {
+		db.collection("users").updateOne(query, {$push : data, $inc : {"balance" : Number((-1)*cost)}}, function(error){
+            console.log(error);
+            db.collection("users").find({"_id" : _id}, {"balance" : 1}).toArray(function(error, cursorArray){
+                db.close();
+                var user = cursorArray[0] || {};
+                console.log(user);
+                response.contentType("application/json");
+                response.send({"adviceText" : advice.text || "", "newBalance" : (user.balance || null)});
+            });    
+		});
+	});
+};
+
+exports.useData = function(request, response){
+    var data = {};
+	var query = {};
+	var _id = new ObjectID(request.cookies.id);
+	query["_id"] = _id;
+    query["gameQuestions.id"] = new ObjectID(request.params.id);
+    data["answeredGameQuestions.$.usedResources"] = {"resource" : "rawData", "timeUsed" : Date.now()};
+    
+console.log("USE DATA");
+	MongoClient.connect(DBConnectionString, function(err, db) {
+		db.collection("users").updateOne(query, {$push : data}, function(){
+			db.close();
+			response.contentType("application/json");
+			response.send({});
+		});
+	});
 };
 
 exports.create = function(request, response){

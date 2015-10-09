@@ -9,7 +9,9 @@ window.Namespace.QuestionView = Backbone.View.extend({
 	className : "container",
 
 	events : {
-		"click #submit" : "submit"
+		"click #submit" : "submit",
+        "change #question-form input" : "toggleButton",
+        "keypress #question-form input" : "toggleButton"
 	},
 
 	close : function(){
@@ -41,12 +43,21 @@ window.Namespace.QuestionView = Backbone.View.extend({
 					value = id[1] || null;
 				}
 			});
-		} else if (this.model.get("answerForm")=="multi") {
+        } else if (this.model.get("answerForm")=="text-multiple") {    
+            value = $form.serializeArray().reduce(function(object, item){object[item.name.split('-')[1]] = item.value; return object;}, {});
+		} else if (this.model.get("answerForm")=="select-multi") {
 
 		}
 		//var values = $form.serializeArray().reduce(function(object, item){object[item.name] = item.value; return object;}, {});
 		return value;
 	},
+    
+    toggleButton : function(event){
+        this.$el.find("#submit").attr("disabled", "disabled");
+        if (this.getValue()) {
+            this.$el.find("#submit").removeAttr("disabled");
+        }
+    },
 
 	submit: function(event){
 		

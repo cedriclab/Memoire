@@ -13,12 +13,13 @@ module.exports = {
 			monthlyRevenue = ((yearlyRevenue-capStock - provIncomeTax - fedIncomeTax))/12;
 			user.recurringInflux.salary = monthlyRevenue;
 			user.assets.workStatus *= (1+value);
-			user.recurringRandom.push({
+            user.savingPatterns.capStock = capStock/12;
+			/*user.recurringRandom.push({
 				"probability" : 1,
 				"value" : capStock,
-				"affects" : "assets.capStock",
+				"affects" : "financialAssets.capStock",
 				"method" : "inc"
-			});
+			});*/
 
 			return {"instantImpact" : 0, "recurringImpact" : 0};
 		},
@@ -32,17 +33,19 @@ module.exports = {
 				user.recurringInflux["carInsurance"] = -60;
 				user.recurringRandom.push({
 					"probability" : 0.05,
-					"value" : (-1000-(Math.random()*2000)-(Math.random()*8*user.assets.hourlyRate)),
+					"value" : (-1000-(Data["randoms"]["carProblemSeverity"]*2000)-(Data["randoms"]["carProblemSeverity"]*8*user.assets.hourlyRate)),
 					"affects" : "balance",
 					"method" : "inc"
 				});
 			} else if (value=="2") {
-				user.recurringInflux["gas"] = -173.33;
+				user.financialAssets["carLoan"] = -15000;
+                user.assets["carLoanRate"] = 0.05;
+                user.recurringInflux["gas"] = -173.33;
 				user.recurringInflux["carInsurance"] = -65;
-				user.recurringInflux["carPayment"] = -283.07;
+				user.recurringInflux["carLoanPayment"] = -283.07;
 				user.recurringRandom.push({
 					"probability" : 0.01,
-					"value" : (-1000-(Math.random()*2000)-(Math.random()*8*user.assets.hourlyRate)),
+					"value" : (-1000-(Data["randoms"]["carProblemSeverity"]*2000)-(Data["randoms"]["carProblemSeverity"]*8*user.assets.hourlyRate)),
 					"affects" : "balance",
 					"method" : "inc"
 				});
@@ -65,13 +68,13 @@ module.exports = {
 	"3" : {
 		"result" : function(value, user){
 			if (value=="1") {
-				user.recurringInflux.rent = -550;
-				user.balance -= 1950;
+				user.recurringInflux.rent = -275;
+				user.balance -= 975;
 			} else if (value=="2") {
 
 			} else if (value=="3") {
 				if (user.recurringInflux.gas) {
-					user.balance += user.recurringInflux.gas*18*5;
+					user.balance += user.recurringInflux.gas*10;
 				} else {
 					user.balance -= 18*5*45;
 				}
@@ -132,7 +135,22 @@ module.exports = {
 		},
 		"worst" : {"instantImpact" : 0, "recurringImpact" : 0}
 	},
-	"8" : {
+    "8" : {
+		"result" : function(value, user){
+            var amount = 500;
+            var debt = parseInt(value.debt || 0)===parseInt(value.debt || 0) ? Math.min(parseInt(value.debt || 0), amount) : 0;
+            amount -= debt;
+            var rrsp = parseInt(value.rrsp || 0)===parseInt(value.rrsp || 0) ? Math.min(parseInt(value.rrsp || 0), amount) : 0;
+            amount -= rrsp;
+            user.savingPatterns.studentLoan += debt;
+            user.savingPatterns.rrsp += rrsp;
+            user.savingPatterns.tfsa += amount;
+            
+			return {"instantImpact" : 0, "recurringImpact" : 0};
+		},
+		"worst" : {"instantImpact" : 0, "recurringImpact" : 0}
+	},
+	"9" : {
 		"result" : function(value, user){
 			if (value=="1") {
 				user.assets.workStatus *= ((user.assets.workStatus < 1) ? 0.95 : 1)*user.assets.productivity;
@@ -143,21 +161,21 @@ module.exports = {
 		},
 		"worst" : {"instantImpact" : 0, "recurringImpact" : 0}
 	},
-	"9" : {
+	"10" : {
 		"result" : {
-			"1" : {"instantImpact" : 10, "recurringImpact" : 0},
-			"2" : {"instantImpact" : 14, "recurringImpact" : 0},
+			"1" : {"instantImpact" : 14, "recurringImpact" : 0},
+			"2" : {"instantImpact" : 10, "recurringImpact" : 0},
 			"3" : {"instantImpact" : 35, "recurringImpact" : 0}
 		},
 		"worst" : {"instantImpact" : 0, "recurringImpact" : 0}
 	},
-	"10" : {
+	"11" : {
 		"result" : function(value, user){
 			return {"instantImpact" : 0, "recurringImpact" : 0};
 		},
 		"worst" : {"instantImpact" : 0, "recurringImpact" : 0}
 	},
-	"11" : {
+	"12" : {
 		"result" : function(value, user){
 			if (value=="1") {
 				if (Data.randoms["winTicketContest"] < 0.5) {
@@ -179,17 +197,11 @@ module.exports = {
 		},
 		"worst" : {"instantImpact" : 0, "recurringImpact" : 0}
 	},
-	"12" : {
+	"13" : {
 		"result" : {
 			"1" : {"instantImpact" : 0, "recurringImpact" : 0},
 			"2" : {"instantImpact" : 0, "recurringImpact" : 0},
 			"3" : {"instantImpact" : 0, "recurringImpact" : 0}
-		},
-		"worst" : {"instantImpact" : 0, "recurringImpact" : 0}
-	},
-	"13" : {
-		"result" : {
-			"1" : {"instantImpact" : 0, "recurringImpact" : 0}
 		},
 		"worst" : {"instantImpact" : 0, "recurringImpact" : 0}
 	},
@@ -200,8 +212,8 @@ module.exports = {
 		"worst" : {"instantImpact" : 0, "recurringImpact" : 0}
 	},
 	"15" : {
-		"result" : function(value, user){
-			return {"instantImpact" : 0, "recurringImpact" : 0};
+		"result" : {
+			"1" : {"instantImpact" : 0, "recurringImpact" : 0}
 		},
 		"worst" : {"instantImpact" : 0, "recurringImpact" : 0}
 	},

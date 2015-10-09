@@ -69,9 +69,9 @@ module.exports = [
 		"hint" : "",
 		"answerForm" : "select",
 		"options" : [
-			{"id" : "1", "text" : "Vous achetez une voiture usagée à 4000$.  Elle vous coûtera 50$ par semaine en essence et 60$ par mois en assurances.  Puisqu’il s’agit d’une voiture usagée, il y a toutefois une probabilité [X] qu’elle tombe en panne et le prix des réparations peut varier entre 1000$ et 3000$.  À chaque panne, vous devrez également manquer du travail, ce qui résultera en d’autres pertes, allant jusqu’à 8h, en heures non-travaillées."},
-			{"id" : "2", "text" : "Vous achetez une voiture neuve à 15000$.  Vous devez la financer à un taux annuel de 5%.  Les assurances vous coûteront 65$ par mois et l’essence vous en coûtera 40$ par semaine.  Puisqu’il s’agit d’un véhicule neuf, la probabilité qu’elle tombe en panne (et vous fasse donc perdre encore jusqu’à 8h de travail) est de [X].  Les réparations peuvent aller de 1000$ à 5000$."},
-			{"id" : "3", "text" : "Vous continuez à utiliser le service de transport en commun et votre vélo.  Une carte mensuelle vous coûte 100$.  Toutefois, à cause des intempéries ou de retards, la probabilité que vous arriviez en retard à votre travail, et perdiez donc une heure de salaire, est de 10%.  Aussi, il vous arrive d’utiliser l’autocar pour voyager; vous faites environ deux voyages par mois, avec un billet aller-retour qui vous coûte normalement autour de 45$.  Environ une fois par an, il vous arrive aussi de louer une voiture, ce qui vous coûte 200$ à chaque fois."}
+			{"id" : "1", "text" : "Vous achetez une voiture usagée à 4000$.  Elle vous coûtera 50$ par semaine en essence et 60$ par mois en assurances.  Puisqu’il s’agit d’une voiture usagée, il y a toutefois une probabilité  qu’elle tombe en panne et le prix des réparations peut varier entre 1000$ et 3000$.  À chaque panne, vous devrez également manquer du travail, ce qui résultera en d’autres pertes, allant jusqu’à 8h, en heures non-travaillées."},
+			{"id" : "2", "text" : "Vous achetez une voiture neuve à 15000$.  Vous devez la financer, sur 5 ans, à un taux annuel de 5%.  Vos paiements sont mensuels.  Les assurances vous coûteront 65$ par mois et l’essence vous en coûtera 40$ par semaine.  Puisqu’il s’agit d’un véhicule neuf, la probabilité qu’elle tombe en panne (et vous fasse donc perdre encore jusqu’à 8h de travail) est de [X].  Les réparations peuvent aller de 1000$ à 5000$."},
+			{"id" : "3", "text" : "Vous continuez à utiliser le service de transport en commun et votre vélo.  Une carte mensuelle vous coûte 100$.  Toutefois, à cause des intempéries ou de retards, la probabilité que vous arriviez en retard à votre travail une fois par mois, et perdiez donc une heure de salaire, est de 10%.  Aussi, il vous arrive d’utiliser l’autocar pour voyager; vous faites environ deux voyages par mois, avec un billet aller-retour qui vous coûte normalement autour de 45$.  Environ une fois par an, il vous arrive aussi de louer une voiture, ce qui vous coûte 200$ à chaque fois."}
 		],
 		"resources" : [
 			{"id" : "", "sample" : "", "title" : "Calculatrice de prêt", "thumbnail" : "http://www4.bmo.com/images/bmobankpopup_fr.gif", "sourceName" : "BMO - Banque de Montréal", "link" : "http://www4.bmo.com/popup/prets/Calculator.html"},
@@ -80,7 +80,8 @@ module.exports = [
 			{"id" : "", "sample" : "Plus de 800 000 véhicules d’occasion trouvent preneur chaque année au Québec. La prudence s’impose si vous ne voulez pas vous retrouver au volant d’un bazou.", "title" : "Voitures d'occasion: astuces pour un achat futé", "thumbnail" : "", "sourceName" : "Protégez-Vous", "link" : "http://www.protegez-vous.ca/automobile/voitures-doccasion-astuces-pour-un-achat-fute.html"},
 			{"id" : "", "sample" : "", "title" : "Budget: Bus vs Voiture", "thumbnail" : "", "sourceName" : "metrodemontreal.com", "link" : "http://www.metrodemontreal.com/forum/viewtopic.php?t=11887&sid=1d93cd5b6dccc1ec936202947e718f86"},
 			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
-		]
+		],
+        "rawData" : {"title" : "Classeur Excel", "link" : "/Contents/xlsx/Voiture.xlsx"}
 	},
 	{
 		"id" : "6",
@@ -92,9 +93,9 @@ module.exports = [
 		"hint" : "",
 		"answerForm" : "select",
 		"options" : [
-			{"id" : "1", "text" : "Demander la rupture du bail et déménager; vous devrez payer X et le nouveau loyer sera de X."},
+			{"id" : "1", "text" : "Demander la rupture du bail et déménager; vous devrez payer 975$ et le nouveau loyer sera de 550$."},
 			{"id" : "2", "text" : "Déposer une plainte à la Régie du logement."},
-			{"id" : "3", "text" : "Aller habiter chez vos parents la durée des travaux; ils habitent toutefois à X distance, ce qui représente des dépenses supplémentaires de X en transport."},
+			{"id" : "3", "text" : "Aller habiter chez vos parents la durée des travaux; ils habitent toutefois à 100km de distance, ce qui représente des dépenses supplémentaires de transport (essence ou billet de bus)."},
 			{"id" : "4", "text" : "Dormir sur le sofa d’une amie; toutefois, la piètre qualité du sommeil vous fera perdre en productivité au travail, ce qui constituera une perte équivalente à 3 heures par semaine."},
 		],
 		"resources" : [
@@ -126,7 +127,8 @@ module.exports = [
 			{"id" : "", "sample" : "Small is in, buying is (maybe) out, and smart growth is here to stay.", "title" : "The Hottest Trends in Urban Housing", "thumbnail" : "", "sourceName" : "CityLab", "link" : "http://www.citylab.com/housing/2012/04/future-urban-housing/1672/"},
 			{"id" : "", "sample" : "Les maisons sont «sérieusement inabordables» au Canada, selon une étude annuelle comparant divers marchés immobiliers de la planète.", "title" : "Ratio salaires et prix des maisons:  Sherbrooke est 3e au Québec", "thumbnail" : "", "sourceName" : "La Tribune", "link" : "http://www.lapresse.ca/la-tribune/economie-et-innovation/201501/21/01-4837197-ratio-salaires-et-prix-des-maisons-sherbrooke-est-3e-au-quebec.php"},
 			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
-		]
+		],
+        "rawData" : {"title" : "Classeur Excel - Maisons", "link" : "/Contents/xlsx/Maisons.xlsx"}
 	},
 	{
 		"id" : "8",
@@ -140,8 +142,8 @@ module.exports = [
 		"options" : [
 			{"id" : "1", "text" : "Un MacBook"},
 			{"id" : "2", "text" : "Un Acer Aspire E"},
-			{"id" : "3", "text" : "Un Dell XPS 13'"},
-			{"id" : "4", "text" : "Une Surface Pro 3"},
+            {"id" : "3", "text" : "Un Dell XPS"},
+			{"id" : "4", "text" : "Une Microsoft Surface Pro"},
 			{"id" : "5", "text" : "Un Chromebook Pixel 2"},
 		],
 		"resources" : [
@@ -150,8 +152,10 @@ module.exports = [
 			{"id" : "", "sample" : "There's a new Chrome OS flagship in town, the Chromebook Pixel 2. Like the first model, the new king of the Chromebooks prioritizes design and performance above value — the one spec where these curious, browser-driven laptops usually stand out.", "title" : "Google's Chromebook Pixel 2 is ready to be your work laptop", "thumbnail" : "", "sourceName" : "Mashable", "link" : "http://mashable.com/2015/03/11/chromebook-pixel-2-review/"},
 			{"id" : "", "sample" : "Everything about the new MacBook screams “future,” but can it handle today?", "title" : "2015 MacBook Review", "thumbnail" : "", "sourceName" : "TechCrunch", "link" : "http://techcrunch.com/2015/04/09/2015-macbook-review/"},
 			{"id" : "", "sample" : "Est-ce que la troisième fois sera la bonne? Microsoft a dévoilé cette semaine la troisième génération de sa tablette Surface Pro, qui promet – encore une fois – le mélange idéal entre une tablette électronique et un ordinateur portatif.", "title" : "Mise à l’essai de la Surface Pro 3", "thumbnail" : "", "sourceName" : "Radio-Canada.ca", "link" : "http://blogues.radio-canada.ca/triplex/2014/05/29/mise-a-lessai-de-la-surface-pro-3/"},
-			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
-		]
+            {"id" : "", "sample" : "Ordinateurs et Tablettes", "title" : "BestBuy.ca", "thumbnail" : "", "sourceName" : "BestBuy.ca", "link" : "http://www.bestbuy.ca/"},
+            {"id" : "", "sample" : "Ordinateurs portatifs et accessoires", "title" : "Bureau en Gros", "thumbnail" : "Bureau en Gros", "sourceName" : "", "link" : "http//www.staples.ca/fr/Ordinateurs-portatifs-et-accessoires"},
+		],
+        "rawData" : {"title" : "Grille comparative", "link" : "/Contents/xlsx/Ordinateurs.xlsx"}
 	},
 	{
 		"id" : "9",
@@ -177,7 +181,8 @@ module.exports = [
 			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
 			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
 			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
-		]
+		],
+        "rawData" : {"title" : "Classeur Excel", "link" : "/Contents/xlsx/GardeManger.xlsx"}
 	},
 	{
 		"id" : "10",
@@ -193,12 +198,44 @@ module.exports = [
 			{"id" : "2", "text" : "Non"},
 		],
 		"resources" : [
-			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
+			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "Huffington Post", "link" : "http://www.huffingtonpost.com/susan-p-joyce/job-recruiters_b_5059365.html"},
+            {"id" : "", "sample" : "", "title" : "Why Recruiters are Bad for your Career", "thumbnail" : "", "sourceName" : "Brandon Savage", "link" : "https://www.brandonsavage.net/why-recruiters-are-bad-for-your-career/ "},
+            {"id" : "", "sample" : "", "title" : "How Recruiters can help your job hunt", "thumbnail" : "", "sourceName" : "The Muse", "link" : "https://www.themuse.com/advice/how-recruiters-can-help-your-job-hunt"},
+            {"id" : "", "sample" : "", "title" : "Devrais-je contacter un recruteur", "thumbnail" : "", "sourceName" : "Droit Inc.", "link" : "http://www.droit-inc.com/article13994-Devrais-je-contacter-un-recruteur"},
+            {"id" : "", "sample" : "Top Ten reasons why its better to stick it out at a Big Company instead of leaving for a Startup", "title" : "Top Ten Reasons why it's better to stick it out at a Big Company", "thumbnail" : "", "sourceName" : "Forbes", "link" : "http://www.forbes.com/sites/ericjackson/2012/01/12/top-ten-reasons-why-its-better-to-stick-it-out-at-a-big-company-instead-of-leave-for-a-start-up/"},
+            {"id" : "", "sample" : "", "title" : "8 Reasons to choose a Startup over a Corporate Job", "thumbnail" : "", "sourceName" : "FastCompany", "link" : "http://www.fastcompany.com/1824235/8-reasons-choose-startup-over-corporate-job"}
 		]
 	},
 	{
 		"id" : "11",
 		"index" : "8",
+		"section" : "game",
+		"title" : "",
+		"text" : "Vous souhaitez commencer à épargner.  En faisant votre budget mensuel, vous remarquez que vous disposez d’environ %s$ par mois que vous aimeriez épargner régulièrement.  Vous avez également un prêt étudiant de 10000$, pour lequel vous avez un taux d’intérêt variable qui est actuellement à 4,5% annuel.  Vous aimeriez également que le montant épargné vous serve de mise de fond pour l’achat d’une propriété d’ici quelques années.\nInscrivez quel montant vous consacrez mensuellement au remboursement de votre prêt, quel montant vous investissez dans un REER, et quel montant vous placez dans un CELI.",
+		"subText" : "",
+		"hint" : "",
+		"answerForm" : "text-multiple",
+		"fields" : [
+			{"name" : "debt", "title" : "Remboursement"},
+			{"name" : "rrsp", "title" : "RÉÉR"},
+			{"name" : "tfsa", "title" : "CÉLI"}
+		],
+		"resources" : [
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
+		],
+        "rawData" : {"title" : "Classeur Excel", "link" : "/Contents/xlsx/Epargne.xlsx"}
+	},
+	{
+		"id" : "12",
+		"index" : "9",
 		"section" : "game",
 		"title" : "",
 		"text" : "Votre supérieur vous demande si vous aimeriez avoir un deuxième moniteur pour votre ordinateur au travail; vous savez toutefois que l’entreprise ne roule pas sur l’or par les temps qui courent.",
@@ -210,25 +247,13 @@ module.exports = [
 			{"id" : "2", "text" : "Non"},
 		],
 		"resources" : [
-			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
-		]
-	},
-	{
-		"id" : "12",
-		"index" : "9",
-		"section" : "game",
-		"title" : "",
-		"text" : "Nous sommes dimanche soir; vous êtes à l’épicerie et faites l’épicerie pour vous-même.  Vous avez l’intention de faire des sandwiches au poulet pour la semaine.  Vous vous demandez s’il vaut mieux la peine d’acheter un poulet déjà cuit ou de simplement acheter un poulet et de le faire cuire vous-même ce soir.",
-		"subText" : "",
-		"hint" : "",
-		"answerForm" : "select",
-		"options" : [
-			{"id" : "1", "text" : "J’achète le poulet cuit pour [X]$"},
-			{"id" : "2", "text" : "J’achète un poulet non-cuit pour [X]$ et je le fais cuire ce soir"},
-			{"id" : "3", "text" : "Tant pis.  J’irai chercher quelque chose au restaurant."},
-		],
-		"resources" : [
-			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
+			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
 		]
 	},
 	{
@@ -236,17 +261,44 @@ module.exports = [
 		"index" : "10",
 		"section" : "game",
 		"title" : "",
-		"text" : "Un client important de l’entreprise où vous travaillez vous appelle.  C’est une personne qui est, pour le dire poliment, difficile.  Il arrive toutefois à un bien mauvais moment, puisque vous êtes déjà débordé.\nIl vous demande d’évaluer un projet dont il estime qu’il retirera un bénéfice de 200 000$.  Ce client paie les services de votre entreprise 100$/l’heure.\nCombien de temps consacrez-vous personellement à sa requête?  Suggérez-vous à votre supérieur de considérer la possibilité d’engager une nouvelle ressource pour s’occuper de ce dossier (et en enlever de vos épaules déjà surchargées)?",
+		"text" : "Nous sommes dimanche soir; vous êtes à l’épicerie et faites l’épicerie pour vous-même.  Vous avez l’intention de faire des sandwiches au poulet pour la semaine.  Vous vous demandez s’il vaut mieux la peine d’acheter un poulet déjà cuit ou de simplement acheter un poulet et de le faire cuire vous-même ce soir.",
 		"subText" : "",
 		"hint" : "",
-		"answerForm" : "text",
+		"answerForm" : "select",
+		"options" : [
+			{"id" : "1", "text" : "J’achète le poulet cuit pour 14$"},
+			{"id" : "2", "text" : "J’achète un poulet non-cuit pour 10$ et je le fais cuire ce soir"},
+			{"id" : "3", "text" : "Tant pis.  J’irai chercher quelque chose au restaurant."},
+		],
 		"resources" : [
-			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
+			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
 		]
 	},
 	{
 		"id" : "14",
 		"index" : "11",
+		"section" : "game",
+		"title" : "",
+		"text" : "Un client important de l’entreprise où vous travaillez vous appelle.  C’est une personne qui est, pour le dire poliment, difficile.  Il arrive toutefois à un bien mauvais moment, puisque vous êtes déjà débordé.\nIl vous demande d’évaluer un projet dont il estime qu’il retirera un bénéfice de 200 000$.  Ce client paie les services de votre entreprise 100$/l’heure.\nCombien de temps consacrez-vous personellement à sa requête?  Suggérez-vous à votre supérieur de considérer la possibilité d’engager une nouvelle ressource pour s’occuper de ce dossier (et en enlever de vos épaules déjà surchargées)?",
+		"subText" : "",
+		"hint" : "",
+		"answerForm" : "text",
+		"resources" : [
+			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
+		]
+	},
+	{
+		"id" : "15",
+		"index" : "12",
 		"section" : "game",
 		"title" : "",
 		"text" : "Malheur!  Vous étiez en congé et rouliez joyeusement sur la route lorsque des gyrophares s’allument derrière vous: vous êtes en état d’arrestation, et un policier vous remet une contravention de 125$ pour excès de vitesse sur l’autoroute, assortie de deux points de démérite.  Puisque vous avez automatiquement appuyé sur les freins lorsque vous avez aperçu les gyrophares, vous n’avez pas vu quelle vitesse affichait votre propre odomètre.\nEn plus de la contravention, cela augmentera de 40$ par an le montant à payer pour renouveler votre permis de conduire, et augmentera de 10% votre prime d’assurance auto, si vous en avez une.\nVous considérez toutefois l’option de contester la contravention; en effet, l’ami d’un de vos amis affirme s’en tirer à chaque fois.  Pour ce faire, vous devrez toutefois passer 3 heures à la cour municipale, ce qui implique que vous manquerez des heures de travail.  De plus, si la cour vous déclare coupable, votre amende sera doublée.\nContestez-vous la contravention?",
@@ -258,12 +310,16 @@ module.exports = [
 			{"id" : "2", "text" : "Non"},
 		],
 		"resources" : [
-			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
+			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
 		]
 	},
 	{
-		"id" : "15",
-		"index" : "12",
+		"id" : "16",
+		"index" : "13",
 		"section" : "game",
 		"title" : "",
 		"text" : "Votre téléphone, que vous avez depuis un peu plus d’un an, s’est brisé.  Vous vous rendez chez votre fournisseur de téléphonie pour voir s’il est possible pour vous d’en avoir un neuf.  Votre contrat prend fin dans deux ans, et vous payez actuellement 50$ par mois.  Le vendeur vous propose les options suivantes:",
@@ -276,11 +332,155 @@ module.exports = [
 			{"id" : "3", "text" : "Tenter de faire réparer votre appareil actuel, sans rien modifier au contrat; cela vous coûtera 50$, mais n’offre que 50% de probabilité de réussite"},
 		],
 		"resources" : [
+			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
+		],
+        "rawData" : {"title" : "Tableau comparatif", "link" : "/Contents/xlsx/Téléphones.xlsx"}
+	},
+	{
+		"id" : "17",
+		"index" : "14",
+		"section" : "game",
+		"title" : "",
+		"text" : "En rentrant chez vous, vous trouvez une mauvaise surprise: pour la deuxième fois cette semaine, votre chat Jean-Charles a vomi sur votre tapis d’entrée, que vous devez remplacer.\nQue faites-vous?",
+		"subText" : "",
+		"hint" : "",
+		"answerForm" : "select",
+		"options" : [
+			{"id" : "1", "text" : "Je l’emmène chez le vétérinaire demain matin pour le faire soigner."},
+			{"id" : "2", "text" : "Je change sa diète et je m’assure que mes plantes vertes soient hors de sa portée."},
+			{"id" : "3", "text" : "J’adopte un autre chat pour lui tenir compagnie."}
+		],
+		"resources" : [
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
 			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
 		]
 	},
 	{
-		"id" : "16",
+		"id" : "18",
+		"index" : "15",
+		"section" : "game",
+		"title" : "",
+		"text" : "Vous êtes enfin de retour dans un chez-soi digne de ce nom!  Vous en profitez pour remeubler les lieux.  Vous souhaitez également que vos meubles puissent durer (tant en intégrité physique qu’en style) afin de ne pas devoir en racheter de sitôt.\nVeuillez choisir l’un des quatre paniers suivants:",
+		"subText" : "",
+		"hint" : "",
+		"answerForm" : "select",
+		"options" : [
+			{"id" : "1", "text" : "[X1, X2, X3, X4, X5, X6, X7] pour [Y1, Y2, Y3, Y4, Y5, Y6, Y7]$"},
+			{"id" : "2", "text" : "[X1, X2, X3, X4, X5, X6, X7, X8, X9, X10] pour [Y1, Y2, Y3, Y4, Y5, Y6, Y7, Y8, Y9, Y10]$"},
+			{"id" : "3", "text" : "[X1, X2, X3, X4, X5, X6] pour [Y1, Y2, Y3, Y4, Y5, Y5]$"},
+			{"id" : "4", "text" : "[X1, X2, X3, X4, X5] pour [Y1, Y2, Y3, Y4, Y5]$"}
+		],
+		"resources" : [
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
+            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
+		],
+        "rawData" : {"title" : "Tableau comparatif", "link" : "/Contents/xlsx/Meubles.xlsx"}
+	},
+	{
+		"id" : "19",
+		"index" : "16",
+		"section" : "game",
+		"title" : "",
+		"text" : "Depuis cette semaine, vous souffrez de migraines sporadiques; elles vous coupent l’appétit et vous empêchent de vous concentrer.  Hier, vous avez même dû partir du travail quelques heures plus tôt.\nVous vous demandez si cela vaut la peine de prendre rendez-vous chez le médecin.",
+		"subText" : "",
+		"hint" : "",
+		"answerForm" : "select",
+		"options" : [
+			{"id" : "1", "text" : "Vous appelez pour prendre rendez-vous à la clinique, sachant que vous n’aurez pas de rendez-vous avant au moins un mois; si votre état persiste, vous pourriez devoir vous absenter du travail à quelques reprises d’ici-là."},
+			{"id" : "2", "text" : "Vous vous rendez à l’urgence, sachant que vous devrez manquer une journée complète de travail dans la salle d’attente."},
+			{"id" : "3", "text" : "Vous achetez une tisane biologique de gingembre citroné au marché spécialisé du coin, pour la somme de 15$."},
+			{"id" : "4", "text" : "Vous attendez quelques jours encore avant de prendre une décision.  Vous prenez des comprimés d’acétaminophène dans votre armoire d’ici-là."}
+		],
+		"resources" : [
+			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
+		]
+	},
+	{
+		"id" : "20",
+		"index" : "17",
+		"section" : "game",
+		"title" : "",
+		"text" : "Votre client préféré au travail - le même que tout à l’heure - vous rappelle et est de mauvaise humeur.  Le projet sur lequel vous avez travaillé précédemment, dont il estimait pouvoir tirer 200 000$, ne lui en a finalement rapporté que [montant dépendant du temps investi précédemment].  Après une pluie d’insulte, il demande un remboursement total des honoraires versés à votre entreprise.\nQue faites-vous?",
+		"subText" : "",
+		"hint" : "",
+		"answerForm" : "select",
+		"options" : [
+			{"id" : "1", "text" : "Vous lui expliquez poliment que les problèmes de son entreprise découlent ultimement de ses décisions, pas des vôtres."},
+			{"id" : "2", "text" : "Vous le transférez derechef à votre superviseur."},
+			{"id" : "3", "text" : "Vous tentez de négocier un remboursement de [X]% des honoraires payés."},
+			{"id" : "4", "text" : "Vous offrez de travailler [X] heures gratuitement pour lui sur un prochain projet."}
+		],
+		"resources" : [
+			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
+		]
+	},
+	{
+		"id" : "21",
+		"index" : "18",
+		"section" : "game",
+		"title" : "",
+		"text" : "Vous souhaitez prendre des vacances.\nCette année, vous jetez votre dévolu sur Austin, TX.  Vous avez deux semaines de vacances, fin octobre.\nVous devez choisir comment vous y rendre.  Veuillez indiquer le vol que vous prendrez.",
+		"subText" : "",
+		"hint" : "",
+		"answerForm" : "text-multiple",
+		"fields" : [
+			{"name" : "from", "title" : "Aéroport de départ", "hint" : "YUL, YYZ, etc..."},
+			{"name" : "flightNumber", "title" : "Numéro du vol"}
+		],
+		"resources" : [
+			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
+		]
+	},
+	{
+		"id" : "22",
+		"index" : "19",
+		"section" : "game",
+		"title" : "",
+		"text" : "De retour de vacances, on vous assigne la tâche de trouver de nouveaux bureaux pour l’entreprise où vous travaillez, en forte expansion; votre équipe compte présentement 10 personnes, mais est appelée à prendre de l’ampleur.  Vous pouvez acheter, louer ou même faire construire.\nVos options sont les suivantes:",
+		"subText" : "",
+		"hint" : "",
+		"answerForm" : "select",
+		"options" : [
+			{"id" : "1", "text" : ""},
+		],
+		"resources" : [
+			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
+		]
+	},
+	{
+		"id" : "23",
+		"index" : "20",
+		"section" : "game",
+		"title" : "",
+		"text" : "Après un an au travail, on souligne votre dévouement en vous remettant un bonus de %s.  De plus, puisque l’entreprise a été profitable, un dividende sera versé aux actionnaires; dans votre cas, cela représente %s.  Cela vous fait donc un montant total de %s. \nVous pouvez faire diverses choses avec cet argent.",
+		"subText" : "",
+		"hint" : "",
+		"answerForm" : "text-multiple",
+		"fields" : [
+			{"name" : "rrsp", "title" : "RÉÉR"},
+			{"name" : "tfsa", "title" : "CÉLI"},
+			{"name" : "spoil", "title" : "Pour me gâter"}
+		],
+		"resources" : [
+			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
+		]
+	},
+	{
+		"id" : "24",
 		"index" : "1",
 		"section" : "personal",
 		"title" : "Âge *",
@@ -290,7 +490,7 @@ module.exports = [
 		"answerForm" : "text"
 	},
 	{
-		"id" : "17",
+		"id" : "25",
 		"index" : "2",
 		"section" : "personal",
 		"title" : "Sexe *",
@@ -304,7 +504,7 @@ module.exports = [
 		]
 	},
 	{
-		"id" : "18",
+		"id" : "26",
 		"index" : "3",
 		"section" : "personal",
 		"title" : "Programme d'études *",
@@ -320,7 +520,7 @@ module.exports = [
 		],
 	},
 	{
-		"id" : "19",
+		"id" : "27",
 		"index" : "4",
 		"section" : "personal",
 		"title" : "Adresse courriel *",
@@ -330,7 +530,7 @@ module.exports = [
 		"answerForm" : "text"
 	},
 	{
-		"id" : "20",
+		"id" : "28",
 		"index" : "5",
 		"section" : "personal",
 		"title" : "Si vous occupez un emploi, quel est votre salaire horaire?",
@@ -340,8 +540,8 @@ module.exports = [
 		"answerForm" : "text"
 	},
 	{
-		"id" : "21",
-		"index" : "5",
+		"id" : "29",
+		"index" : "6",
 		"section" : "personal",
 		"title" : "Sur une échelle de 1 à 10 (1 étant très faible et 10 étant la perfection), à combien évaluez-vous votre compréhension de l'anglais écrit?",
 		"text" : "",
@@ -350,14 +550,14 @@ module.exports = [
 		"answerForm" : "text"
 	},
 	{
-		"id" : "22",
+		"id" : "30",
 		"index" : "7",
 		"section" : "personal",
 		"title" : "Parmi les suivantes, quelles sources d’information consultez-vous sur Internet?",
 		"text" : "",
 		"subText" : "",
 		"hint" : "",
-		"answerForm" : "multi",
+		"answerForm" : "select-multi",
 		"options" : [
 			{"id" : "1", "text" : "La Presse"},
 			{"id" : "2", "text" : "La Tribune"},
@@ -413,4 +613,4 @@ module.exports = [
 		],
 	}
 	
-]
+];

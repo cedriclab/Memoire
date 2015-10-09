@@ -36,6 +36,19 @@
 					    	<label for="<%=option.id%>"><%=option.text%></label>
 					    </p>
 	        		<% }) %>
+                <% } else if (answerForm=="text-multiple") { %>
+	        		<% _.each(fields, function(field){ %>
+                        <p class="flow-text"><%=field.title%> : </p>
+                        <input placeholder="<%=(field.hint || '')%>" name="<%=id%>-<%=field.name%>" id="<%=id%>-<%=field.name%>" type="text">
+	        		<% }) %>
+                <% } else if (answerForm=="select-multi") { %>
+                    <p>Cochez tout ce qui s'applique : </p>
+	        		<% _.each(options, function(option){ %>
+                        <p>
+					    	<input name="<%=id%>-<%=option.id%>" type="checkbox" id="<%=option.id%>" />
+					    	<label for="<%=option.id%>"><%=option.text%></label>
+					    </p>
+	        		<% }) %>        
 	        	<% } %>	
 	        	
 	        </div>
@@ -47,7 +60,7 @@
 <div class="row">
 	<div class="col s12">
 
-	<button id="submit" class="btn-large waves-effect waves-light">Soumettre</button>
+	<button id="submit" class="btn-large waves-effect waves-light" disabled="disabled">Soumettre</button>
 
 	</div>
 </div>	

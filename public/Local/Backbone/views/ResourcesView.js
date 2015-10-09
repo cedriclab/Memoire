@@ -9,7 +9,8 @@ window.Namespace.ResourcesView = Backbone.View.extend({
 
 	events : {
 		"click .resource-link" : "view",
-		"click .resource-advice" : "viewAdvice"
+		"click .resource-advice" : "viewAdvice",
+        "click .resource-data" : "viewData"
 	},
 
 	close : function(){
@@ -33,7 +34,18 @@ window.Namespace.ResourcesView = Backbone.View.extend({
 	},
 
 	viewAdvice : function(event){
-		
+		this.model.useAdvice(function(){
+            console.log(this.model.get("adviceText"));
+            App.gameView.$el.find('[data-anchor="Resource"]').first().empty().append('<h3>Conseil d\'expert</h3><p class="flow-text">'+this.model.get("adviceText")+'</p>');
+            if (this.model.get("newBalance")) {
+                App.headerView.setScore(this.model.get("newBalance").toFixed(2));
+            }
+        }.bind(this));
+	},
+    
+    viewData : function(event){
+		this.model.useData();
+		window.open($(event.target).data("url"), "_blank");
 	}
 	
 });

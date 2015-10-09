@@ -2,9 +2,13 @@ Application = {};
 Data = {};
 Data["questions"] = require("./server/data/questions.js");
 Data["impacts"] = require("./server/data/impacts.js");
-Data["randoms"] = {};
+Data["advice"] = require("./server/data/advice.js");
+Data["randoms"] = {"recurring" : []};
+for (var i=0; i<60; i++) {
+    Data["randoms"]["recurring"][i] = [];
+}
 
-var randomVariables = ["gasUp", "gasDown", "caughtMeetingRecruiter", "winTicketContest"];
+var randomVariables = ["gasUp", "gasDown", "caughtMeetingRecruiter", "winTicketContest", "carProblemSeverity"];
 randomVariables.forEach(function(variable){
   Data["randoms"][variable] = Math.random();
 });

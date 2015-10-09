@@ -31,7 +31,8 @@ window.Namespace.GameQuestionView = Backbone.View.extend({
 	},
 
 	goToQuestion : function(index){
-		console.log(index)
+		console.log(index);
+        App.gameView.$el.find('[data-anchor="Resource"]').first().empty();
 
 		if (!index) {
 			this.$el.find("#previous-question").addClass("disabled");
@@ -46,8 +47,9 @@ window.Namespace.GameQuestionView = Backbone.View.extend({
 		}
 		
 		if (index && App.currentQuestionView.model.get("section")=="game") {
-			App.userModel.stopAnswering(App.currentQuestionView.model.get("index"), Boolean(App.currentQuestionView.model.get("answer") && App.currentQuestionView.model.get("answer")[App.currentQuestionView.model.get("id")]));
-		}
+			//App.userModel.stopAnswering(App.currentQuestionView.model.get("index"), Boolean(App.currentQuestionView.model.get("answer") && App.currentQuestionView.model.get("answer")[App.currentQuestionView.model.get("id")]));
+            App.userModel.stopAnswering(App.currentQuestionView.model.get("index"), true);
+        }
 
 		if (index < this.collection.models.length) {
 			var nominalIndex = String(index+1);
