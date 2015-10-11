@@ -52,8 +52,11 @@ window.Namespace.PersonalQuestionView = Backbone.View.extend({
 	},
 
 	submit : function(event){
-		var values = this.getValues();
-		App.userModel.set(values);
+        var vals = this.getValues();
+		var values = Object.keys(vals).map(function(valKey){
+            return {"key" : valKey, "value" : vals[valKey]};
+        });
+		App.userModel.set("personalInfo", values);
 		App.application.next();
 	}
 

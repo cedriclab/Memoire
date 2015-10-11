@@ -52,7 +52,7 @@ exports.update = function(request, response){
 				data["answeredGameQuestions.$.instantImpact"] = instantImpact;
 				data["answeredGameQuestions.$.recurringImpact"] = recurringImpact;
 				data["answeredGameQuestions.$.previousBalance"] = previousBalance;
-			} else if (request.body.section=="personal") {
+			} else if (request.body.personalInfo) {
 				var userAttrDict = {
 					"1" : {"attribute" : "age", "parser" : function(value){return parseInt(value || 0) || null;}},
 					"2" : {"attribute" : "sex",  "parser" : function(value){return value;}},
@@ -62,14 +62,15 @@ exports.update = function(request, response){
 					"6" : {"attribute" : "englishSkills", "parser" : function(value){return parseInt(value || 0) || null;}},
 					"7" : {"attribute" : "preferredMedia", "parser" : function(value){return value;}}
 				};
-				var q = userAttrDict[request.body.index];
-				if (q) {
-					data[q.attribute] = q.parser(request.body.answer);
-				}
+                request.body.personalInfo.forEach(function(info){
+                    var q = userAttrDict[info.key];
+                    if (q) {
+                        data[q.attribute] = q.parser(info.value);
+                    }
+                });
 			}
 	
 			db.collection("users").updateOne(query, {$set : data, $inc : {"questionsAnswered" : (request.body.section=="game" ? 1 : 0)}}, function(error){
-				console.log(error);
                 db.close();
                 response.contentType("application/json");
                 request.body.balance = (user.balance || 0);
@@ -77,10 +78,15 @@ exports.update = function(request, response){
                     var newBalance = 0;
                     try {
                         newBalance = Application.user.playTurn(user, instantImpact, null, true);
+                        if (request.body.index=="7") {
+                            var meanDelta = (Math.max((newBalance - 5000)/(user.questionsAnswered+1), 0)*0.9).toFixed(2);
+                            request.body.additionalInfo = {"key" : "meanDelta", "value" : meanDelta};
+                        }
                     } catch (e) {
                         console.log(e);
                     }
 					request.body.balance = newBalance.toFixed(2);
+                     
 				} 
                 response.send(request.body);
 			}.bind(this));
@@ -103,10 +109,6 @@ exports.begin = function(request, response){
 		query["gameQuestions.id"] = new ObjectID(request.params.id);
 		data[attrTime] = Date.now();
 	} 
-console.log("BEGIN");
-console.log(query);
-console.log(data);
-console.log(" ");
 	MongoClient.connect(DBConnectionString, function(err, db) {
 		db.collection("users").updateOne(query, {$set : data}, function(error){
 			console.log(error);
@@ -145,8 +147,7 @@ exports.useAdvice = function(request, response){
 
     var advice = Data["advice"][request.query.questionIndex] || {};
     var cost = advice.cost || 0;
-    console.log(cost);
-console.log("USE ADVICE");
+
 	MongoClient.connect(DBConnectionString, function(err, db) {
 		db.collection("users").updateOne(query, {$push : data, $inc : {"balance" : Number((-1)*cost)}}, function(error){
             console.log(error);

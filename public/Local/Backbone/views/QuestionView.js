@@ -25,6 +25,17 @@ window.Namespace.QuestionView = Backbone.View.extend({
 		this.delegateEvents();
 		return this;
 	},
+    
+    getQuestionText : function(){
+        var str = this.model.get("text") || "";
+        if (this.model.get("additionalInfoKey") && App.userModel.get(this.model.get("additionalInfoKey"))) {
+            var params = App.userModel.get(this.model.get("additionalInfoKey")) || [];
+            params = Array.isArray(params) ? params : [params];
+            
+            return str.split('%s').map(function(s, i){return s+(params[i] || "");}).join('');
+        }
+        return str;
+    },
 
 	getValue : function(){
 		var $form = this.$el.find("#question-form");
@@ -72,6 +83,9 @@ window.Namespace.QuestionView = Backbone.View.extend({
 		this.model.save({"answer" : values}, {
 			success: function(){
 				App.headerView.setScore(this.model.get("balance") || 0);
+                if (this.model.get("additionalInfo")) {
+                    App.userModel.set(this.model.get("additionalInfo").key, this.model.get("additionalInfo").value);
+                }
 				this._superSection.next();
 			}.bind(this),
 			error : function(){

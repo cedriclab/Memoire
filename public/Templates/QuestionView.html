@@ -11,7 +11,7 @@
 		
 		<div class="card teal">
 			<div class="card-content">
-				<%(text || "").split(/\n/g).forEach(function(line){ %>
+				<%(this.getQuestionText() || "").split(/\n/g).forEach(function(line){ %>
 					<p class="flow-text white-text"><%=line%></p>
 				<% })%>
 				<p></p>

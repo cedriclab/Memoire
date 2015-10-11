@@ -137,7 +137,7 @@ module.exports = {
 	},
     "8" : {
 		"result" : function(value, user){
-            var amount = 500;
+            var amount = Math.max((user.balance - 5000)/user.questionsAnswered, 0)*0.9;
             var debt = parseInt(value.debt || 0)===parseInt(value.debt || 0) ? Math.min(parseInt(value.debt || 0), amount) : 0;
             amount -= debt;
             var rrsp = parseInt(value.rrsp || 0)===parseInt(value.rrsp || 0) ? Math.min(parseInt(value.rrsp || 0), amount) : 0;

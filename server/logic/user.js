@@ -57,11 +57,14 @@ exports.getResults = function(request, response){
 };
 
 exports.update = function(request, response){
-	console.log("UPDATE");
+	/*
+    console.log("UPDATE");
 	console.log(request.body);
 	console.log(" ");
 	response.contentType("application/json");
 	response.send({id : request.params.id});
+    */
+    Application.questions.update(request, response);
 };
 
 exports.playTurn = function(user, baseImpact, turn, save){

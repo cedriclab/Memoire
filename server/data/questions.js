@@ -215,6 +215,7 @@ module.exports = [
 		"subText" : "",
 		"hint" : "",
 		"answerForm" : "text-multiple",
+        "additionalInfoKey" : "meanDelta",
 		"fields" : [
 			{"name" : "debt", "title" : "Remboursement"},
 			{"name" : "rrsp", "title" : "RÉÉR"},
@@ -499,8 +500,8 @@ module.exports = [
 		"hint" : "",
 		"answerForm" : "select",
 		"options" : [
-			{"id" : "1", "text" : "Féminin"},
-			{"id" : "2", "text" : "Masculin"}
+			{"id" : "F", "text" : "Féminin"},
+			{"id" : "M", "text" : "Masculin"}
 		]
 	},
 	{
@@ -513,10 +514,10 @@ module.exports = [
 		"hint" : "",
 		"answerForm" : "select",
 		"options" : [
-			{"id" : "1", "text" : "Économie"},
-			{"id" : "2", "text" : "Marketing"},
-			{"id" : "3", "text" : "Mathématiques"},
-			{"id" : "4", "text" : "Psychologie"},
+			{"id" : "econ", "text" : "Économie"},
+			{"id" : "mark", "text" : "Marketing"},
+			{"id" : "math", "text" : "Mathématiques"},
+			{"id" : "psy", "text" : "Psychologie"},
 		],
 	},
 	{
