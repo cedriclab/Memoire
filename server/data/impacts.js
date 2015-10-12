@@ -6,11 +6,10 @@ module.exports = {
 
 			var yearlyRevenue = user.assets.hourlyRate*2080;
 			var monthlyRevenue = 0;
-			var provIncomeTax = (yearlyRevenue - 11305)*0.16;
-			var fedIncomeTax = (yearlyRevenue - 11138)*0.125;
-			var capStock = yearlyRevenue*value;
+            var netIncome = Application.user.getNetIncome(yearlyRevenue, 0);
+			var capStock = netIncome*value;
 
-			monthlyRevenue = ((yearlyRevenue-capStock - provIncomeTax - fedIncomeTax))/12;
+			monthlyRevenue = netIncome/12;
 			user.recurringInflux.salary = monthlyRevenue;
 			user.assets.workStatus *= (1+value);
             user.savingPatterns.capStock = capStock/12;
@@ -141,6 +140,10 @@ module.exports = {
             var debt = parseInt(value.debt || 0)===parseInt(value.debt || 0) ? Math.min(parseInt(value.debt || 0), amount) : 0;
             amount -= debt;
             var rrsp = parseInt(value.rrsp || 0)===parseInt(value.rrsp || 0) ? Math.min(parseInt(value.rrsp || 0), amount) : 0;
+            if (rrsp) {
+                var netIncome = Application.user.getNetIncome(yearlyRevenue, rrsp*12);
+                user.recurringInflux.salary = netIncome/12;
+            }
             amount -= rrsp;
             user.savingPatterns.studentLoan += debt;
             user.savingPatterns.rrsp += rrsp;

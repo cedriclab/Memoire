@@ -1,5 +1,6 @@
 Application = {};
 Data = {};
+Data["data"] = require("./server/data/data.js");
 Data["questions"] = require("./server/data/questions.js");
 Data["impacts"] = require("./server/data/impacts.js");
 Data["advice"] = require("./server/data/advice.js");

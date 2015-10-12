@@ -111,6 +111,9 @@ exports.playTurn = function(user, baseImpact, turn, save){
             var amount = user.savingPatterns[saveKey] || 0;
             user.financialAssets[saveKey] *= (1+((user.assets[String(saveKey+"Rate")] || 0)/12));
             user.financialAssets[saveKey] += amount;
+            if (saveKey=="tfsa" && user.financialAssets[saveKey] >= 35000) {
+                user.savingPatterns[saveKey] = 0;
+            }
             user.balance -= amount;
         }
     });
@@ -234,5 +237,12 @@ exports.create = function(request, response){
 		});
 	}
 	
+};
+
+exports.getNetIncome = function(grossIncome, deductions){
+    deductions = deductions || 0;
+    var provIncomeTax = (grossIncome - deductions- 11305)*0.16;
+    var fedIncomeTax = (grossIncome - deductions - 11138)*0.125;
+    return grossIncome - provIncomeTax - fedIncomeTax;
 };
 

@@ -45,12 +45,12 @@ window.Namespace.GameQuestionView = Backbone.View.extend({
 		} else {
 			this.$el.find("#next-question").removeClass("disabled");
 		}
-		
+/*		
 		if (index && App.currentQuestionView.model.get("section")=="game") {
 			//App.userModel.stopAnswering(App.currentQuestionView.model.get("index"), Boolean(App.currentQuestionView.model.get("answer") && App.currentQuestionView.model.get("answer")[App.currentQuestionView.model.get("id")]));
             App.userModel.stopAnswering(App.currentQuestionView.model.get("index"), true);
         }
-
+*/
 		if (index < this.collection.models.length) {
 			var nominalIndex = String(index+1);
 			this.$el.find('a[data-questionindex]').each(function(){
@@ -64,7 +64,7 @@ window.Namespace.GameQuestionView = Backbone.View.extend({
 				}
 			});
 
-			var model = this.collection.where({"index" : nominalIndex})[0];
+			var model = this.collection.where({"nominalIndex" : nominalIndex})[0];
 			if (model) {
 				App.userModel.startAnswering(nominalIndex);
 				App.currentQuestionView = new Namespace.QuestionView({model : model, superSection : this});

@@ -7,8 +7,17 @@ exports.getAll = function(request, response){
 		var _id = new ObjectID(request.cookies.id);
 		db.collection("users").find({"_id" : _id}, attrs).toArray(function(error, cursorArray){
 			db.close();
+            var questions;
+            var user = cursorArray[0];
+            if (request.query.section=="game") {
+                questions = Data.data.questionOrder.map(function(i, j){var q = user[attr][i-1]; q.nominalIndex = String(j+1); return q;});
+            } else {
+                questions = user[attr] || [];
+            }
+            
+            
 			response.contentType("application/json");
-			response.send({questions : cursorArray[0][attr] || []});
+			response.send({questions : questions});
 		});
 	});
 };
@@ -78,9 +87,17 @@ exports.update = function(request, response){
                     var newBalance = 0;
                     try {
                         newBalance = Application.user.playTurn(user, instantImpact, null, true);
-                        if (request.body.index=="7") {
-                            var meanDelta = (Math.max((newBalance - 5000)/(user.questionsAnswered+1), 0)*0.9).toFixed(2);
-                            request.body.additionalInfo = {"key" : "meanDelta", "value" : meanDelta};
+                        var addInfoKey = Data.questions[Data.data.questionOrder[parseInt(request.body.nominalIndex)-1]-1].additionalInfoKey;
+                        if (addInfoKey) {
+                            var addInfoValue;
+                            if (addInfoKey=="meanDelta") {
+                                addInfoValue = (Math.max((newBalance - 5000)/(user.questionsAnswered+1), 0)*0.9).toFixed(2);
+                            } else if (addInfoKey=="bonus") {
+                                var bonus = 0;
+                                var dividend = 0;
+                                addInfoValue = [bonus, dividend, (bonus+dividend)];
+                            }
+                            request.body.additionalInfo = {"key" : addInfoKey, "value" : addInfoValue};
                         }
                     } catch (e) {
                         console.log(e);

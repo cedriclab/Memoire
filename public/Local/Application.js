@@ -144,9 +144,11 @@ window.Namespace.Application = function(context){
 			this._context.router = new Backbone.Router();
 			this._context.userModel = new Namespace.UserModel();
 			if (document.cookie) {
-				/*var userID =  document.cookie.replace(/id=/g, '');
+/*
+                var userID =  document.cookie.replace(/id=/g, '');
 				console.log(userID);
-				this._context.userModel.set({"id" : userID})*/
+				this._context.userModel.set({"id" : userID});
+*/
 				document.cookie = document.cookie + "; expires="+(new Date(0)).toUTCString()+";";
 			}
 			this._context.userModel.save(null, {
