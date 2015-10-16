@@ -168,7 +168,7 @@ exports.create = function(request, response){
 					}
                     q.adviceCost = Data["advice"][q.index].cost;
                     q.rawData = q.rawData || "";
-					agq.push({"id" : q.id, "index" : qi, "begunOn" : null, "answeredOn" : null, "answer" : null, "usedResources" : [], "instantImpact" : 0, "recurringImpact" : 0, "previousBalance" : 0});
+					agq.push({"id" : q.id, "index" : qi, "begunOn" : null, "answeredOn" : null, "answer" : null, "answerHistory" : [], "usedResources" : [], "instantImpact" : 0, "recurringImpact" : 0, "previousBalance" : 0});
 					return q;
 				});
 /*
@@ -176,60 +176,7 @@ exports.create = function(request, response){
 */
 		MongoClient.connect(DBConnectionString, function(err, db) {
 			var _id = new ObjectID();
-			db.collection("users").insert({
-				"_id" : _id, 
-				"timeLoggedIn" : now, 
-				"warmupQuestions" : warmupQuestions, 
-				"gameQuestions" : gameQuestions, 
-				"answeredWarmupQuestions" : awq,
-				"answeredGameQuestions" : agq,
-				"personalQuestions" : Data["questions"]["personal"].map(function(q){
-					q.id = new ObjectID();
-					return q;
-				}), 
-				"balance" : startBalance,
-				"recurringInflux" : {
-					"rent" : -325,
-					"food" : -400,
-					"fun" : -200,
-					"phone" : -50,
-					"catFood" : -20,
-					"other" : -200,
-					"salary" : 0,
-                    "studentLoanPayment" : -186.43
-				},
-                "financialAssets" : {
-                    "capStock" : 0,
-                    "studentLoan" : -10000,
-                    "rrsp" : 0,
-                    "tfsa" : 0
-                },
-                "savingPatterns" : {
-                    "rrsp" : 0,
-                    "tfsa" : 0,
-                    "studentLoan" : 0
-                },
-				"assets" : {
-					"studentLoanRate" : 0.045,
-                    "rrspRate" : 0,
-                    "tfsaRate" : 0,
-					"hourlyRate" : 20,
-					"workStatus" : 1,
-                    "productivity" : 1
-				},
-				"recurringRandom" : [
-					{"probabiliby" : 0.05, "affects" : "assets.studentLoanRate", "method" : "inc", "value" : 0.005},
-					{"probabiliby" : 0.05, "affects" : "assets.studentLoanRate", "method" : "inc", "value" : -0.005}
-				],
-                "questionsAnswered" : 0,
-				"age" : null, 
-				"sex" : null, 
-				"studyProgram" : null, 
-				"email" : null,
-				"salary" : null,
-				"englishSkills" : null,
-				"preferredMedia" : []
-			}, function(){
+			db.collection("users").insert((new Application.user.User(_id, warmupQuestions, gameQuestions, awq, agq, startBalance)), function(){
 				db.close();
 				response.contentType("application/json");
 				response.send({"id" : _id, "balance" : startBalance});
@@ -244,5 +191,61 @@ exports.getNetIncome = function(grossIncome, deductions){
     var provIncomeTax = (grossIncome - deductions- 11305)*0.16;
     var fedIncomeTax = (grossIncome - deductions - 11138)*0.125;
     return grossIncome - provIncomeTax - fedIncomeTax;
+};
+
+exports.User = function(_id, warmupQuestions, gameQuestions, awq, agq, startBalance){
+
+                this["_id"] = _id || new ObjectID();
+                this["timeLoggedIn"] = Date.now();
+                this["warmupQuestions"] = warmupQuestions || [];
+                this["gameQuestions"] = gameQuestions || [];
+                this["answeredWarmupQuestions"] = awq || [];
+                this["answeredGameQuestions"] = agq || [];
+                this["personalQuestions"] = Data["questions"]["personal"].map(function(q){
+                    q.id = new ObjectID();
+                    return q;
+                });
+                this["balance"] = startBalance || 0;
+                this["recurringInflux"] = {
+                    "rent" : -325,
+                    "food" : -400,
+                    "fun" : -200,
+                    "phone" : -50,
+                    "catFood" : -20,
+                    "other" : -200,
+                    "salary" : 0,
+                    "studentLoanPayment" : -186.43
+                };
+                this["financialAssets"] = {
+                    "capStock" : 0,
+                    "studentLoan" : -10000,
+                    "rrsp" : 0,
+                    "tfsa" : 0
+                };
+                this["savingPatterns"] = {
+                    "rrsp" : 0,
+                    "tfsa" : 0,
+                    "studentLoan" : 0
+                };
+                this["assets"] = {
+                    "studentLoanRate" : 0.045,
+                    "rrspRate" : 0,
+                    "tfsaRate" : 0,
+                    "hourlyRate" : 20,
+                    "workStatus" : 1,
+                    "productivity" : 1
+                };
+                this["recurringRandom"] = [
+                    {"probabiliby" : 0.05, "affects" : "assets.studentLoanRate", "method" : "inc", "value" : 0.005},
+                    {"probabiliby" : 0.05, "affects" : "assets.studentLoanRate", "method" : "inc", "value" : -0.005}
+                ];
+                this["questionsAnswered"] = 0;
+                this["age"] = null; 
+                this["sex"] = null;
+                this["studyProgram"] = null;
+                this["email"] = null;
+                this["salary"] = null;
+                this["englishSkills"] = null;
+                this["preferredMedia"] = [];
 };
 

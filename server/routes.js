@@ -14,6 +14,8 @@ exports.routes = [
 	{"method" : "POST", "path" : "/question", "section" : "questions", "calls" : "create"},
     
     {"method" : "GET", "path" : "/results", "section" : "user", "calls" : "getResults"},
+
+    {"method" : "GET", "path" : "/best", "section" : "bruteforce", "calls" : "tryAll"},
 	
 	//{"method" : "GET", "path" : "/resource", "section" : "resources", "calls" : "get"},
 ];

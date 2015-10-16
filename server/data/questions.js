@@ -50,6 +50,7 @@ module.exports = [
 		"subText" : "",
 		"hint" : "(Si vous voulez recevoir l’entièreté de votre salaire en argent, inscrivez 0)",
 		"answerForm" : "text",
+		"scale" : [0,1],
 		"resources" : [
 			{"id" : "", "sample" : "Let's say I invest in a startup, either with money, work, etc. In return I am given a 5% stake in the company, but no salary, benefits, etc.", "title" : "How does start-up equity end up paying off?", "thumbnail" : "", "sourceName" : "StackExchange - Money", "link" : "http://money.stackexchange.com/questions/45101/how-does-start-up-equity-end-up-paying-off"},
 			{"id" : "", "sample" : "Why do people love dividends? Because they don’t understand either corporate finance or taxes.", "title" : "Dumb Idea: Dividends Are Good For You", "thumbnail" : "", "sourceName" : "Forbes", "link" : "http://www.forbes.com/sites/baldwin/2013/03/18/dumb-idea-dividends-are-good-for-you/"},
@@ -69,8 +70,8 @@ module.exports = [
 		"hint" : "",
 		"answerForm" : "select",
 		"options" : [
-			{"id" : "1", "text" : "Vous achetez une voiture usagée à 4000$.  Elle vous coûtera 50$ par semaine en essence et 60$ par mois en assurances.  Puisqu’il s’agit d’une voiture usagée, il y a toutefois une probabilité  qu’elle tombe en panne et le prix des réparations peut varier entre 1000$ et 3000$.  À chaque panne, vous devrez également manquer du travail, ce qui résultera en d’autres pertes, allant jusqu’à 8h, en heures non-travaillées."},
-			{"id" : "2", "text" : "Vous achetez une voiture neuve à 15000$.  Vous devez la financer, sur 5 ans, à un taux annuel de 5%.  Vos paiements sont mensuels.  Les assurances vous coûteront 65$ par mois et l’essence vous en coûtera 40$ par semaine.  Puisqu’il s’agit d’un véhicule neuf, la probabilité qu’elle tombe en panne (et vous fasse donc perdre encore jusqu’à 8h de travail) est de [X].  Les réparations peuvent aller de 1000$ à 5000$."},
+			{"id" : "1", "text" : "Vous achetez une voiture usagée à 4000$.  Elle vous coûtera 50$ par semaine en essence et 60$ par mois en assurances.  Puisqu’il s’agit d’une voiture usagée, il y a toutefois une probabilité de 5% qu’elle tombe en panne et le prix des réparations peut varier entre 1000$ et 3000$.  À chaque panne, vous devrez également manquer du travail, ce qui résultera en d’autres pertes, allant jusqu’à 8h, en heures non-travaillées."},
+			{"id" : "2", "text" : "Vous achetez une voiture neuve à 15000$.  Vous devez la financer, sur 5 ans, à un taux annuel de 5%.  Vos paiements sont mensuels.  Les assurances vous coûteront 65$ par mois et l’essence vous en coûtera 40$ par semaine.  Puisqu’il s’agit d’un véhicule neuf, la probabilité qu’elle tombe en panne (et vous fasse donc perdre encore jusqu’à 8h de travail) par mois est de 1%.  Les réparations peuvent aller de 1000$ à 5000$."},
 			{"id" : "3", "text" : "Vous continuez à utiliser le service de transport en commun et votre vélo.  Une carte mensuelle vous coûte 100$.  Toutefois, à cause des intempéries ou de retards, la probabilité que vous arriviez en retard à votre travail une fois par mois, et perdiez donc une heure de salaire, est de 10%.  Aussi, il vous arrive d’utiliser l’autocar pour voyager; vous faites environ deux voyages par mois, avec un billet aller-retour qui vous coûte normalement autour de 45$.  Environ une fois par an, il vous arrive aussi de louer une voiture, ce qui vous coûte 200$ à chaque fois."}
 		],
 		"resources" : [
@@ -215,6 +216,7 @@ module.exports = [
 		"subText" : "",
 		"hint" : "",
 		"answerForm" : "text-multiple",
+		"sum" : "meanDelta",
         "additionalInfoKey" : "meanDelta",
 		"fields" : [
 			{"name" : "debt", "title" : "Remboursement"},
@@ -290,6 +292,7 @@ module.exports = [
 		"subText" : "",
 		"hint" : "",
 		"answerForm" : "text",
+		"scale" : [0,100],
 		"resources" : [
 			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
             {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
@@ -471,6 +474,8 @@ module.exports = [
 		"subText" : "",
 		"hint" : "",
 		"answerForm" : "text-multiple",
+		"sum" : "bonus",
+		"additionalInfoKey" : "bonus",
 		"fields" : [
 			{"name" : "rrsp", "title" : "RÉÉR"},
 			{"name" : "tfsa", "title" : "CÉLI"},
@@ -613,5 +618,6 @@ module.exports = [
 			{"id" : "51", "text" : "Protégez-Vous"},
 		],
 	}
-	
+
 ];
+

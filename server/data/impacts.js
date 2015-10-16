@@ -93,6 +93,7 @@ module.exports = {
 			"3" : {"instantImpact" : 0, "recurringImpact" : 0},
 			"4" : {"instantImpact" : 0, "recurringImpact" : 0}
 		},
+		"impactLess" : true,
 		"worst" : {"instantImpact" : 0, "recurringImpact" : 0}
 	},
 	"5" : {
@@ -122,6 +123,7 @@ module.exports = {
 			"3" : {"instantImpact" : 0, "recurringImpact" : 0},
 			"4" : {"instantImpact" : 0, "recurringImpact" : 0}
 		},
+		"impactLess" : true,
 		"worst" : {"instantImpact" : 0, "recurringImpact" : 0}
 	},
 	"7" : {
