@@ -294,10 +294,10 @@ module.exports = [
 		"answerForm" : "text",
 		"scale" : [0,100],
 		"resources" : [
-			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
-            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
-            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
-            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
+			{"id" : "", "sample" : "Nellie Akalp is CEO of CorpNet.com. Since forming more than 100,000 corporations and LLCs across the U.S, she has built a strong passion to assist small business owners...", "title" : "How To: Deal With Bad Clients", "thumbnail" : "Mashable", "sourceName" : "", "link" : "http://mashable.com/2011/08/03/freelancing-bad-clients/"},
+			 {"id" : "", "sample" : "chapitre C-27", "title" : "Code du Travail", "thumbnail" : "", "sourceName" : "Gouvernement du Québec", "link" : "http://www2.publicationsduquebec.gouv.qc.ca/dynamicSearch/telecharge.php?type=2&file=/C_27/C27.html"},
+            {"id" : "", "sample" : "Got a few bad-egg clients? Maybe you should fire them. That's right-I said 'Fire them.' Cut them loose.", "title" : "Fire your Bad Clients", "thumbnail" : "", "sourceName" : "Entrepreneur.com", "link" : "http://www.entrepreneur.com/article/173108"},
+            {"id" : "", "sample" : "What are the best tactics to take to convince The Powers That Be to hire additional staff?", "title" : "How can you convince your employer to hire additional staff?", "thumbnail" : "", "sourceName" : "AskAManager", "link" : "http://www.askamanager.org/2013/11/how-can-you-convince-your-employer-to-hire-additional-staff.html"}
 		]
 	},
 	{
@@ -314,11 +314,11 @@ module.exports = [
 			{"id" : "2", "text" : "Non"},
 		],
 		"resources" : [
-			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
-            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
-            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
-            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""},
-            {"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
+			{"id" : "", "sample" : "", "title" : "Comment contester une contravention?", "thumbnail" : "", "sourceName" : "Protégez-Vous", "link" : "http://www.protegez-vous.ca/automobile/comment-contester-une-contravention.html"},
+            {"id" : "", "sample" : "", "title" : "Pourquoi contester un ticket?", "thumbnail" : "", "sourceName" : "SOS Ticket.ca", "link" : "http://sosticket.ca/fr/pourquoi-contester-ticket"},
+            {"id" : "", "sample" : "", "title" : "Foire aux Questions", "thumbnail" : "", "sourceName" : "SAAQ", "link" : "http://www.saaq.gouv.qc.ca/faq/faq_csr.php"},
+            {"id" : "", "sample" : "", "title" : "Quebec-Ticket", "thumbnail" : "", "sourceName" : "Quebec-Ticket.com", "link" : "http://www.quebec-ticket.com/"},
+            {"id" : "", "sample" : "", "title" : "Code de la Sécurité Routière", "thumbnail" : "", "sourceName" : "Gouvernement du Québec", "link" : "http://www2.publicationsduquebec.gouv.qc.ca/dynamicSearch/telecharge.php?type=3&file=/C_24_2/C24_2.htm"}
 		]
 	},
 	{
@@ -425,8 +425,8 @@ module.exports = [
 		"options" : [
 			{"id" : "1", "text" : "Vous lui expliquez poliment que les problèmes de son entreprise découlent ultimement de ses décisions, pas des vôtres."},
 			{"id" : "2", "text" : "Vous le transférez derechef à votre superviseur."},
-			{"id" : "3", "text" : "Vous tentez de négocier un remboursement de [X]% des honoraires payés."},
-			{"id" : "4", "text" : "Vous offrez de travailler [X] heures gratuitement pour lui sur un prochain projet."}
+			{"id" : "3", "text" : "Vous tentez de négocier un remboursement de 10% des honoraires payés."},
+			{"id" : "4", "text" : "Vous offrez de travailler 10 heures gratuitement pour lui sur un prochain projet."}
 		],
 		"resources" : [
 			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}

@@ -48,10 +48,10 @@ window.Namespace.QuestionView = Backbone.View.extend({
 				value = String(values[this.model.get("id")]);
 			}
 		} else if (this.model.get("answerForm")=="select") {
-			$form.serializeArray().forEach(function(item){
-				if (item.value=="on") {
-					var id = (item.name || "").split("-");
-					value = id[1] || null;
+			$form.find('input').each(function(){
+				var $this = $(this);
+				if ($this.prop("checked")) {
+					value = $this.attr("id");
 				}
 			});
         } else if (this.model.get("answerForm")=="text-multiple") {    
