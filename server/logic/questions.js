@@ -91,7 +91,7 @@ exports.update = function(request, response){
                         if (addInfoKey) {
                             var addInfoValue;
                             if (addInfoKey=="meanDelta") {
-                                addInfoValue = (Math.max((newBalance - 5000)/(user.questionsAnswered+1), 0)*0.9).toFixed(2);
+                                addInfoValue = (Math.max((newBalance - previousBalance - instantImpact), 0)*0.9).toFixed(2);
                             } else if (addInfoKey=="bonus") {
                                 var bonus = 0;
                                 var dividend = 0;

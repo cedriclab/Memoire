@@ -99,17 +99,18 @@ module.exports = {
 	"5" : {
 		"result" : function(value, user){
 			var instantImpact = 0;
+			var tax = 1.14975;
 			if (value=="1") {
-				instantImpact = 1549*1.14975;
+				instantImpact = 1549*tax;
 			} else if (value=="2") {
-				instantImpact = 300.99*1.14975;
+				instantImpact = 300.99*tax;
 				user.assets.productivity *= 0.95;
 			} else if (value=="3") {
-				instantImpact = 1300.85*1.14975;
+				instantImpact = 1300.85*tax;
 			} else if (value=="4") {
-				instantImpact = 1399*1.14975;
+				instantImpact = 1199*tax;
 			} else if (value=="5") {
-				instantImpact = 2289*1.14975;
+				instantImpact = 2289*tax;
 			}
 
 			return {"instantImpact" : instantImpact, "recurringImpact" : 0};
@@ -138,7 +139,7 @@ module.exports = {
 	},
     "8" : {
 		"result" : function(value, user){
-            var amount = Math.max((user.balance - 5000)/user.questionsAnswered, 0)*0.9;
+            var amount = Math.max((user.balance - (user.answeredGameQuestions[user.questionsAnswered-1].previousBalance || 0) - (user.answeredGameQuestions[user.questionsAnswered-1].instantImpact || 0)), 0)*0.9;
             var debt = parseInt(value.debt || 0)===parseInt(value.debt || 0) ? Math.min(parseInt(value.debt || 0), amount) : 0;
             amount -= debt;
             var rrsp = parseInt(value.rrsp || 0)===parseInt(value.rrsp || 0) ? Math.min(parseInt(value.rrsp || 0), amount) : 0;
