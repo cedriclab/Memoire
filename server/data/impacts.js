@@ -151,8 +151,10 @@ module.exports = {
 	},
     "8" : {
 		"result" : function(value, user){
-            var amount = Math.max((user.balance - (user.answeredGameQuestions[user.questionsAnswered-1].previousBalance || 0) - (user.answeredGameQuestions[user.questionsAnswered-1].instantImpact || 0)), 0)*0.9;
+            var amount = Math.max((user.balance - (user.answeredGameQuestions[user.questionsAnswered-1].previousBalance || 0) - (user.answeredGameQuestions[user.questionsAnswered-1].instantImpact || 0)), 100)*0.9;
             var debt = parseInt(value.debt || 0)===parseInt(value.debt || 0) ? Math.min(parseInt(value.debt || 0), amount) : 0;
+            var yearlyRevenue = user.assets.hourlyRate*2080;
+
             amount -= debt;
             var rrsp = parseInt(value.rrsp || 0)===parseInt(value.rrsp || 0) ? Math.min(parseInt(value.rrsp || 0), amount) : 0;
             if (rrsp) {
@@ -245,16 +247,16 @@ module.exports = {
                 } else {
                     instantImpact = 500;
                     user.assets.productivity *= 0.99;
-                    user.recurringInflux["recurringInflux"].catFood = 0;
+                    user.recurringInflux.catFood = 0;
                 }
             } else if (value=="2") {
                 if (Data.randoms.catIsSick > 0.5) {
                     user.assets.productivity *= 0.99;
-                    user.recurringInflux["recurringInflux"].catFood = 0;
+                    user.recurringInflux.catFood = 0;
                 } 
             } else {
                 if (Data.randoms.catIsSick < 0.5) {
-                    user.recurringInflux["recurringInflux"].catFood *= 2;
+                    user.recurringInflux.catFood *= 2;
                 } else {
                     user.assets.productivity *= 0.99;
                 }

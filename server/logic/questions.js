@@ -104,7 +104,7 @@ exports.update = function(request, response){
                         if (addInfoKey) {
                             var addInfoValue;
                             if (addInfoKey=="meanDelta") {
-                                addInfoValue = (Math.max((newBalance - previousBalance - instantImpact), 0)*0.9).toFixed(2);
+                                addInfoValue = (Math.max((newBalance - previousBalance - instantImpact), 100)*0.9).toFixed(2);
                             } else if (addInfoKey=="clientProfit") {
                                 addInfoValue = (200000*(1-Math.log(1+(user.assets.timeSpentWithDifficultClient || 0)))).toFixed(2);
                             } else if (addInfoKey=="bonus") {

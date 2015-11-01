@@ -115,6 +115,7 @@ exports.playTurn = function(user, baseImpact, turn, save){
                 user.savingPatterns[saveKey] = 0;
             }
             user.balance -= amount;
+            console.log("Computing savings for ["+saveKey+"] at "+String(amount)+"$")
         }
     });
 
