@@ -1,8 +1,14 @@
 module.exports = {
 	"1" : {
 		"result" : function(value, user){
-			var pv = Math.abs(parseFloat(value || 0));
-			value = pv===pv ? (pv<=1 ? pv : pv/100) : 0;
+            var vals = {
+                "1" : 0,
+                "2" : 0.01,
+                "3" : 0.05,
+                "4" : 0.10,
+            };
+			var pv = Math.abs(parseFloat(vals[value] || 0));
+			value = pv;
 
 			var yearlyRevenue = user.assets.hourlyRate*2080;
 			var monthlyRevenue = 0;
@@ -27,7 +33,13 @@ module.exports = {
 	"2" : {
 		"result" : function(value, user){
 			if (value=="1") {
-				user.balance -= 4000;
+                if (user.balance > 4000) {
+                    user.balance -= 4000;
+                } else {
+                    user.financialAssets["carLoan"] = -4000;
+                    user.assets["carLoanRate"] = 0.06;
+                    user.recurringInflux["carLoanPayment"] = -77.33;
+                }
 				user.recurringInflux["gas"] = -216.67;
 				user.recurringInflux["carInsurance"] = -60;
 				user.recurringRandom.push({
@@ -177,6 +189,19 @@ module.exports = {
 	},
 	"11" : {
 		"result" : function(value, user){
+            var vals = {
+                "1" : 0,
+                "2" : 1,
+                "3" : 10,
+                "4" : 50,
+            };
+            value = vals[value] || 0;
+            
+            var factor = 1+Math.log(1+value);
+            user.assets.companyStanding *= factor;
+            user.assets.workStatus *= factor;
+            user.assets.productivity /= (factor*factor);
+            user.assets.timeSpentWithDifficultClient = value;
 			return {"instantImpact" : 0, "recurringImpact" : 0};
 		},
 		"worst" : {"instantImpact" : 0, "recurringImpact" : 0}
@@ -212,8 +237,30 @@ module.exports = {
 		"worst" : {"instantImpact" : 0, "recurringImpact" : 0}
 	},
 	"14" : {
-		"result" : {
-			"1" : {"instantImpact" : 0, "recurringImpact" : 0}
+		"result" : function(value, user){
+            var instantImpact = 0;
+			if (value=="1") {
+                if (Data.randoms.catIsSick < 0.5) {
+                    instantImpact = 100;
+                } else {
+                    instantImpact = 500;
+                    user.assets.productivity *= 0.99;
+                    user.recurringInflux["recurringInflux"].catFood = 0;
+                }
+            } else if (value=="2") {
+                if (Data.randoms.catIsSick > 0.5) {
+                    user.assets.productivity *= 0.99;
+                    user.recurringInflux["recurringInflux"].catFood = 0;
+                } 
+            } else {
+                if (Data.randoms.catIsSick < 0.5) {
+                    user.recurringInflux["recurringInflux"].catFood *= 2;
+                } else {
+                    user.assets.productivity *= 0.99;
+                }
+            }
+            
+            return {"instantImpact" : instantImpact, "recurringImpact" : 0};
 		},
 		"worst" : {"instantImpact" : 0, "recurringImpact" : 0}
 	},
@@ -224,32 +271,105 @@ module.exports = {
 		"worst" : {"instantImpact" : 0, "recurringImpact" : 0}
 	},
 	"16" : {
-		"result" : {
-			"1" : {"instantImpact" : 0, "recurringImpact" : 0}
+		"result" : function(value, user){
+			var instantImpact = 0;
+            if (value=="1") {
+                user.assets.productivity *= 0.99;
+            } else if (value=="2") {
+    
+            } else if (value=="3") {    
+                user.assets.workStatus *= 0.98;
+                user.assets.productivity *= 0.95;
+            } else {
+                user.assets.workStatus *= 0.99;
+                user.assets.productivity *= 0.95;
+            }    
+            
+            return {"instantImpact" : instantImpact, "recurringImpact" : 0};
 		},
 		"worst" : {"instantImpact" : 0, "recurringImpact" : 0}
 	},
 	"17" : {
-		"result" : {
-			"1" : {"instantImpact" : 0, "recurringImpact" : 0}
+		"result" : function(value, user){
+			var instantImpact = 0;
+            if (value=="1") {
+                user.assets.companyStanding *= 0.7;
+                user.assets.workStatus *= 0.9;
+            } else if (value=="2") {
+                user.assets.companyStanding *= 0.99;
+                user.assets.workStatus *= 0.8;
+            } else if (value=="3") {    
+                user.assets.companyStanding *= 0.95;
+                user.assets.workStatus *= 0.99;
+            } else {
+                user.assets.companyStanding *= 0.95;
+                user.assets.workStatus *= 1.01;
+            }    
+            
+            return {"instantImpact" : instantImpact, "recurringImpact" : 0};
 		},
 		"worst" : {"instantImpact" : 0, "recurringImpact" : 0}
 	},
 	"18" : {
-		"result" : {
-			"1" : {"instantImpact" : 0, "recurringImpact" : 0}
+		"result" : function(value, user){
+			var instantImpact = 0;
+            if (value=="1") {
+                
+            } else if (value=="2") {
+                
+            } else if (value=="3") {    
+                
+            } else {
+                
+            }    
+            
+            return {"instantImpact" : instantImpact, "recurringImpact" : 0};
 		},
 		"worst" : {"instantImpact" : 0, "recurringImpact" : 0}
 	},
 	"19" : {
-		"result" : {
-			"1" : {"instantImpact" : 0, "recurringImpact" : 0}
+		"result" : function(value, user){
+			var instantImpact = 0;
+            if (value=="1") {
+                user.assets.companyStanding *= 1.15;
+                user.assets.workStatus *= 1.05;
+                user.assets.productivity *= 1.02;
+            } else if (value=="2") {
+                user.assets.companyStanding *= 0.95;
+                user.assets.workStatus *= 0.99;
+            } else if (value=="3") {    
+                user.assets.productivity *= 0.99;
+            } else {
+                user.assets.companyStanding *= 1.1;
+                user.assets.workStatus *= 1.01;
+                user.assets.productivity *= 1.02;
+            }    
+            
+            return {"instantImpact" : instantImpact, "recurringImpact" : 0};
 		},
 		"worst" : {"instantImpact" : 0, "recurringImpact" : 0}
 	},
 	"20" : {
 		"result" : function(value, user){
-			return {"instantImpact" : 0, "recurringImpact" : 0};
+            var bonus = 5000*user.assets.workStatus*user.assets.productivity;
+            var rate = Math.log(1+(Data.randoms.businessGrowth*user.assets.companyStanding));
+            var dividend = (rate*user.financialAssets.capStock);
+            var yearlyRevenue = user.assets.hourlyRate*2080;
+            
+            var amount = bonus+dividend;
+            var tfsa = parseInt(value.tfsa || 0)===parseInt(value.tfsa || 0) ? Math.min(parseInt(value.tfsa || 0), amount) : 0;
+            amount -= tfsa;
+            var rrsp = parseInt(value.rrsp || 0)===parseInt(value.rrsp || 0) ? Math.min(parseInt(value.rrsp || 0), amount) : 0;
+            if (rrsp) {
+                var oldSalary = user.recurringInflux.salary*12;
+                var netIncome = Application.user.getNetIncome(yearlyRevenue, rrsp*12);
+                user.balance += (netIncome - oldSalary);
+            }
+            amount -= rrsp;
+            user.financialAssets.tfsa += tfsa;
+            user.financialAssets.rrsp += rrsp;
+            
+			return {"instantImpact" : amount, "recurringImpact" : 0};
 		},
 		"worst" : {"instantImpact" : 0, "recurringImpact" : 0}
 	}

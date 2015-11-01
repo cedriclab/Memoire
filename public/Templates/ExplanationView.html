@@ -11,13 +11,13 @@
 
 <div class="row explanation-bit">
 	<div class="col s12">
-		<p class="flow-text">Dans ce jeu-questionnaire, vous aurez à faire des choix de nature économique.  <b>Trois</b> questions de réchauffement et <b>12</b> questions de jeu vous seront posées.</p>
+		<p class="flow-text">Dans ce jeu-questionnaire, vous aurez à faire des choix de nature économique.  <b>Trois</b> questions de réchauffement et <b><% print(Constants.QUESTION_COUNT) %></b> questions de jeu vous seront posées.</p>
 	</div>
 </div>
 
 <div class="row explanation-bit">
 	<div class="col s12">
-		<h5 class="flow-text">Ces 12 questions représentent une année de vie d'une jeune personne dans la vingtaine.  <b>Vos réponses à chacune des questions ont un impact pour tout le reste du jeu</b>. Cela implique donc que vos choix à certaines questions impliquent des paiements ou des revenus récurrents à chaque tour!</h5>
+		<h5 class="flow-text">Ces <% print(Constants.QUESTION_COUNT) %> questions représentent une année de vie d'une jeune personne dans la vingtaine.  <b>Vos réponses à chacune des questions ont un impact pour tout le reste du jeu</b>. Cela implique donc que vos choix à certaines questions impliquent des paiements ou des revenus récurrents à chaque tour!</h5>
 		<h5 class="flow-text">Votre objectif est de maximiser la situation où vos choix cette &laquo;année&raquo; vous mèneraient dans <b>5</b> ans.</h5>
 	</div>
 </div>
@@ -38,11 +38,13 @@
 
 <div class="row explanation-bit">
 	<div class="col s12">
-		<p class="flow-text">Pour vous remercier de votre participation et vous compenser pour votre temps, un montant vous sera octroyé sous forme de crédit <a href="https://paypal.com" target="_blank">PayPal</a>, envoyé à l'adresse courriel que vous aurez indiqué.  Le montant sera calculé comme suit: </p>
-		<ul class="collection">
-			<li class="collection-item">- un montant de base de 10$</li>
-			<li class="collection-item">- un supplément de 5$, en fonction de la qualité des choix que vous effectuerez dans le cadre du jeu</li>
-		</ul>
+        <% if (Constants.HAS_PAYPAL_PAYMENT) { %>
+            <p class="flow-text">Pour vous remercier de votre participation et vous compenser pour votre temps, un montant vous sera octroyé sous forme de crédit <a href="https://paypal.com" target="_blank">PayPal</a>, envoyé à l'adresse courriel que vous aurez indiqué.  Le montant sera calculé comme suit: </p>
+            <ul class="collection">
+                <li class="collection-item">- un montant de base de 10$</li>
+                <li class="collection-item">- un supplément de 5$, en fonction de la qualité des choix que vous effectuerez dans le cadre du jeu</li>
+            </ul>
+        <% } %>
 		<h4 class="teal-text">Bonne chance!</h4>
 	</div>
 </div>

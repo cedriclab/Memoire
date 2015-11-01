@@ -140,8 +140,7 @@ exports.playTurn = function(user, baseImpact, turn, save){
 
 exports.create = function(request, response){
 	console.log("CREATE");
-	console.log(request.cookies);
-	console.log(request.body);
+    console.log(request.headers["user-agent"]);
 	console.log(" ");
 	var body = request.body || {};
 	var now = Date.now();
@@ -176,7 +175,7 @@ exports.create = function(request, response){
 */
 		MongoClient.connect(DBConnectionString, function(err, db) {
 			var _id = new ObjectID();
-			db.collection("users").insert((new Application.user.User(_id, warmupQuestions, gameQuestions, awq, agq, startBalance)), function(){
+			db.collection("users").insert((new Application.user.User(_id, request.headers["user-agent"], warmupQuestions, gameQuestions, awq, agq, startBalance)), function(){
 				db.close();
 				response.contentType("application/json");
 				response.send({"id" : _id, "balance" : startBalance});
@@ -193,7 +192,7 @@ exports.getNetIncome = function(grossIncome, deductions){
     return grossIncome - provIncomeTax - fedIncomeTax;
 };
 
-exports.User = function(_id, warmupQuestions, gameQuestions, awq, agq, startBalance){
+exports.User = function(_id, userAgent, warmupQuestions, gameQuestions, awq, agq, startBalance){
 
                 this["_id"] = _id || new ObjectID();
                 this["timeLoggedIn"] = Date.now();
@@ -233,13 +232,16 @@ exports.User = function(_id, warmupQuestions, gameQuestions, awq, agq, startBala
                     "tfsaRate" : 0,
                     "hourlyRate" : 20,
                     "workStatus" : 1,
-                    "productivity" : 1
+                    "productivity" : 1,
+                    "companyStanding" : 1,
+                    "timeSpentWithDifficultClient" : 0
                 };
                 this["recurringRandom"] = [
                     {"probabiliby" : 0.05, "affects" : "assets.studentLoanRate", "method" : "inc", "value" : 0.005},
                     {"probabiliby" : 0.05, "affects" : "assets.studentLoanRate", "method" : "inc", "value" : -0.005}
                 ];
                 this["questionsAnswered"] = 0;
+                this["userAgent"] = userAgent || null;
                 this["age"] = null; 
                 this["sex"] = null;
                 this["studyProgram"] = null;

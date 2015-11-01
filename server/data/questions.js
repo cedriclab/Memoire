@@ -49,8 +49,14 @@ module.exports = [
 		"text" : "Vous venez de terminer vos études et, suite à une entrevue que vous avez passée dans une petite entreprise en démarrage, vous recevez un coup de fil vous informant que vous avez obtenu l’emploi.  Félicitations!\nOn vous offre un salaire de 20$ de l’heure, soit 41600$ par an.  Puisque l’entreprise en est encore à ses débuts et a de forts besoins de matière de financement, on vous propose de recevoir une portion de votre salaire en actions de l’entreprise.  Ainsi, si, dans quelques années, l’entreprise fonctionne bien et est rentable, vous percevrez des dividendes et pourrez même revendre ces actions à un prix plus élevé; par contre, si l’entreprise doit déclarer faillite, cela implique que la part de salaire que vous aurez investie ne vaudra plus rien.\nQuel pourcentage de votre salaire acceptez-vous de recevoir en actions?",
 		"subText" : "",
 		"hint" : "(Si vous voulez recevoir l’entièreté de votre salaire en argent, inscrivez 0)",
-		"answerForm" : "text",
+		"answerForm" : "select",
 		"scale" : [0,1],
+        "options" : [
+			{"id" : "1", "text" : "0%"},
+			{"id" : "2", "text" : "1%"},
+            {"id" : "3", "text" : "5%"},
+			{"id" : "4", "text" : "10%"},
+		],
 		"resources" : [
 			{"id" : "", "sample" : "Let's say I invest in a startup, either with money, work, etc. In return I am given a 5% stake in the company, but no salary, benefits, etc.", "title" : "How does start-up equity end up paying off?", "thumbnail" : "", "sourceName" : "StackExchange - Money", "link" : "http://money.stackexchange.com/questions/45101/how-does-start-up-equity-end-up-paying-off"},
 			{"id" : "", "sample" : "Why do people love dividends? Because they don’t understand either corporate finance or taxes.", "title" : "Dumb Idea: Dividends Are Good For You", "thumbnail" : "", "sourceName" : "Forbes", "link" : "http://www.forbes.com/sites/baldwin/2013/03/18/dumb-idea-dividends-are-good-for-you/"},
@@ -164,7 +170,7 @@ module.exports = [
 		"index" : "6",
 		"section" : "game",
 		"title" : "",
-		"text" : "Un autre ami, adepte des théories du complot et du survivalisme, a décidé de se faire une cache dans les bois afin d’être prêt à survivre à l’effondrement de la civilisation occidentale.  Il vous demande votre aide pour choisir efficacement de quoi garnir son garde-manger.\nVeuillez choisir l’un des quatre paniers de denrées suivants:",
+		"text" : "Un autre ami, adepte des théories du complot et du survivalisme, a décidé de se faire une cache dans les bois afin d’être prêt à survivre à l’effondrement de la civilisation occidentale.  Il vous demande votre aide pour choisir efficacement de quoi garnir son garde-manger de secours.\nVeuillez choisir l’un des quatre paniers de denrées suivants:",
 		"subText" : "",
 		"hint" : "",
 		"answerForm" : "select",
@@ -288,11 +294,18 @@ module.exports = [
 		"index" : "11",
 		"section" : "game",
 		"title" : "",
-		"text" : "Un client important de l’entreprise où vous travaillez vous appelle.  C’est une personne qui est, pour le dire poliment, difficile.  Il arrive toutefois à un bien mauvais moment, puisque vous êtes déjà débordé.\nIl vous demande d’évaluer un projet dont il estime qu’il retirera un bénéfice de 200 000$.  Ce client paie les services de votre entreprise 100$/l’heure.\nCombien de temps consacrez-vous personellement à sa requête?  Suggérez-vous à votre supérieur de considérer la possibilité d’engager une nouvelle ressource pour s’occuper de ce dossier (et en enlever de vos épaules déjà surchargées)?",
+		//"text" : "Un client important de l’entreprise où vous travaillez vous appelle.  C’est une personne qui est, pour le dire poliment, difficile.  Il arrive toutefois à un bien mauvais moment, puisque vous êtes déjà débordé.\nIl vous demande d’évaluer un projet dont il estime qu’il retirera un bénéfice de 200 000$.  Ce client paie les services de votre entreprise 100$/l’heure.\nCombien de temps consacrez-vous personellement à sa requête?  Suggérez-vous à votre supérieur de considérer la possibilité d’engager une nouvelle ressource pour s’occuper de ce dossier (et en enlever de vos épaules déjà surchargées)?",
+        "text" : "Un client important de l’entreprise où vous travaillez vous appelle.  C’est une personne qui est, pour le dire poliment, difficile.  Il arrive toutefois à un bien mauvais moment, puisque vous êtes déjà débordé.\nIl vous demande d’évaluer un projet dont il estime qu’il retirera un bénéfice de 200 000$.  Ce client paie les services de votre entreprise 100$/l’heure.\nCombien de temps consacrez-vous personellement à sa requête?",
 		"subText" : "",
 		"hint" : "",
-		"answerForm" : "text",
+		"answerForm" : "select",
 		"scale" : [0,100],
+        "options" : [
+			{"id" : "1", "text" : "Pas de temps pour ça, tant pis!"},
+			{"id" : "2", "text" : "1 heure"},
+            {"id" : "3", "text" : "10 heures"},
+			{"id" : "4", "text" : "50 heures"},
+		],
 		"resources" : [
 			{"id" : "", "sample" : "Nellie Akalp is CEO of CorpNet.com. Since forming more than 100,000 corporations and LLCs across the U.S, she has built a strong passion to assist small business owners...", "title" : "How To: Deal With Bad Clients", "thumbnail" : "Mashable", "sourceName" : "", "link" : "http://mashable.com/2011/08/03/freelancing-bad-clients/"},
 			 {"id" : "", "sample" : "chapitre C-27", "title" : "Code du Travail", "thumbnail" : "", "sourceName" : "Gouvernement du Québec", "link" : "http://www2.publicationsduquebec.gouv.qc.ca/dynamicSearch/telecharge.php?type=2&file=/C_27/C27.html"},
@@ -422,10 +435,11 @@ module.exports = [
 		"index" : "17",
 		"section" : "game",
 		"title" : "",
-		"text" : "Votre client préféré au travail - le même que tout à l’heure - vous rappelle et est de mauvaise humeur.  Le projet sur lequel vous avez travaillé précédemment, dont il estimait pouvoir tirer 200 000$, ne lui en a finalement rapporté que [montant dépendant du temps investi précédemment].  Après une pluie d’insulte, il demande un remboursement total des honoraires versés à votre entreprise.\nQue faites-vous?",
+		"text" : "Votre client préféré au travail - le même que tout à l’heure - vous rappelle et est de mauvaise humeur.  Le projet sur lequel vous avez travaillé précédemment, dont il estimait pouvoir tirer 200 000$, ne lui en a finalement rapporté que %s.  Après une pluie d’insulte, il demande un remboursement total des honoraires versés à votre entreprise.\nQue faites-vous?",
 		"subText" : "",
 		"hint" : "",
 		"answerForm" : "select",
+        "additionalInfoKey" : "clientProfit",
 		"options" : [
 			{"id" : "1", "text" : "Vous lui expliquez poliment que les problèmes de son entreprise découlent ultimement de ses décisions, pas des vôtres."},
 			{"id" : "2", "text" : "Vous le transférez derechef à votre superviseur."},
@@ -440,8 +454,7 @@ module.exports = [
             {"id" : "", "sample" : "chapitre C-27", "title" : "Code du Travail", "thumbnail" : "", "sourceName" : "Gouvernement du Québec", "link" : "http://www2.publicationsduquebec.gouv.qc.ca/dynamicSearch/telecharge.php?type=2&file=/C_27/C27.html"},
             {"id" : "", "sample" : "Got a few bad-egg clients? Maybe you should fire them. That's right-I said 'Fire them.' Cut them loose.", "title" : "Fire your Bad Clients", "thumbnail" : "", "sourceName" : "Entrepreneur.com", "link" : "http://www.entrepreneur.com/article/173108"},
             {"id" : "", "sample" : "What are the best tactics to take to convince The Powers That Be to hire additional staff?", "title" : "How can you convince your employer to hire additional staff?", "thumbnail" : "", "sourceName" : "AskAManager", "link" : "http://www.askamanager.org/2013/11/how-can-you-convince-your-employer-to-hire-additional-staff.html"}
-		],
-        "rawData" : {"title" : "Tableau comparatif", "link" : "/Contents/xlsx/Bureaux.xlsx"}
+		]
 	},
 	{
 		"id" : "21",
@@ -470,21 +483,24 @@ module.exports = [
 		"hint" : "",
 		"answerForm" : "select",
 		"options" : [
-			{"id" : "1", "text" : ""},
-            {"id" : "2", "text" : ""},
-            {"id" : "3", "text" : ""},
-            {"id" : "4", "text" : ""}
+			{"id" : "1", "text" : "Louer un espace de 2000 pieds carrés au centre-ville (loyer de 2000$/mois) et le meubler pour 20 000$."},
+            {"id" : "2", "text" : "Vous inscrire à un espace de co-travail.  Les frais sont de 250$/mois, par employé."},
+            {"id" : "3", "text" : "Acheter un bâtiment de 5000 pieds carrés à Rock Forrest pour 300 000$.  Vous devez aussi faire pour 50 000$ de rénovations et le meubler pour 20 000$."},
+            {"id" : "4", "text" : "Acheter un terrain au centre-ville (60 000$) et construire un immeuble de 10 000 pieds carrés (coût : 500 000$), le meubler (20 000$) et louer la partie que vous n’utilisez pas."}
 		],
 		"resources" : [
-            {"id" : "", "sample" : "Faits saillants", "title" : "Rapport Sur le marchÉ Locatif", "thumbnail" : "", "sourceName" : "SCHL", "link" : "http://www.cmhc-schl.gc.ca/odpub/esub/64449/64449_2014_A01.pdf"},
+            {"id" : "", "sample" : "Faits saillants", "title" : "Rapport Sur le marché Locatif", "thumbnail" : "", "sourceName" : "SCHL", "link" : "http://www.cmhc-schl.gc.ca/odpub/esub/64449/64449_2014_A01.pdf"},
             {"id" : "", "sample" : "", "title" : "Rapport annuel 2012", "thumbnail" : "", "sourceName" : "CommerceSherbrooke", "link" : "http://commercesherbrooke.com/wp-content/uploads/2015/05/Rapport-annuel-2012.pdf"}, 
             {"id" : "", "sample" : "For some startup founders, working from home or out of someone's living room is fine when you're first getting off the ground.", "title" : "Shared Office Space: What Your Small Business Needs to Know", "thumbnail" : "", "sourceName" : "BusinessNewsDaily", "link" : "http://www.businessnewsdaily.com/7902-smb-coworking-spaces.html"}, 
+            {"id" : "", "sample" : "", "title" : "Rôle d'évaluation et compte de taxes", "thumbnail" : "", "sourceName" : "Ville de Sherbrooke", "link" : "https://www.ville.sherbrooke.qc.ca/services-municipaux/service-des-finances/role-devaluation-et-compte-de-taxes/"},
             {"id" : "", "sample" : "", "title" : "Bâtiments et locaux industriels", "thumbnail" : "", "sourceName" : "Sherbrooke Innopole", "link" : "http://batiments.sherbrooke-innopole.com/"}, 
             {"id" : "", "sample" : "Le lancement du nouvel incubateur d'entreprises de Sherbrooke, Espace-INC, aura lieu mercredi dans ses locaux de la rue Marquette.", "title" : "L'incubateur Espace-INC ouvrira ses portes mercredi", "thumbnail" : "", "sourceName" : "La Tribune", "link" : "http://www.lapresse.ca/la-tribune/economie-et-innovation/201503/20/01-4853912-lincubateur-espace-inc-ouvrira-ses-portes-mercredi.php"}, 
             {"id" : "", "sample" : "L'une des décisions les plus difficiles pour de nombreux entrepreneurs est celle d'acheter ou de louer leur établissement commercial.", "title" : "Décision délicate: louer ou acheter votre espace", "thumbnail" : "", "sourceName" : "BDC", "link" : "http://www.bdc.ca/FR/articles-outils/strategie-affaires-planification/gerer-affaires/Pages/immeubles-commerciaux-acheter-louer.aspx"}, 
             {"id" : "", "sample" : "Business rivalry is becoming tougher, competitive pressure is increasing.", "title" : "The 5 Main Office Trends for 2015", "thumbnail" : "", "sourceName" : "Wiesner-Hager", "link" : "http://www.wiesner-hager.com/en/press/the-5-main-office-trends-for-2015-67/"}, 
+            {"id" : "", "sample" : "", "title" : "Calculatrice de prêt", "thumbnail" : "http://www4.bmo.com/images/bmobankpopup_fr.gif", "sourceName" : "BMO - Banque de Montréal", "link" : "http://www4.bmo.com/popup/prets/Calculator.html"},
             {"id" : "", "sample" : "La construction d'un bâtiment commercial exige un investissement énorme en temps et argent. Vous devez donc avant tout vous assurer de prendre la bonne direction. ", "title" : "Construire son bâtiment commercial: 12 conseils pour ériger des assises solides", "thumbnail" : "", "sourceName" : "DBC", "link" : "http://www.bdc.ca/FR/articles-outils/strategie-affaires-planification/gerer-affaires/Pages/nouveau-batiment-commercial-12-conseils.aspx"}
-		]
+		],
+        "rawData" : {"title" : "Tableau comparatif", "link" : "/Contents/xlsx/Bureaux.xlsx"}
 	},
 	{
 		"id" : "23",
@@ -503,8 +519,17 @@ module.exports = [
 			{"name" : "spoil", "title" : "Pour me gâter"}
 		],
 		"resources" : [
-			{"id" : "", "sample" : "", "title" : "", "thumbnail" : "", "sourceName" : "", "link" : ""}
-		]
+			{"id" : "", "sample" : "Les liens suivant donnent accès aux renseignements pour les rentiers, cotisants, et bénéficiaires des régimes enregistrés pour la retraite, l'achat ou la construction d'une habitation admissible, ou pour l'éducation permanente.", "title" : "REER et régimes connexes", "thumbnail" : "", "sourceName" : "Agence du Revenu du Canada", "link" : "http://www.cra-arc.gc.ca/tx/ndvdls/tpcs/rrsp-reer/menu-fra.html"},
+            {"id" : "", "sample" : "Vous avez 21 ans, vous venez de terminer vos études et d’entamer une carrière, et pour la première fois de votre vie, vous avez mis un peu d’argent de côté.", "title" : "L’importance de commencer jeune à épargner et à investir!", "thumbnail" : "", "sourceName" : "Groupe Investors", "link" : "http://www.groupeinvestors.com/fr/dans-les-medias/articles/placements/l-importance-de-commencer-jeune"},
+            {"id" : "", "sample" : "Le compte d’épargne libre d’impôt (CELI) est un instrument d’épargne enregistré, souple et d’usage général, qui permet aux Canadiennes et aux Canadiens de gagner un revenu de placement libre d’impôt afin de combler plus facilement leurs besoins d’épargne tout au long de leur vie.", "title" : "Épargnez de l'argent grâce au compte d'épargne libre d'impôt", "thumbnail" : "", "sourceName" : "Gouvernement du Canada", "link" : "http://www.celi.gc.ca/"},
+            {"id" : "", "sample" : "The millennial generation, a group encompassing people from those who are about 18 years old to those already into their early 30s, is educated, digitally savvy and community-minded.", "title" : "Millennials will get shortchanged in retirement", "thumbnail" : "", "sourceName" : "CNBC", "link" : "http://www.cnbc.com/2014/12/08/millennials-will-get-shortchanged-in-retirement.html"},
+            {"id" : "", "sample" : "Le bilan personnel sert à établir la valeur nette d’une personne à une date donnée.", "title" : "Qui paye ses dettes s'enrichit", "thumbnail" : "", "sourceName" : "Les Affaires", "link" : "http://www.lesaffaires.com/mes-finances/planification/qui-paye-ses-dettes-s-enrichit/568644"},
+            {"id" : "", "sample" : "After eight years of monthly payments, we finally managed to pay off our student loans last month.", "title" : "Pay Off Student Loans Or Save?", "thumbnail" : "", "sourceName" : "CanadianFinanceBlog", "link" : "http://canadianfinanceblog.com/pay-off-student-loans-or-save/"},
+            {"id" : "", "sample" : "I recently graduated from school with about $35k in student loans. I have the capability of paying off the entire amount in about another year and a half but like all student loans I can pay it over 20-30 years at a 5.5% rate.", "title" : "Pay off student loans or save for downpayment on condo?", "thumbnail" : "", "sourceName" : "StreetEasy", "link" : "http://streeteasy.com/talk/discussion/18284-pay-off-student-loans-or-save-for-down-payment-on-a-condo"},
+            {"id" : "", "sample" : "Suivez la règle : consacrez au moins 10 % à l’épargne!", "title" : "Consacrez au moins 10 % à l’épargne-retraite", "thumbnail" : "", "sourceName" : "QuestionRetraite.qc.ca", "link" : "http://www.questionretraite.qc.ca/fr/chroniques/consacrez-au-moins-10-a-lepargne-retraite/"},
+            {"id" : "", "sample" : "", "title" : "Tables d'impôts", "thumbnail" : "", "sourceName" : "Desjardins", "link" : "https://www.desjardins.com/ressources/pdf/table-impot-p-quebec-2015-f.pdf?resVer=1425482649000"}
+		],
+        "rawData" : {"title" : "Classeur Excel", "link" : "/Contents/xlsx/Epargne.xlsx"}
 	},
 	{
 		"id" : "24",
@@ -553,7 +578,8 @@ module.exports = [
 		"title" : "Adresse courriel *",
 		"text" : "",
 		"subText" : "",
-		"hint" : "Sera seulement utilisée pour le virement PayPal, et sera supprimée ensuite.",
+		//"hint" : "Sera seulement utilisée pour le virement PayPal, et sera supprimée ensuite.",
+        "hint" : "",
 		"answerForm" : "text"
 	},
 	{

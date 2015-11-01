@@ -30,7 +30,7 @@ window.Namespace.UserModel = Backbone.Model.extend({
 	},
 
 	isDone : function(){
-		if (App.gameView && App.gameView.collection) {
+		/*if (App.gameView && App.gameView.collection) {
 			for (var j=0; j<App.gameView.collection.models.length; j++) {
 				if (!this.hasAnswered(j+1)) {
 					console.log(j+1);
@@ -39,7 +39,8 @@ window.Namespace.UserModel = Backbone.Model.extend({
 			}
 			return true;
 		} 
-		return false;
+		return false;*/
+        return true;
 	}
 
 });
