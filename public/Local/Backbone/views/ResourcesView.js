@@ -37,6 +37,7 @@ window.Namespace.ResourcesView = Backbone.View.extend({
 		this.model.useAdvice(function(){
             console.log(this.model.get("adviceText"));
             App.gameView.$el.find('[data-anchor="Resource"]').first().empty().append('<h3>Conseil d\'expert</h3><p class="flow-text">'+this.model.get("adviceText")+'</p>');
+            $("html, body").animate({ scrollTop: 0 }, 200);
             if (this.model.get("newBalance")) {
                 App.headerView.setScore(this.model.get("newBalance").toFixed(2));
             }

@@ -9,7 +9,7 @@ for (var i=0; i<60; i++) {
     Data["randoms"]["recurring"][i] = [];
 }
 //sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 3000
-var randomVariables = ["gasUp", "gasDown", "caughtMeetingRecruiter", "winTicketContest", "carProblemSeverity", "catIsSick", "businessGrowth", "isReallySick"];
+var randomVariables = ["gasUp", "gasDown", "winsAtRegie", "caughtMeetingRecruiter", "winTicketContest", "carProblemSeverity", "catIsSick", "businessGrowth", "isReallySick"];
 randomVariables.forEach(function(variable){
   Data["randoms"][variable] = Math.random();
 });

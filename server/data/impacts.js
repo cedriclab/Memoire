@@ -82,7 +82,11 @@ module.exports = {
 				user.recurringInflux.rent = -275;
 				user.balance -= 975;
 			} else if (value=="2") {
-
+				if (Data.randoms["winsAtRegie"] > 0.9) {
+    				user.balance += 325;
+    			} else {
+    				user.balance -= 325;
+    			}
 			} else if (value=="3") {
 				if (user.recurringInflux.gas) {
 					user.balance += user.recurringInflux.gas*10;
@@ -278,7 +282,7 @@ module.exports = {
             if (value=="1") {
                 user.assets.productivity *= 0.99;
             } else if (value=="2") {
-    
+
             } else if (value=="3") {    
                 user.assets.workStatus *= 0.98;
                 user.assets.productivity *= 0.95;

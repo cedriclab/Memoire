@@ -32,7 +32,8 @@ window.Namespace.PersonalQuestionView = Backbone.View.extend({
                 if (!values[id]) {
                     values[id] = [];
                 }
-                if ($this.val()=="on") {
+                console.log($this.prop("checked"));
+                if ($this.prop("checked")) {
                     values[id].push($this.data("option"));
                 }
             } else if ($this.data("option")) {
@@ -46,7 +47,7 @@ window.Namespace.PersonalQuestionView = Backbone.View.extend({
                 values[id] = String($this.val() || "");
             }
         });
-        
+        console.log(values);
 		//var values = $form.serializeArray().reduce(function(object, item){object[item.name] = item.value; return object;}, {});
 		return values;
 	},
