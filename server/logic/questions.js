@@ -81,6 +81,7 @@ exports.update = function(request, response){
                             data[q.attribute] = q.parser(info.value);
                         }
                     });
+					data["finished"] = true;
                 }
 	       
             } catch (e) {
@@ -98,7 +99,7 @@ exports.update = function(request, response){
                     var newBalance = 0;
                     try {
                         newBalance = Application.user.playTurn(user, instantImpact, null, true);
-                        var nq = Data.questions.game[Data.data.questionOrder[parseInt(request.body.nominalIndex)-1]];
+                        var nq = Data.questionsByID.game[String(Data.data.questionOrder[parseInt(request.body.nominalIndex)])];
                         var addInfoKey = nq ? nq.additionalInfoKey : null;
 
                         if (addInfoKey) {

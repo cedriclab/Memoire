@@ -567,8 +567,13 @@ module.exports = [
 		"options" : [
 			{"id" : "econ", "text" : "Économie"},
 			{"id" : "mark", "text" : "Marketing"},
+			{"id" : "admin", "text" : "Administration"},
+			{"id" : "grh", "text" : "Gestion des ressources humaines"},
+			{"id" : "compta", "text" : "Comptabilité"},
+			{"id" : "finance", "text" : "Finance"},
 			{"id" : "math", "text" : "Mathématiques"},
 			{"id" : "psy", "text" : "Psychologie"},
+			{"id" : "autre", "text" : "Autre"},
 		],
 	},
 	{
@@ -578,8 +583,7 @@ module.exports = [
 		"title" : "Adresse courriel *",
 		"text" : "",
 		"subText" : "",
-		//"hint" : "Sera seulement utilisée pour le virement PayPal, et sera supprimée ensuite.",
-        "hint" : "",
+		"hint" : "Sera seulement utilisée pour le virement PayPal, et sera supprimée ensuite.",
 		"answerForm" : "text"
 	},
 	{

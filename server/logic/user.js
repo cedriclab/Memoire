@@ -9,11 +9,25 @@ exports.getScore = function(request, response){
 };
 
 exports.getResults = function(request, response){
-    var includeEmail = Boolean(request.query.email);
-    var includeFuture = Boolean(request.query.future);
+    var includeEmail    = Boolean(request.query.email);
+    var includeFuture   = Boolean(request.query.future);
+    var includePayoff  	= Boolean(request.query.payoffs);
+	var group			= request.query.group ? Number(request.query.group) : null;
+
+    var BASE_PAYOFF = 10;
+    var BEST_BONUS_PAYOFF = 20;
+	var BEST_COUNT = 3;
+	var MAX_BONUS_PAYOFF = 5;
+    var TURNS_PLAYED = 12;
+    var TOTAL_TURNS = 60;
+	
+	var queryParams = {};
+	if (group) {
+		queryParams["group"] = group;
+	} 
     
     MongoClient.connect(DBConnectionString, function(err, db) {
-		db.collection("users").find({}).sort({"balance" : -1}).toArray(function(error, cursorArray){
+		db.collection("users").find(queryParams).sort({"balance" : -1}).toArray(function(error, cursorArray){
 			db.close();
             var fields = {};
             (cursorArray || []).forEach(function(user){
@@ -27,25 +41,61 @@ exports.getResults = function(request, response){
             
             if (includeFuture) {
                 (cursorArray || []).forEach(function(user){
-                    for (var i=12; i<60; i++) {
+                    for (var i=TURNS_PLAYED; i<TOTAL_TURNS; i++) {
                         Application.user.playTurn(user, 0, i);
                     }
                 });
             }
             
             var head = '<!DOCTYPE html><html><head><meta charset="utf8"><title>Résultats</title></head>';
-            var body = '<body><h1>Résultats</h1><table><thead><tr><th>ID</th>'+(includeEmail ? '<th>Courriel</th>' : '')+'<th>Balance</th>'+(fieldsArray.map(function(f){return '<th>'+f+'</th>';}).join(''))+'<th>Valeur nette</th></tr></thead><tbody>';
+            var body = '<body><h1>Résultats</h1><table><thead><tr><th>ID</th>'+(includeEmail ? '<th>Courriel</th>' : '')+'<th>Balance</th>'+(fieldsArray.map(function(f){return '<th>'+f+'</th>';}).join(''))+'<th>Valeur nette</th>'+(includePayoff ? '<th>PAIEMENT</th>' : '')+'</tr></thead><tbody>';
             var foot = '</html>';
-            
-            (cursorArray || []).forEach(function(user){
+
+            var sortedUsers = (cursorArray || []).map(function(user){
                 var netWorth = Number(user.balance += 0);
-                var userInfo = '<tr><td>'+user._id.toString()+'</td>'+(includeEmail ? '<td>'+user.email+'</td>' : '')+'<td>'+(user.balance || 0).toFixed(2)+'</td>';
                 fieldsArray.forEach(function(assetKey){
                     var assetValue = user.financialAssets[assetKey] || 0;
                     netWorth += assetValue;
+                });
+                user.netWorth = netWorth || 0;
+                user.payoff = Number(BASE_PAYOFF);
+
+                return user;
+            }).sort(function(a,b){return b.netWorth-a.netWorth;});
+
+            var bestScore = 0;
+            var worstScore = 0;
+			var scoreDelta = 0;
+
+            if (sortedUsers.length > 1) {
+                bestScore = sortedUsers[0].netWorth;
+                worstScore = sortedUsers[sortedUsers.length-1].netWorth;
+            }
+			if (worstScore < 0) {
+				worstScore = Math.min.apply(Math, sortedUsers.map(function(u){return u.netWorth;}).filter(function(s){return Boolean(0 < s);}));
+			}
+			scoreDelta = bestScore - worstScore;
+			
+			sortedUsers.forEach(function(user, rank){
+				if (rank < 3) {
+					user.payoff += BEST_BONUS_PAYOFF;
+				} else {
+					var delta = user.netWorth - worstScore;
+					user.payoff += Math.max((delta/scoreDelta)*MAX_BONUS_PAYOFF, 0);
+				}
+			});
+            
+            sortedUsers.forEach(function(user){
+                var userInfo = '<tr><td>'+user._id.toString()+'</td>'+(includeEmail ? '<td>'+user.email+'</td>' : '')+'<td>'+(user.balance || 0).toFixed(2)+'</td>';
+                fieldsArray.forEach(function(assetKey){
+                    var assetValue = user.financialAssets[assetKey] || 0;
                     userInfo += '<td>'+(assetValue ? assetValue.toFixed(2) : '')+'</td>'
                 });
-                userInfo += '<th>'+(netWorth.toFixed(2))+'</th></tr>';
+                userInfo += '<th>'+(user.netWorth.toFixed(2))+'</th>';
+                if (includePayoff) {
+                     userInfo += '<th>'+(user.payoff.toFixed(2))+'</th>';
+                }
+                userInfo += '</tr>';
                 body += userInfo;
             });
             body += '</tbody></table></body>';
@@ -201,6 +251,7 @@ exports.User = function(_id, userAgent, warmupQuestions, gameQuestions, awq, agq
                 this["gameQuestions"] = gameQuestions || [];
                 this["answeredWarmupQuestions"] = awq || [];
                 this["answeredGameQuestions"] = agq || [];
+				this["group"] = 1;
                 this["personalQuestions"] = Data["questions"]["personal"].map(function(q){
                     q.id = new ObjectID();
                     return q;
@@ -241,6 +292,7 @@ exports.User = function(_id, userAgent, warmupQuestions, gameQuestions, awq, agq
                     {"probabiliby" : 0.05, "affects" : "assets.studentLoanRate", "method" : "inc", "value" : 0.005},
                     {"probabiliby" : 0.05, "affects" : "assets.studentLoanRate", "method" : "inc", "value" : -0.005}
                 ];
+				this["finished"] = false;
                 this["questionsAnswered"] = 0;
                 this["userAgent"] = userAgent || null;
                 this["age"] = null; 

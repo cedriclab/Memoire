@@ -14,12 +14,16 @@ randomVariables.forEach(function(variable){
   Data["randoms"][variable] = Math.random();
 });
 
-
+Data["questionsByID"] = {};
 Data["questions"].forEach(function(question){
 	if (!Data["questions"][question.section]) {
 		Data["questions"][question.section] = [];
 	}
+	if (!Data["questionsByID"][question.section]) {
+		Data["questionsByID"][question.section] = {};
+	}
 	Data["questions"][question.section].push(question);
+	Data["questionsByID"][question.section][question.index] = question;
 });
 
 var express = require('express');
