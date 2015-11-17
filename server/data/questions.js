@@ -435,7 +435,7 @@ module.exports = [
 		"index" : "17",
 		"section" : "game",
 		"title" : "",
-		"text" : "Votre client préféré au travail - le même que tout à l’heure - vous rappelle et est de mauvaise humeur.  Le projet sur lequel vous avez travaillé précédemment, dont il estimait pouvoir tirer 200 000$, ne lui en a finalement rapporté que %s.  Après une pluie d’insultes, il demande un remboursement total des honoraires versés à votre entreprise.\nQue faites-vous?",
+		"text" : "Votre client préféré au travail - le même que tout à l’heure - vous rappelle et est de mauvaise humeur.  Le projet sur lequel vous avez travaillé précédemment, dont il estimait pouvoir tirer 200 000$, ne lui en a finalement rapporté que %s$.  Après une pluie d’insultes, il demande un remboursement total des honoraires versés à votre entreprise.\nQue faites-vous?",
 		"subText" : "",
 		"hint" : "",
 		"answerForm" : "select",
@@ -587,8 +587,18 @@ module.exports = [
 		"answerForm" : "text"
 	},
 	{
-		"id" : "28",
+		"id" : "27",
 		"index" : "5",
+		"section" : "personal",
+		"title" : "Confirmer l'adresse courriel *",
+		"text" : "",
+		"subText" : "",
+		"hint" : "",
+		"answerForm" : "text"
+	},
+	{
+		"id" : "28",
+		"index" : "6",
 		"section" : "personal",
 		"title" : "Si vous occupez un emploi, quel est votre salaire horaire?",
 		"text" : "",
@@ -598,7 +608,7 @@ module.exports = [
 	},
 	{
 		"id" : "29",
-		"index" : "6",
+		"index" : "7",
 		"section" : "personal",
 		"title" : "Sur une échelle de 1 à 10 (1 étant très faible et 10 étant la perfection), à combien évaluez-vous votre compréhension de l'anglais écrit?",
 		"text" : "",
@@ -608,7 +618,7 @@ module.exports = [
 	},
 	{
 		"id" : "30",
-		"index" : "7",
+		"index" : "8",
 		"section" : "personal",
 		"title" : "Parmi les suivantes, quelles sources d’information consultez-vous sur Internet?",
 		"text" : "",

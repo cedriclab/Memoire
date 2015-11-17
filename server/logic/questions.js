@@ -71,9 +71,10 @@ exports.update = function(request, response){
                         "2" : {"attribute" : "sex",  "parser" : function(value){return value;}},
                         "3" : {"attribute" : "studyProgram", "parser" : function(value){return value;}},
                         "4" : {"attribute" : "email", "parser" : function(value){return value;}},
-                        "5" : {"attribute" : "salary", "parser" : function(value){return parseInt(value || 0) || null;}},
-                        "6" : {"attribute" : "englishSkills", "parser" : function(value){return parseInt(value || 0) || null;}},
-                        "7" : {"attribute" : "preferredMedia", "parser" : function(value){return value;}}
+						"5" : {"attribute" : "emailConfirm", "parser" : function(value){return value;}},
+                        "6" : {"attribute" : "salary", "parser" : function(value){return parseInt(value || 0) || null;}},
+                        "7" : {"attribute" : "englishSkills", "parser" : function(value){return parseInt(value || 0) || null;}},
+                        "8" : {"attribute" : "preferredMedia", "parser" : function(value){return value;}}
                     };
                     request.body.personalInfo.forEach(function(info){
                         var q = userAttrDict[info.key];
@@ -107,7 +108,7 @@ exports.update = function(request, response){
                             if (addInfoKey=="meanDelta") {
                                 addInfoValue = (Math.max((newBalance - previousBalance - instantImpact), 100)*0.9).toFixed(2);
                             } else if (addInfoKey=="clientProfit") {
-                                addInfoValue = (200000*(1-Math.log(1+(user.assets.timeSpentWithDifficultClient || 0)))).toFixed(2);
+                                addInfoValue = (200000*(Math.log(1+((user.assets.timeSpentWithDifficultClient || 0)/29.098835343466323))*0.9)).toFixed(2);
                             } else if (addInfoKey=="bonus") {
                                 var bonus = 5000*user.assets.workStatus*user.assets.productivity;
                                 var rate = Math.log(1+(Data.randoms.businessGrowth*user.assets.companyStanding));

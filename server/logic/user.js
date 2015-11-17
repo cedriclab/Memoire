@@ -251,7 +251,7 @@ exports.User = function(_id, userAgent, warmupQuestions, gameQuestions, awq, agq
                 this["gameQuestions"] = gameQuestions || [];
                 this["answeredWarmupQuestions"] = awq || [];
                 this["answeredGameQuestions"] = agq || [];
-				this["group"] = 1;
+				this["group"] = 2;
                 this["personalQuestions"] = Data["questions"]["personal"].map(function(q){
                     q.id = new ObjectID();
                     return q;
