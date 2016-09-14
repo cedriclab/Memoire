@@ -42,7 +42,7 @@ var app = express();
 app.set("port", 3000);
 
 MongoDB = require('mongodb');
-DBConnectionString = "mongodb://localhost:27017/memoirecedric";
+DBConnectionString = "mongodb://localhost:27017/dummy";
 MongoClient = MongoDB.MongoClient;
 ObjectID = MongoDB.ObjectID;
 assert = require("assert");
