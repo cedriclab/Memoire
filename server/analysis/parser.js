@@ -68,13 +68,15 @@ var runAnalysis = function(users, callback) {
 
 					if (typeof(resource.resource) == "number") {
 						articlesRead++;
-						var resourceInfo = additionalData[resource.resource-1];
+						var resourceInfo = additionalData.resources[resource.resource-1];
 						addedCategories.forEach(function(key){
 							resource[key] = resourceInfo[key];
 						});
 						resource["linkUsedBefore"] = linksClicked.indexOf(resourceInfo.link) != -1;
 						linksClicked.push(resourceInfo.link);
 						resource["linkFamiliar"] = resourceInfo.sourceId ? user.preferredMedia.indexOf(parseInt(resourceInfo.sourceId)) : false;
+						
+						resource["easilyTrustable"] = 
 					} else if (resource.resource=="advice") {
 						adviceUsed++;
 						var localAviceData = adviceData[String(qIndex)];
@@ -107,6 +109,9 @@ var runAnalysis = function(users, callback) {
 					resourceAdvicesHeeded++;
 				}
 				
+				answeredQuestion["stake"] = additionalData["stake"];
+				answeredQuestion["percievedStake"] = additionalData["percievedStake"];
+				
 				return answeredQuestion;
 			});
 
@@ -117,9 +122,13 @@ var runAnalysis = function(users, callback) {
 			user["resourceAdvicesHeeded"] = resourceAdvicesHeeded;
 			user["totalResourcesUsed"] = articlesRead + rawDataUsed + adviceUsed;
 			user["resourceTrustIndex"] = user["totalResourcesUsed"] > 0 ? user["resourceAdvicesHeeded"]/user["totalResourcesUsed"] : 0;
-
+			
 			//TODO : find effort index per question
 			answeredGameQuestions.forEach(function(answeredQuestion){
+				var effortBase = 0, 
+					effortCostSalary = 0,
+					effortCostBonus = 0;
+				
 				answeredQuestion.resourcesUsed.forEach(function(resource, rIndex){
 					resource["wordsRead"] = resource["timeSpent"] * user["wordsPerSecond"];
 					if (resource.language=="EN") {
@@ -128,18 +137,41 @@ var runAnalysis = function(users, callback) {
 					resource["wordsRead"] = resource["wordsRead"] > resource.wordCount ? resource.wordCount : resource["wordsRead"];
 					resource["pctRead"] = resource["wordsRead"]/resource.wordCount;
 
+//FOR EACH RESOURCE, THEN SUM FOR QUESTION
+//effortBase = SUM resourceTime*(1 || (RAW_COMPLEXITY*(1/fields[user.fieldOfStudy].mathSkills)) || 10/user.englishSkills) -- for raw and article
+//effortCostSalary = SUM effortBase*(user.salary || MINIMUM_WAGE) || advice.cost
+//effortCostBonus = SUM effortBase*(gameStake/(30*60*1000)) || advice.cost				
+					
+				});
+				
+				answeredQuestion["effortBase"] = effortBase;
+				answeredQuestion["effortCostSalary"] = effortCostSalary;
+				answeredQuestion["effortCostBonus"] = effortCostBonus;
+			});
 
-
+			answeredGameQuestions.forEach(function(answeredQuestion){
+				
+				answeredQuestion.resourcesUsed.forEach(function(resource, rIndex){
 					var resourceClone = JSON.parse(JSON.stringify(resource));
 					resourceClone.questionIndex = answeredQuestion.index;
 					resourceClone.questionTime = answeredQuestion.timeSpent;
 					resourceClone.questionStake = 0; //TODO : find question stake
+					resourceClone.questionPercievedStake = 0; //TODO : find question percieved stake
 					resourceClone.questionEffort = 0; //TODO : find total question effort
 					resourceClone.userId = user._id;
 					resourceClone.userBalance = user.balance;
 					resourceClone.resourceTrustIndex = user.resourceTrustIndex;
 					allResources.push(resourceClone);
 				});
+				
+				var questionClone = JSON.parse(JSON.stringify(answeredQuestion));
+				questionClone.questionIndex = answeredQuestion.index;
+				questionClone.questionTime = answeredQuestion.timeSpent;
+				questionClone.resourcesUsed = questionClone.resourcesUsed.length;
+				questionClone.userId = user._id;
+				questionClone.userBalance = user.balance;
+				questionClone.resourceTrustIndex = user.resourceTrustIndex;
+				allQuestions.push(questionClone);
 			});
 		} catch (e) {
 			errors.push(e);
@@ -166,6 +198,23 @@ var parseResources = function(){
 	});
 };
 
+var parseQuestions = function(){
+	allQuestions.forEach(function(parsedQuestion){
+		Object.keys(parsedQuestion).forEach(function(key){
+			allQuestionsKeys[key] = true;
+		});
+	});
+	
+	var keys = Object.keys(allQuestionsKeys);
+	allQuestions.forEach(function(parsedQuestion){
+		var newEntry = {};
+		keys.forEach(function(key){
+			newEntry[key] = parsedQuestion[key]===undefined ? null : parsedQuestion[key];
+		});
+		normalizedQuestions.push(newEntry);
+	});
+};
+
 
 MongoClient.connect(DBConnectionString, function(err, db) {
 	db.collection("users").find(queryParams).toArray(function(error, cursorArray){
@@ -180,16 +229,30 @@ MongoClient.connect(DBConnectionString, function(err, db) {
 			}
 			db.collection("users_parsed").insertMany(users, function(err, result){
 				console.log("Inserted in 'users_parsed' with", err, "as error.");
-				var pe = null;
+				
+				var pqe = null;
+				try {
+					parseQuestions();
+				} catch (e) {
+					pqe = e;
+				}
+				console.log("Normalized questions parsed with", normalizedQuestions.length, "as length and", pqe, "as error.");
+				
+				var pre = null;
 				try {
 					parseResources();
 				} catch (e) {
-					pe = e;
+					pre = e;
 				}
-				console.log("Normalized resources parsed with", normalizedResources.length, "as length and", pe, "as error.");
+				console.log("Normalized resources parsed with", normalizedResources.length, "as length and", pre, "as error.");
+				
 				db.collection("normalized_resources").insertMany(normalizedResources, function(erro, result){
 					console.log("Inserted in 'normalized_resources' with", erro, "as error.");
-					db.close();
+					db.collection("normalized_questions").insertMany(normalizedQuestions, function(erroq, result){
+						console.log("Inserted in 'normalized_questions' with", erroq, "as error.");
+						db.close();
+						console.log("Done.");
+					});
 				});
 			});
 		});
