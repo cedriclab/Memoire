@@ -22,6 +22,11 @@ var allQuestions = [];
 var allQuestionsKeys = {};
 var normalizedQuestions = [];
 
+var prefixify = function(prefix, word){
+	return prefix + word[0].toUpperCase() + word.substring(1);
+};
+var userAttributesToKeep = [];
+
 questionSuggestions.forEach(function(q){
 	additionalDataHash[q.index] = q;
 	
