@@ -1,4 +1,11 @@
 var AVERAGE_WORDS_PER_SECOND = 3.33;
+var TURNS_PLAYED = 12;
+var TOTAL_TURNS = 60;
+
+var MongoDB = require('mongodb');
+var DBConnectionString = "mongodb://localhost:27017/memoire_manips";
+var MongoClient = MongoDB.MongoClient;
+var ObjectID = MongoDB.ObjectID;
 
 var addedCategories = ["suggestion", "complexity", "wordCount", "governmentSource", "sourceId", "language"];
 var questionOrder = [1,2,4,5,6,8,10,11,12,17,19,20];
@@ -8,6 +15,12 @@ var questionSuggestions = require("../data/suggestion.js");
 var adviceData = require("../data/advice.js");
 
 var allResources = [];
+var allResourcesKeys = {};
+var normalizedResources = [];
+
+var allQuestions = [];
+var allQuestionsKeys = {};
+var normalizedQuestions = [];
 
 questionSuggestions.forEach(function(q){
 	additionalDataHash[q.index] = q;
@@ -27,6 +40,11 @@ var runAnalysis = function(users, callback) {
 		try {
 			var linksClicked = [];
 			var wordsPerSecond = [];
+			
+			var articlesRead = 0;
+			var rawDataUsed = 0;
+			var adviceUsed = 0;
+			var resourceAdvicesHeeded = 0;
 
 			var answeredGameQuestions = questionOrder.map(function(qIndex){
 				var answeredQuestion = user.answeredGameQuestions[qIndex-1];
@@ -45,8 +63,11 @@ var runAnalysis = function(users, callback) {
 
 
 				answeredQuestion.resourcesUsed.forEach(function(resource, rIndex){
+					
+					totalResourcesUsed++;
 
 					if (typeof(resource.resource) == "number") {
+						articlesRead++;
 						var resourceInfo = additionalData[resource.resource-1];
 						addedCategories.forEach(function(key){
 							resource[key] = resourceInfo[key];
@@ -55,6 +76,7 @@ var runAnalysis = function(users, callback) {
 						linksClicked.push(resourceInfo.link);
 						resource["linkFamiliar"] = resourceInfo.sourceId ? user.preferredMedia.indexOf(parseInt(resourceInfo.sourceId)) : false;
 					} else if (resource.resource=="advice") {
+						adviceUsed++;
 						var localAviceData = adviceData[String(qIndex)];
 						resource["amountSpent"] = localAviceData.cost;
 						resource["suggestion"] = localAviceData.suggestion;
@@ -62,6 +84,7 @@ var runAnalysis = function(users, callback) {
 							resource["heededAdvice"] = localAviceData.heedCheck(answeredQuestion);
 						}
 					} else {
+						rawDataUsed++;
 						//TODO : deal with raw data
 					}
 
@@ -79,11 +102,21 @@ var runAnalysis = function(users, callback) {
 					}
 
 				});
-
+				
+				if (answeredQuestion["heededResourceAdvice"]) {
+					resourceAdvicesHeeded++;
+				}
+				
 				return answeredQuestion;
 			});
 
 			user["wordsPerSecond"] = wordsPerSecond.length ? wordsPerSecond.reduce(function(a, b){return a + b;}, 0)/wordsPerSecond.length : AVERAGE_WORDS_PER_SECOND;
+			user["articlesRead"] = articlesRead;
+			user["rawDataUsed"] = rawDataUsed;
+			user["adviceUsed"] = adviceUsed;
+			user["resourceAdvicesHeeded"] = resourceAdvicesHeeded;
+			user["totalResourcesUsed"] = articlesRead + rawDataUsed + adviceUsed;
+			user["resourceTrustIndex"] = user["totalResourcesUsed"] > 0 ? user["resourceAdvicesHeeded"]/user["totalResourcesUsed"] : 0;
 
 			//TODO : find effort index per question
 			answeredGameQuestions.forEach(function(answeredQuestion){
@@ -100,8 +133,11 @@ var runAnalysis = function(users, callback) {
 					var resourceClone = JSON.parse(JSON.stringify(resource));
 					resourceClone.questionIndex = answeredQuestion.index;
 					resourceClone.questionTime = answeredQuestion.timeSpent;
+					resourceClone.questionStake = 0; //TODO : find question stake
+					resourceClone.questionEffort = 0; //TODO : find total question effort
 					resourceClone.userId = user._id;
-					resourceClone.balance = user.balance;
+					resourceClone.userBalance = user.balance;
+					resourceClone.resourceTrustIndex = user.resourceTrustIndex;
 					allResources.push(resourceClone);
 				});
 			});
@@ -111,6 +147,23 @@ var runAnalysis = function(users, callback) {
 	});		
 	
 	callback(errors, users);
+};
+
+var parseResources = function(){
+	allResources.forEach(function(parsedResource){
+		Object.keys(parsedResource).forEach(function(key){
+			allResourcesKeys[key] = true;
+		});
+	});
+	
+	var keys = Object.keys(allResourcesKeys);
+	allResources.forEach(function(parsedResource){
+		var newEntry = {};
+		keys.forEach(function(key){
+			newEntry[key] = parsedResource[key]===undefined ? null : parsedResource[key];
+		});
+		normalizedResources.push(newEntry);
+	});
 };
 
 
@@ -127,7 +180,17 @@ MongoClient.connect(DBConnectionString, function(err, db) {
 			}
 			db.collection("users_parsed").insertMany(users, function(err, result){
 				console.log("Inserted in 'users_parsed' with", err, "as error.");
-				db.close();
+				var pe = null;
+				try {
+					parseResources();
+				} catch (e) {
+					pe = e;
+				}
+				console.log("Normalized resources parsed with", normalizedResources.length, "as length and", pe, "as error.");
+				db.collection("normalized_resources").insertMany(normalizedResources, function(erro, result){
+					console.log("Inserted in 'normalized_resources' with", erro, "as error.");
+					db.close();
+				});
 			});
 		});
 	});
