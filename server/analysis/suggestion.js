@@ -1,3 +1,6 @@
+//ADD "isBS":Bool to each resource article
+//Then, measure an individual's propension to trust BS [0,1] by mean(mean(questionTime/resourcesThatAreBullshitTime), bsPreferredSources/totalPreferredSources)
+
 module.exports = [
 
 {
