@@ -1,13 +1,14 @@
 var AVERAGE_WORDS_PER_SECOND = 3.33;
 var TURNS_PLAYED = 12;
 var TOTAL_TURNS = 60;
+var RESOURCE_USED_THRESHOLD = 8000;
 
 var MongoDB = require('mongodb');
 var DBConnectionString = "mongodb://localhost:27017/memoire_manips";
 var MongoClient = MongoDB.MongoClient;
 var ObjectID = MongoDB.ObjectID;
 
-var addedCategories = ["suggestion", "complexity", "wordCount", "governmentSource", "sourceId", "language"];
+var addedCategories = ["suggestion", "complexity", "wordCount", "governmentSource", "sourceId", "language", "isDubious"];
 var questionOrder = [1,2,4,5,6,8,10,11,12,17,19,20];
 
 var additionalDataHash = {};
@@ -25,7 +26,8 @@ var normalizedQuestions = [];
 var prefixify = function(prefix, word){
 	return prefix + word[0].toUpperCase() + word.substring(1);
 };
-var userAttributesToKeep = [];
+var userAttributesToKeep = ["_id", "balance", "resourceTrustIndex", "gullibilityIndex"];
+var questionAttributesToKeep = ["index", "timeSpent", "stake", "percievedStake", "effort"];
 
 questionSuggestions.forEach(function(q){
 	additionalDataHash[q.index] = q;
@@ -49,6 +51,10 @@ var runAnalysis = function(users, callback) {
 			var articlesRead = 0;
 			var rawDataUsed = 0;
 			var adviceUsed = 0;
+			var dubiousArticlesRead = 0;
+			var dubiousArticlesHeeded = 0;
+			var trustedArticlesRead = 0;
+			var trustedArticlesHeeded = 0;
 			var resourceAdvicesHeeded = 0;
 
 			var answeredGameQuestions = questionOrder.map(function(qIndex){
@@ -63,6 +69,13 @@ var runAnalysis = function(users, callback) {
 					wordsPerSecond.push(additionalData.questionWordCount*1000 / t);
 				}
 
+				answeredQuestion["articlesRead"] = 0;
+				answeredQuestion["rawDataUsed"] = 0;
+				answeredQuestion["adviceUsed"] = 0;
+				answeredQuestion["dubiousArticlesRead"] = 0;
+				answeredQuestion["dubiousArticlesHeeded"] = 0;
+				answeredQuestion["trustedArticlesRead"] = 0;
+				answeredQuestion["trustedArticlesHeeded"] = 0;
 				answeredQuestion["heededResourceAdvice"] = false;
 
 
@@ -70,9 +83,16 @@ var runAnalysis = function(users, callback) {
 				answeredQuestion.resourcesUsed.forEach(function(resource, rIndex){
 					
 					totalResourcesUsed++;
+					
+					if (rIndex != answeredQuestion.resourcesUsed.length-1) {
+						resource["timeSpent"] = answeredQuestion.resourcesUsed[rIndex+1].timeUsed - resource.timeUsed;
+					} else {
+						resource["timeSpent"] = answeredQuestion.answeredOn - resource.timeUsed;
+					}
 
 					if (typeof(resource.resource) == "number") {
 						articlesRead++;
+						answeredQuestion["articlesRead"] += 1;
 						var resourceInfo = additionalData.resources[resource.resource-1];
 						addedCategories.forEach(function(key){
 							resource[key] = resourceInfo[key];
@@ -81,9 +101,20 @@ var runAnalysis = function(users, callback) {
 						linksClicked.push(resourceInfo.link);
 						resource["linkFamiliar"] = resourceInfo.sourceId ? user.preferredMedia.indexOf(parseInt(resourceInfo.sourceId)) : false;
 						
-						resource["easilyTrustable"] = 
+						resource["isTrusted"] = resource["linkUsedBefore"] || resource["linkFamiliar"] || resource["governmentSource"];
+						if (resource["isTrusted"] && resource["timeSpent"] > RESOURCE_USED_THRESHOLD) {
+							answeredQuestion["trustedArticlesRead"] += 1;
+							//TODO : heeded?
+						}
+						
+						if (resource["isDubious"] && resource["timeSpent"] > RESOURCE_USED_THRESHOLD) {
+							answeredQuestion["dubiousArticlesRead"] += 1;
+							//TODO : heeded?
+						}
+						
 					} else if (resource.resource=="advice") {
 						adviceUsed++;
+						answeredQuestion["adviceUsed"] += 1;
 						var localAviceData = adviceData[String(qIndex)];
 						resource["amountSpent"] = localAviceData.cost;
 						resource["suggestion"] = localAviceData.suggestion;
@@ -92,14 +123,11 @@ var runAnalysis = function(users, callback) {
 						}
 					} else {
 						rawDataUsed++;
+						answeredQuestion["rawDataUsed"] += 1;
 						//TODO : deal with raw data
 					}
 
-					if (rIndex != answeredQuestion.resourcesUsed.length-1) {
-						resource["timeSpent"] = answeredQuestion.resourcesUsed[rIndex+1].timeUsed - resource.timeUsed;
-					} else {
-						resource["timeSpent"] = answeredQuestion.answeredOn - resource.timeUsed;
-					}
+					
 
 					if (resource["heededAdvice"] !== undefined) {
 						resource["heededAdvice"] = resource.suggestion ? answeredQuestion.answer==String(resource.suggestion+1) : null;
@@ -109,6 +137,11 @@ var runAnalysis = function(users, callback) {
 					}
 
 				});
+				
+				dubiousArticlesRead += answeredQuestion["dubiousArticlesRead"];
+				dubiousArticlesHeeded += answeredQuestion["dubiousArticlesHeeded"];
+				trustedArticlesRead += answeredQuestion["trustedArticlesRead"];
+				trustedArticlesHeeded += answeredQuestion["trustedArticlesHeeded"];
 				
 				if (answeredQuestion["heededResourceAdvice"]) {
 					resourceAdvicesHeeded++;
@@ -124,6 +157,10 @@ var runAnalysis = function(users, callback) {
 			user["articlesRead"] = articlesRead;
 			user["rawDataUsed"] = rawDataUsed;
 			user["adviceUsed"] = adviceUsed;
+			user["dubiousArticlesRead"] = dubiousArticlesRead;
+			user["dubiousArticlesHeeded"] = dubiousArticlesHeeded;
+			user["trustedArticlesRead"] = trustedArticlesRead;
+			user["trustedArticlesHeeded"] = trustedArticlesHeeded;
 			user["resourceAdvicesHeeded"] = resourceAdvicesHeeded;
 			user["totalResourcesUsed"] = articlesRead + rawDataUsed + adviceUsed;
 			user["resourceTrustIndex"] = user["totalResourcesUsed"] > 0 ? user["resourceAdvicesHeeded"]/user["totalResourcesUsed"] : 0;
@@ -158,24 +195,27 @@ var runAnalysis = function(users, callback) {
 				
 				answeredQuestion.resourcesUsed.forEach(function(resource, rIndex){
 					var resourceClone = JSON.parse(JSON.stringify(resource));
+					userAttributesToKeep.forEach(function(attr){
+						resourceClone[prefixify("user", attr)] = user[attr];
+					});
+					/*questionAttributesToKeep.forEach(function(attr){
+						resourceClone[prefixify("question", attr)] = answeredQuestion[attr];
+					});*/
 					resourceClone.questionIndex = answeredQuestion.index;
 					resourceClone.questionTime = answeredQuestion.timeSpent;
 					resourceClone.questionStake = 0; //TODO : find question stake
 					resourceClone.questionPercievedStake = 0; //TODO : find question percieved stake
 					resourceClone.questionEffort = 0; //TODO : find total question effort
-					resourceClone.userId = user._id;
-					resourceClone.userBalance = user.balance;
-					resourceClone.resourceTrustIndex = user.resourceTrustIndex;
 					allResources.push(resourceClone);
 				});
 				
 				var questionClone = JSON.parse(JSON.stringify(answeredQuestion));
+				userAttributesToKeep.forEach(function(attr){
+					resourceClone[prefixify("user", attr)] = user[attr];
+				});
 				questionClone.questionIndex = answeredQuestion.index;
 				questionClone.questionTime = answeredQuestion.timeSpent;
 				questionClone.resourcesUsed = questionClone.resourcesUsed.length;
-				questionClone.userId = user._id;
-				questionClone.userBalance = user.balance;
-				questionClone.resourceTrustIndex = user.resourceTrustIndex;
 				allQuestions.push(questionClone);
 			});
 		} catch (e) {
