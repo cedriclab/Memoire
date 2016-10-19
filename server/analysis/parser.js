@@ -2,6 +2,25 @@ var AVERAGE_WORDS_PER_SECOND = 3.33;
 var TURNS_PLAYED = 12;
 var TOTAL_TURNS = 60;
 var RESOURCE_USED_THRESHOLD = 8000;
+var RAW_DATA_EFFORT_WEIGHT = 1;
+var MINIMUM_WAGE = 10.55;
+
+var MILISECONDS_PER_HOUR = 3600000;
+var GAME_STAKE_MAX = 30;
+var GAME_STAKE_MIN = 10;
+var GAME_STAKE_MEAN = GAME_STAKE_MIN+((GAME_STAKE_MAX-GAME_STAKE_MIN)/2);
+
+var MATH_SKILLS = {
+	"econ" : 8,
+	"mark" : 3,
+	"admin" : 3,
+	"grh" : 3,
+	"compta" : 8,
+	"finance" : 8,
+	"math" : 10,
+	"psy" : 3,
+	"autre" : 5
+};
 
 var MongoDB = require('mongodb');
 var DBConnectionString = "mongodb://localhost:27017/memoire_manips";
@@ -56,6 +75,7 @@ var runAnalysis = function(users, callback) {
 			var trustedArticlesRead = 0;
 			var trustedArticlesHeeded = 0;
 			var resourceAdvicesHeeded = 0;
+			var adviceAdvicesHeeded = 0;
 
 			var answeredGameQuestions = questionOrder.map(function(qIndex){
 				var answeredQuestion = user.answeredGameQuestions[qIndex-1];
@@ -77,6 +97,7 @@ var runAnalysis = function(users, callback) {
 				answeredQuestion["trustedArticlesRead"] = 0;
 				answeredQuestion["trustedArticlesHeeded"] = 0;
 				answeredQuestion["heededResourceAdvice"] = false;
+				answeredQuestion["heededAdviceAdvice"] = false;
 
 
 
@@ -104,13 +125,19 @@ var runAnalysis = function(users, callback) {
 						resource["isTrusted"] = resource["linkUsedBefore"] || resource["linkFamiliar"] || resource["governmentSource"];
 						if (resource["isTrusted"] && resource["timeSpent"] > RESOURCE_USED_THRESHOLD) {
 							answeredQuestion["trustedArticlesRead"] += 1;
-							//TODO : heeded?
+							if (resource["heededAdvice"]) {
+								answeredQuestion["trustedArticlesHeeded"] += 1;
+							}
 						}
 						
 						if (resource["isDubious"] && resource["timeSpent"] > RESOURCE_USED_THRESHOLD) {
 							answeredQuestion["dubiousArticlesRead"] += 1;
-							//TODO : heeded?
+							if (resource["heededAdvice"]) {
+								answeredQuestion["dubiousArticlesHeeded"] += 1;
+							}
 						}
+						
+						resource["heededAdvice"] = resource.suggestion ? answeredQuestion.answer==String(resource.suggestion+1) : null;
 						
 					} else if (resource.resource=="advice") {
 						adviceUsed++;
@@ -118,8 +145,12 @@ var runAnalysis = function(users, callback) {
 						var localAviceData = adviceData[String(qIndex)];
 						resource["amountSpent"] = localAviceData.cost;
 						resource["suggestion"] = localAviceData.suggestion;
-						if (adviceData[String(qIndex)].heedCheck) {
+						if (localAviceData.heedCheck) {
 							resource["heededAdvice"] = localAviceData.heedCheck(answeredQuestion);
+							answeredQuestion["heededAdviceAdvice"] = true;
+						} else if (localAviceData.suggestion !== undefined) {
+							resource["heededAdvice"] = answeredQuestion.answer==String(resource.suggestion+1);
+							answeredQuestion["heededAdviceAdvice"] = true;
 						}
 					} else {
 						rawDataUsed++;
@@ -129,9 +160,7 @@ var runAnalysis = function(users, callback) {
 
 					
 
-					if (resource["heededAdvice"] !== undefined) {
-						resource["heededAdvice"] = resource.suggestion ? answeredQuestion.answer==String(resource.suggestion+1) : null;
-					}
+					
 					if (resource["heededAdvice"]) {
 						answeredQuestion["heededResourceAdvice"] = true;
 					}
@@ -154,6 +183,7 @@ var runAnalysis = function(users, callback) {
 			});
 
 			user["wordsPerSecond"] = wordsPerSecond.length ? wordsPerSecond.reduce(function(a, b){return a + b;}, 0)/wordsPerSecond.length : AVERAGE_WORDS_PER_SECOND;
+			user["skillIndex"] = (((MATH_SKILLS[user.fieldOfStudy] || 10)/10) + ((user.englishSkills || 10)/10) + (user["wordsPerSecond"]/AVERAGE_WORDS_PER_SECOND))/3; //Adjust to account for balance and answer match WITH ADVICE!!! THINK ABOUT IT!!!
 			user["articlesRead"] = articlesRead;
 			user["rawDataUsed"] = rawDataUsed;
 			user["adviceUsed"] = adviceUsed;
@@ -162,6 +192,7 @@ var runAnalysis = function(users, callback) {
 			user["trustedArticlesRead"] = trustedArticlesRead;
 			user["trustedArticlesHeeded"] = trustedArticlesHeeded;
 			user["resourceAdvicesHeeded"] = resourceAdvicesHeeded;
+			user["adviceAdvicesHeeded"] = adviceAdvicesHeeded;
 			user["totalResourcesUsed"] = articlesRead + rawDataUsed + adviceUsed;
 			user["resourceTrustIndex"] = user["totalResourcesUsed"] > 0 ? user["resourceAdvicesHeeded"]/user["totalResourcesUsed"] : 0;
 			
@@ -178,12 +209,20 @@ var runAnalysis = function(users, callback) {
 					}
 					resource["wordsRead"] = resource["wordsRead"] > resource.wordCount ? resource.wordCount : resource["wordsRead"];
 					resource["pctRead"] = resource["wordsRead"]/resource.wordCount;
-
-//FOR EACH RESOURCE, THEN SUM FOR QUESTION
-//effortBase = SUM resourceTime*(1 || (RAW_COMPLEXITY*(1/fields[user.fieldOfStudy].mathSkills)) || 10/user.englishSkills) -- for raw and article
-//effortCostSalary = SUM effortBase*(user.salary || MINIMUM_WAGE) || advice.cost
-//effortCostBonus = SUM effortBase*(gameStake/(30*60*1000)) || advice.cost				
 					
+					if (resource.resource=="advice") {
+						resource["effortBase"] = resource["timeSpent"];
+						resource["effortCostSalary"] = resource["amountSpent"];
+						resource["effortCostBonus"] = resource["amountSpent"];
+					} else {
+						resource["effortBase"] = resource["timeSpent"]*(1 || (resource.resource=="rawData" ? RAW_DATA_EFFORT_WEIGHT : 1)) * (1/user["skillIndex"]); 
+						resource["effortCostSalary"] = resource["effortBase"]*((user.salary || MINIMUM_WAGE)/MILISECONDS_PER_HOUR);
+						resource["effortCostBonus"] = resource["effortBase"]*(GAME_STAKE_MEAN/(MILISECONDS_PER_HOUR/2));
+					}
+					
+					effortBase += resource["effortBase"];
+					effortCostSalary += resource["effortCostSalary"];
+					effortCostBonus += resource["effortCostBonus"];		
 				});
 				
 				answeredQuestion["effortBase"] = effortBase;
