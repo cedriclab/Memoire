@@ -22,6 +22,8 @@ var MATH_SKILLS = {
 	"autre" : 5
 };
 
+var empiricalAverageWordPerSecond;
+
 var MongoDB = require('mongodb');
 var DBConnectionString = "mongodb://localhost:27017/memoire_manips";
 var MongoClient = MongoDB.MongoClient;
@@ -45,8 +47,8 @@ var normalizedQuestions = [];
 var prefixify = function(prefix, word){
 	return prefix + word[0].toUpperCase() + word.substring(1);
 };
-var userAttributesToKeep = ["_id", "balance", "resourceTrustIndex", "gullibilityIndex"];
-var questionAttributesToKeep = ["index", "timeSpent", "stake", "percievedStake", "effort"];
+var userAttributesToKeep = ["_id", "balance", "resourceTrustIndex", "gullibilityIndex", "skillIndex", "fieldOfStudy", "englishSkills", "articlesRead", "rawDataUsed", "adviceUsed", "dubiousArticlesRead", "dubiousArticlesHeeded", "trustedArticlesRead", "trustedArticlesHeeded", "adviceAdvicesHeeded", "totalResourcesUsed", "resourceTrustIndex", "totalResourcesUsed"];
+var questionAttributesToKeep = ["index", "timeSpent", "rightAnswer", "stake", "percievedStake", "effort", "effortBase", "effortCostSalary", "effortCostBonus"];
 
 questionSuggestions.forEach(function(q){
 	additionalDataHash[q.index] = q;
@@ -61,22 +63,11 @@ questionSuggestions.forEach(function(q){
 var runAnalysis = function(users, callback) {
 	
 	var errors = [];
+	var userWordsPerSecond = [];
 	
 	users.forEach(function(user){
 		try {
-			var linksClicked = [];
 			var wordsPerSecond = [];
-			
-			var articlesRead = 0;
-			var rawDataUsed = 0;
-			var adviceUsed = 0;
-			var dubiousArticlesRead = 0;
-			var dubiousArticlesHeeded = 0;
-			var trustedArticlesRead = 0;
-			var trustedArticlesHeeded = 0;
-			var resourceAdvicesHeeded = 0;
-			var adviceAdvicesHeeded = 0;
-
 			var answeredGameQuestions = questionOrder.map(function(qIndex){
 				var answeredQuestion = user.answeredGameQuestions[qIndex-1];
 				var additionalData = additionalDataHash[answeredQuestion.index];
@@ -88,6 +79,41 @@ var runAnalysis = function(users, callback) {
 					answeredQuestion["timeBeforeFirstResource"] = t;
 					wordsPerSecond.push(additionalData.questionWordCount*1000 / t);
 				}
+			});
+			
+			user["wordsPerSecond"] = wordsPerSecond.length ? wordsPerSecond.reduce(function(a, b){return a + b;}, 0)/wordsPerSecond.length : null;
+			if (user["wordsPerSecond"]) {
+				userWordsPerSecond.push(user["wordsPerSecond"]);
+			}
+		} catch (e) {
+			errors.push(e);
+			console.log(e);
+		}
+	});
+	
+	empiricalAverageWordPerSecond = userWordsPerSecond.length ? userWordsPerSecond.reduce(function(a, b){return a + b;}, 0)/userWordsPerSecond.length : null;
+	
+	users.forEach(function(user){
+		try {
+			var linksClicked = [];
+			
+			var articlesRead = 0;
+			var rawDataUsed = 0;
+			var adviceUsed = 0;
+			var dubiousArticlesRead = 0;
+			var dubiousArticlesHeeded = 0;
+			var trustedArticlesRead = 0;
+			var trustedArticlesHeeded = 0;
+			var resourceAdvicesHeeded = 0;
+			var adviceAdvicesHeeded = 0;
+			
+			var rightAnswers = 0;
+
+			var answeredGameQuestions = questionOrder.map(function(qIndex){
+				var answeredQuestion = user.answeredGameQuestions[qIndex-1];
+				var additionalData = additionalDataHash[answeredQuestion.index];
+				
+				var localAviceData = adviceData[String(qIndex)];
 
 				answeredQuestion["articlesRead"] = 0;
 				answeredQuestion["rawDataUsed"] = 0;
@@ -98,8 +124,17 @@ var runAnalysis = function(users, callback) {
 				answeredQuestion["trustedArticlesHeeded"] = 0;
 				answeredQuestion["heededResourceAdvice"] = false;
 				answeredQuestion["heededAdviceAdvice"] = false;
-
-
+				
+				answeredQuestion["rightAnswer"] = false;
+				if (localAviceData.heedCheck) {
+					answeredQuestion["rightAnswer"] = localAviceData.heedCheck(answeredQuestion);
+				} else if (localAviceData.suggestion !== undefined) {
+					answeredQuestion["rightAnswer"] = answeredQuestion.answer==String(resource.suggestion+1);
+				}
+				
+				if (answeredQuestion["rightAnswer"]) {
+					rightAnswers++;
+				}
 
 				answeredQuestion.resourcesUsed.forEach(function(resource, rIndex){
 					
@@ -142,16 +177,12 @@ var runAnalysis = function(users, callback) {
 					} else if (resource.resource=="advice") {
 						adviceUsed++;
 						answeredQuestion["adviceUsed"] += 1;
-						var localAviceData = adviceData[String(qIndex)];
+			
 						resource["amountSpent"] = localAviceData.cost;
 						resource["suggestion"] = localAviceData.suggestion;
-						if (localAviceData.heedCheck) {
-							resource["heededAdvice"] = localAviceData.heedCheck(answeredQuestion);
-							answeredQuestion["heededAdviceAdvice"] = true;
-						} else if (localAviceData.suggestion !== undefined) {
-							resource["heededAdvice"] = answeredQuestion.answer==String(resource.suggestion+1);
-							answeredQuestion["heededAdviceAdvice"] = true;
-						}
+
+						resource["heededAdvice"] = answeredQuestion["rightAnswer"];
+						answeredQuestion["heededAdviceAdvice"] = answeredQuestion["rightAnswer"];
 					} else {
 						rawDataUsed++;
 						answeredQuestion["rawDataUsed"] += 1;
@@ -182,8 +213,11 @@ var runAnalysis = function(users, callback) {
 				return answeredQuestion;
 			});
 
-			user["wordsPerSecond"] = wordsPerSecond.length ? wordsPerSecond.reduce(function(a, b){return a + b;}, 0)/wordsPerSecond.length : AVERAGE_WORDS_PER_SECOND;
-			user["skillIndex"] = (((MATH_SKILLS[user.fieldOfStudy] || 10)/10) + ((user.englishSkills || 10)/10) + (user["wordsPerSecond"]/AVERAGE_WORDS_PER_SECOND))/3; //Adjust to account for balance and answer match WITH ADVICE!!! THINK ABOUT IT!!!
+			user["wordsPerSecond"] = user["wordsPerSecond"] || empiricalAverageWordPerSecond;
+			user["rightAnswers"] = rightAnswers;
+			
+			user["skillIndex"] = (((MATH_SKILLS[user.fieldOfStudy] || 10)/10) + ((user.englishSkills || 10)/10) + (user["wordsPerSecond"]/empiricalAverageWordPerSecond) + (rightAnswers/12))/4; 
+			
 			user["articlesRead"] = articlesRead;
 			user["rawDataUsed"] = rawDataUsed;
 			user["adviceUsed"] = adviceUsed;
@@ -196,7 +230,7 @@ var runAnalysis = function(users, callback) {
 			user["totalResourcesUsed"] = articlesRead + rawDataUsed + adviceUsed;
 			user["resourceTrustIndex"] = user["totalResourcesUsed"] > 0 ? user["resourceAdvicesHeeded"]/user["totalResourcesUsed"] : 0;
 			
-			//TODO : find effort index per question
+
 			answeredGameQuestions.forEach(function(answeredQuestion){
 				var effortBase = 0, 
 					effortCostSalary = 0,
@@ -231,7 +265,6 @@ var runAnalysis = function(users, callback) {
 			});
 
 			answeredGameQuestions.forEach(function(answeredQuestion){
-				
 				answeredQuestion.resourcesUsed.forEach(function(resource, rIndex){
 					var resourceClone = JSON.parse(JSON.stringify(resource));
 					userAttributesToKeep.forEach(function(attr){
