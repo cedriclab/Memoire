@@ -109,10 +109,10 @@ module.exports = [
 		"id" : "11",
 		"index" : "8",
 		"stake" : function(user, answer){
-			return (answer.rrsp + answer.tfsa + answer.debt) * 1.28;
+			return (answer ? (answer.rrsp + answer.tfsa + answer.debt) : 5800) * 1.28;
 		},
 		"perceivedStake" : function(user, answer){
-			return answer.rrsp + answer.tfsa + answer.debt;
+			return 90;
 		},
 		"resources" : [
             {"id" : "", "sample" : "Les liens suivant donnent accès aux renseignements pour les rentiers, cotisants, et bénéficiaires des régimes enregistrés pour la retraite, l'achat ou la construction d'une habitation admissible, ou pour l'éducation permanente.", "title" : "REER et régimes connexes", "thumbnail" : "", "sourceName" : "Agence du Revenu du Canada", "link" : "http://www.cra-arc.gc.ca/tx/ndvdls/tpcs/rrsp-reer/menu-fra.html", "suggestion" : null, "complexity" : 0, "wordCount" : 221, "isDubious" : false, "governmentSource" : true, "sourceId" : "", "language" : "FR"},
@@ -239,10 +239,10 @@ module.exports = [
 		"id" : "23",
 		"index" : "20",
 		"stake" : function(user, answer){
-			return (answer.rrsp + answer.tfsa + answer.spoil) * 1.16;
+			return (answer ? (answer.rrsp + answer.tfsa + answer.spoil) : 5000) * 1.16;
 		},
 		"perceivedStake" : function(user, answer){
-			return answer.rrsp + answer.tfsa + answer.spoil;
+			return answer ? (answer.rrsp + answer.tfsa + answer.spoil) : 5000;
 		},
 		"resources" : [
 			{"id" : "", "sample" : "Les liens suivants donnent accès aux renseignements pour les rentiers, cotisants, et bénéficiaires des régimes enregistrés pour la retraite, l'achat ou la construction d'une habitation admissible, ou pour l'éducation permanente.", "title" : "REER et régimes connexes", "thumbnail" : "", "sourceName" : "Agence du Revenu du Canada", "link" : "http://www.cra-arc.gc.ca/tx/ndvdls/tpcs/rrsp-reer/menu-fra.html", "suggestion" : null, "complexity" : 0, "wordCount" : 258, "isDubious" : false, "governmentSource" : true, "sourceId" : "", "language" : "FR"},

@@ -35,7 +35,7 @@ var ObjectID = MongoDB.ObjectID;
 var addedCategories = ["suggestion", "complexity", "wordCount", "governmentSource", "sourceId", "language", "isDubious"];
 
 var additionalDataHash = {};
-var questionSuggestions = require("../data/suggestion.js");
+var questionSuggestions = require("./suggestion.js");
 var adviceData = require("../data/advice.js");
 var rawQuestions = require("../data/questions.js");
 var warmupLengths = [0, 0, 0];
@@ -61,13 +61,15 @@ var countQuestionWords = function(q){
 		return a + b.title.split(" ").length + b.sample.split(" ").length;
 	}, 0) : 0);
 };
+console.log(rawQuestions.length);
 
 questionSuggestions.forEach(function(q, qi){
 	additionalDataHash[q.index] = q;
-	var rawQuestion = rawQuestions[QUESTION_ORDER[qi+2]];
-	
+	var rawQuestion = rawQuestions[QUESTION_ORDER[qi]+2];
 	q["questionWordCount"] = countQuestionWords(rawQuestion);
 });
+
+console.log(Object.keys(additionalDataHash));
 
 var warmupLengths = [0, 0, 0].map(function(n, i){
 	return countQuestionWords(rawQuestions[i]);
@@ -80,17 +82,15 @@ var runAnalysis = function(users, callback) {
 	
 	users.forEach(function(user){
 		try {
-			//TODO : compute riskAversionIndex
-			
 			var wordsPerSecond = [];
 			var answeredGameQuestions = QUESTION_ORDER.map(function(qIndex){
 				var answeredQuestion = user.answeredGameQuestions[qIndex-1];
-				var additionalData = additionalDataHash[answeredQuestion.index];
+				var additionalData = additionalDataHash[String(answeredQuestion.index+1)];
 
 				answeredQuestion["timeSpent"] = answeredQuestion.answeredOn - answeredQuestion.begunOn;
 				answeredQuestion["timeBeforeFirstResource"] = 0;
-				if (answeredQuestion.resourcesUsed.length) {
-					var t = answeredQuestion.resourcesUsed[0].timeUsed - answeredQuestion.begunOn;
+				if (answeredQuestion.usedResources.length) {
+					var t = answeredQuestion.usedResources[0].timeUsed - answeredQuestion.begunOn;
 					answeredQuestion["timeBeforeFirstResource"] = t;
 					wordsPerSecond.push(additionalData.questionWordCount*1000 / t);
 				}
@@ -109,7 +109,6 @@ var runAnalysis = function(users, callback) {
 			});
 			user.riskAversionIndex = user.riskAversionIndex/3
 		} catch (e) {
-			errors.push(e);
 			console.log(e);
 		}
 	});
@@ -129,12 +128,13 @@ var runAnalysis = function(users, callback) {
 			var trustedArticlesHeeded = 0;
 			var resourceAdvicesHeeded = 0;
 			var adviceAdvicesHeeded = 0;
+			var totalResourcesUsed = 0;
 			
 			var rightAnswers = 0;
 
 			var answeredGameQuestions = QUESTION_ORDER.map(function(qIndex){
 				var answeredQuestion = user.answeredGameQuestions[qIndex-1];
-				var additionalData = additionalDataHash[answeredQuestion.index];
+				var additionalData = additionalDataHash[String(answeredQuestion.index+1)];
 				
 				var localAviceData = adviceData[String(qIndex)];
 
@@ -152,19 +152,19 @@ var runAnalysis = function(users, callback) {
 				if (localAviceData.heedCheck) {
 					answeredQuestion["rightAnswer"] = localAviceData.heedCheck(answeredQuestion);
 				} else if (localAviceData.suggestion !== undefined) {
-					answeredQuestion["rightAnswer"] = answeredQuestion.answer==String(resource.suggestion+1);
+					answeredQuestion["rightAnswer"] = answeredQuestion.answer==String(localAviceData.suggestion+1);
 				}
 				
 				if (answeredQuestion["rightAnswer"]) {
 					rightAnswers++;
 				}
 
-				answeredQuestion.resourcesUsed.forEach(function(resource, rIndex){
+				answeredQuestion.usedResources.forEach(function(resource, rIndex){
 					
 					totalResourcesUsed++;
-					
-					if (rIndex != answeredQuestion.resourcesUsed.length-1) {
-						resource["timeSpent"] = answeredQuestion.resourcesUsed[rIndex+1].timeUsed - resource.timeUsed;
+
+					if (rIndex != answeredQuestion.usedResources.length-1) {
+						resource["timeSpent"] = answeredQuestion.usedResources[rIndex+1].timeUsed - resource.timeUsed;
 					} else {
 						resource["timeSpent"] = answeredQuestion.answeredOn - resource.timeUsed;
 					}
@@ -249,13 +249,15 @@ var runAnalysis = function(users, callback) {
 			user["adviceAdvicesHeeded"] = adviceAdvicesHeeded;
 			user["totalResourcesUsed"] = articlesRead + rawDataUsed + adviceUsed;
 			user["resourceTrustIndex"] = user["totalResourcesUsed"] > 0 ? user["resourceAdvicesHeeded"]/user["totalResourcesUsed"] : 0;
+			
+			user["email"] = null;
 
 			answeredGameQuestions.forEach(function(answeredQuestion){
 				var effortBase = 0, 
 					effortCostSalary = 0,
 					effortCostBonus = 0;
 				
-				answeredQuestion.resourcesUsed.forEach(function(resource, rIndex){
+				answeredQuestion.usedResources.forEach(function(resource, rIndex){
 					resource["wordsRead"] = resource["timeSpent"] * user["wordsPerSecond"];
 					if (resource.language=="EN") {
 						resource["wordsRead"] = resource["wordsRead"] * (user.englishSkills===null ? 10 : user.englishSkills)/10;
@@ -284,7 +286,7 @@ var runAnalysis = function(users, callback) {
 			});
 
 			answeredGameQuestions.forEach(function(answeredQuestion){
-				answeredQuestion.resourcesUsed.forEach(function(resource, rIndex){
+				answeredQuestion.usedResources.forEach(function(resource, rIndex){
 					var resourceClone = JSON.parse(JSON.stringify(resource));
 					userAttributesToKeep.forEach(function(attr){
 						resourceClone[prefixify("user", attr)] = user[attr];
@@ -297,15 +299,16 @@ var runAnalysis = function(users, callback) {
 				
 				var questionClone = JSON.parse(JSON.stringify(answeredQuestion));
 				userAttributesToKeep.forEach(function(attr){
-					resourceClone[prefixify("user", attr)] = user[attr];
+					questionClone[prefixify("user", attr)] = user[attr];
 				});
 				questionClone.questionIndex = answeredQuestion.index;
 				questionClone.questionTime = answeredQuestion.timeSpent;
-				questionClone.resourcesUsed = questionClone.resourcesUsed.length;
+				questionClone.usedResources = questionClone.usedResources.length;
 				allQuestions.push(questionClone);
 			});
 		} catch (e) {
 			errors.push(e);
+			console.log(e.stack)
 		}
 	});		
 	
@@ -348,9 +351,9 @@ var parseQuestions = function(){
 
 
 MongoClient.connect(DBConnectionString, function(err, db) {
-	db.collection("users").find(queryParams).toArray(function(error, cursorArray){
+	db.collection("users").find({"email" : {$ne : null}}).toArray(function(error, cursorArray){
 		cursorArray = cursorArray || [];
-		console.log("Found", cursorArray.length "documents with", error, "as error.");
+		console.log("Found", cursorArray.length, "documents with", error, "as error.");
 		runAnalysis(cursorArray, function(errors, users){
 			console.log("Analysis ran with", errors.length, "errors.");
 			if (errors.length) {
@@ -389,5 +392,3 @@ MongoClient.connect(DBConnectionString, function(err, db) {
 		});
 	});
 });
-
-

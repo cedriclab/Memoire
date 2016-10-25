@@ -7,9 +7,9 @@ module.exports = {
     "3" : {"cost" : 20, "text" : "Déménager immédiatement vous fera économiser.", "suggestion" : null},
     
     "4" : {"cost" : 200, "text" : "Cette décision appartient à votre amie.  Ne vous cassez pas la tête à prendre une décision à sa place, alors répondez n'importe quoi et passez à la question suivante!", "suggestion" : null, "heedCheck" : function(questionData){
-		for (var i=0; i<questionData.resourcesUsed.length; i++) {
-			if (questionData.resourcesUsed[i]=="advice") {
-				if (i==questionData.resourcesUsed.length-1 && questionData.answeredOn-questionData.resourcesUsed[i].timeUsed < 10000) {
+		for (var i=0; i<questionData.usedResources.length; i++) {
+			if (questionData.usedResources[i]=="advice") {
+				if (i==questionData.usedResources.length-1 && questionData.answeredOn-questionData.usedResources[i].timeUsed < 10000) {
 					return true;
 				}
 			}
@@ -18,9 +18,9 @@ module.exports = {
 	}},
     
     "5" : {"cost" : 80, "text" : "Faites un choix selon vos préférences... les options se valent.", "suggestion" : null, "heedCheck" : function(questionData){
-		for (var i=0; i<questionData.resourcesUsed.length; i++) {
-			if (questionData.resourcesUsed[i]=="advice") {
-				if (i==questionData.resourcesUsed.length-1 && questionData.answeredOn-questionData.resourcesUsed[i].timeUsed < 10000) {
+		for (var i=0; i<questionData.usedResources.length; i++) {
+			if (questionData.usedResources[i]=="advice") {
+				if (i==questionData.usedResources.length-1 && questionData.answeredOn-questionData.usedResources[i].timeUsed < 10000) {
 					return true;
 				}
 			}
@@ -29,9 +29,9 @@ module.exports = {
 	}},
     
     "6" : {"cost" : 50, "text" : "Encore une fois, ne vous cassez pas la tête; la fin du monde n'est pas à nos portes.  Répondez n'importe quoi et passez à la question suivante.", "suggestion" : null, "heedCheck" : function(questionData){
-		for (var i=0; i<questionData.resourcesUsed.length; i++) {
-			if (questionData.resourcesUsed[i]=="advice") {
-				if (i==questionData.resourcesUsed.length-1 && questionData.answeredOn-questionData.resourcesUsed[i].timeUsed < 10000) {
+		for (var i=0; i<questionData.usedResources.length; i++) {
+			if (questionData.usedResources[i]=="advice") {
+				if (i==questionData.usedResources.length-1 && questionData.answeredOn-questionData.usedResources[i].timeUsed < 10000) {
 					return true;
 				}
 			}
@@ -42,7 +42,7 @@ module.exports = {
     "7" : {"cost" : 100, "text" : "Oui, pourquoi pas?", "suggestion" : null},
     
     "8" : {"cost" : 150, "text" : "Priorisez le remboursement de vos dettes et votre REER.", "suggestion" : null, "heedCheck" : function(questionData){
-		if (questionData.answer.rrsp > questionData.answer.tfsa && questionData.answer.debt > questionData.answer.tfsa) {
+		if (questionData.answer && questionData.answer.rrsp > questionData.answer.tfsa && questionData.answer.debt > questionData.answer.tfsa) {
 			return true;
 		}
 		return false;
@@ -71,7 +71,7 @@ module.exports = {
     "19" : {"cost" : 500, "text" : "Vu l'état du marché à Sherbrooke et le haut taux d'innocupation des locaux commerciaux, louer un bureau est la meilleure option.", "suggestion" : 0},
     
     "20" : {"cost" : 100, "text" : "Encore une fois, priorisez le remboursement de vos dettes et votre REER.  Et gâtez-vous un peu, vous le méritez! :)", "suggestion" : null, "heedCheck" : function(questionData){
-		if (questionData.answer.rrsp > questionData.answer.tfsa) {
+		if (questionData.answer && questionData.answer.rrsp > questionData.answer.tfsa) {
 			return true;
 		}
 		return false;
