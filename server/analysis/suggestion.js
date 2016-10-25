@@ -6,8 +6,8 @@ module.exports = [
 {
 		"id" : "4",
 		"index" : "1",
-		"stake" : 0,
-		"perceivedStake" : 0,
+		"stake" : 20800,
+		"perceivedStake" : 4160,
 		"resources" : [
 			{"id" : "", "sample" : "Let's say I invest in a startup, either with money, work, etc. In return I am given a 5% stake in the company, but no salary, benefits, etc.", "title" : "How does start-up equity end up paying off?", "thumbnail" : "", "sourceName" : "StackExchange - Money", "link" : "http://money.stackexchange.com/questions/45101/how-does-start-up-equity-end-up-paying-off", "suggestion" : 0, "complexity" : 0, "wordCount" : 887, "isDubious" : false, "governmentSource" : false, "sourceId" : "", "language" : "EN"},
 			
@@ -26,8 +26,8 @@ module.exports = [
 	{
 		"id" : "5",
 		"index" : "2",
-		"stake" : 0,
-		"perceivedStake" : 0,
+		"stake" : 26500,
+		"perceivedStake" : 20000,
 		"resources" : [
 			{"id" : "", "sample" : "", "title" : "Calculatrice de prêt", "thumbnail" : "http://www4.bmo.com/images/bmobankpopup_fr.gif", "sourceName" : "BMO - Banque de Montréal", "link" : "http://www4.bmo.com/popup/prets/Calculator.html", "suggestion" : null, "complexity" : 0, "wordCount" : 114, "isDubious" : false, "governmentSource" : false, "sourceId" : "", "language" : "FR"},
 			
@@ -45,7 +45,7 @@ module.exports = [
 		"id" : "7",
 		"index" : "4",
 		"stake" : 0,
-		"perceivedStake" : 0,
+		"perceivedStake" : 240000,
 		"resources" : [
 			{"id" : "", "sample" : "A recent column comparing an investment in stocks to one on a GTA condo upset some readers. We revisit the story.", "title" : "Rent the condo, or buy it? Readers respond: Mayers", "thumbnail" : "", "sourceName" : "The Toronto Star", "link" : "http://www.thestar.com/business/personal_finance/2015/07/07/rent-the-condo-or-buy-it-readers-respond-mayers.html", "suggestion" : 3, "complexity" : 0, "wordCount" : 987, "isDubious" : false, "governmentSource" : false, "sourceId" : "29", "language" : "EN"},
 			
@@ -62,8 +62,8 @@ module.exports = [
 	{
 		"id" : "8",
 		"index" : "5",
-		"stake" : 0,
-		"perceivedStake" : 0,
+		"stake" : 1000,
+		"perceivedStake" : 2000,
 		"resources" : [
 			{"id" : "", "sample" : "Nous avons sélectionné 44 ordinateurs portables selon des critères tels que la puissance du processeur, la capacité du disque dur et l’autonomie de la pile.", "title" : "Ordinateurs portables: 44 modèles recommandés", "thumbnail" : "", "sourceName" : "Protégez-Vous", "link" : "http://www.protegez-vous.ca/technologie/test-ordinateurs-portables.html", "suggestion" : null, "complexity" : 0, "wordCount" : 365, "isDubious" : false, "governmentSource" : false, "sourceId" : "51", "language" : "FR"},
 			
@@ -85,7 +85,7 @@ module.exports = [
 		"id" : "9",
 		"index" : "6",
 		"stake" : 0,
-		"perceivedStake" : 0,
+		"perceivedStake" : 150,
 		"resources" : [
 			{"id" : "", "sample" : "Les survivalistes se préparent à faire face au chaos : catastrophe naturelle, guerre nucléaire ou effondrement de la société.", "title" : "Dans la tête des survivalistes", "thumbnail" : "", "sourceName" : "Radio-Canada", "link" : "http://ici.radio-canada.ca/regions/dossiers/2015/dans-la-tete-des-survivalistes/", "suggestion" : null, "complexity" : 0, "wordCount" : 832, "isDubious" : false, "governmentSource" : false, "sourceId" : "16", "language" : "FR"},
 			
@@ -108,8 +108,12 @@ module.exports = [
 	{
 		"id" : "11",
 		"index" : "8",
-		"stake" : 0,
-		"perceivedStake" : 0,
+		"stake" : function(user, answer){
+			return (answer.rrsp + answer.tfsa + answer.debt) * 1.28;
+		},
+		"perceivedStake" : function(user, answer){
+			return answer.rrsp + answer.tfsa + answer.debt;
+		},
 		"resources" : [
             {"id" : "", "sample" : "Les liens suivant donnent accès aux renseignements pour les rentiers, cotisants, et bénéficiaires des régimes enregistrés pour la retraite, l'achat ou la construction d'une habitation admissible, ou pour l'éducation permanente.", "title" : "REER et régimes connexes", "thumbnail" : "", "sourceName" : "Agence du Revenu du Canada", "link" : "http://www.cra-arc.gc.ca/tx/ndvdls/tpcs/rrsp-reer/menu-fra.html", "suggestion" : null, "complexity" : 0, "wordCount" : 221, "isDubious" : false, "governmentSource" : true, "sourceId" : "", "language" : "FR"},
 			
@@ -132,8 +136,8 @@ module.exports = [
 	{
 		"id" : "13",
 		"index" : "10",
-		"stake" : 0,
-		"perceivedStake" : 0,
+		"stake" : 4,
+		"perceivedStake" : 15,
 		"resources" : [
 			{"id" : "", "sample" : "", "title" : "Épiecerie en ligne", "thumbnail" : "", "sourceName" : "IGA", "link" : "https://www.iga.net/fr/epicerie_en_ligne/parcourir/Viande/Poulet", "suggestion" : null, "complexity" : 0, "wordCount" : 2533, "isDubious" : false, "governmentSource" : false, "sourceId" : "", "language" : "FR"},
 			
@@ -153,8 +157,8 @@ module.exports = [
 	{
 		"id" : "14",
 		"index" : "11",
-		"stake" : 0,
-		"perceivedStake" : 0,
+		"stake" : 500,
+		"perceivedStake" : 5000,
 		"resources" : [
 			{"id" : "", "sample" : "Nellie Akalp is CEO of CorpNet.com. Since forming more than 100,000 corporations and LLCs across the U.S, she has built a strong passion to assist small business owners...", "title" : "How To: Deal With Bad Clients", "thumbnail" : "Mashable", "sourceName" : "", "link" : "http://mashable.com/2011/08/03/freelancing-bad-clients/", "suggestion" : 2, "complexity" : 0, "wordCount" : 804, "isDubious" : false, "governmentSource" : false, "sourceId" : "4", "language" : "EN"},
 			
@@ -168,8 +172,8 @@ module.exports = [
 	{
 		"id" : "15",
 		"index" : "12",
-		"stake" : 0,
-		"perceivedStake" : 0,
+		"stake" : 450,
+		"perceivedStake" : 150,
 		"resources" : [
 			{"id" : "", "sample" : "Vous avez reçu une contravention que vous jugez imméritée? Vous pouvez la contester en cour.", "title" : "Comment contester une contravention?", "thumbnail" : "", "sourceName" : "Protégez-Vous", "link" : "http://www.protegez-vous.ca/automobile/comment-contester-une-contravention.html", "suggestion" : 1, "complexity" : 0, "wordCount" : 815, "isDubious" : false, "governmentSource" : false, "sourceId" : "51", "language" : "FR"},
 			
@@ -185,8 +189,8 @@ module.exports = [
 	{
 		"id" : "20",
 		"index" : "17",
-		"stake" : 0,
-		"perceivedStake" : 0,
+		"stake" : 500,
+		"perceivedStake" : 100000,
 		"resources" : [
             {"id" : "", "sample" : "Too many people, when faced with clients who range from dissatisfied to downright angry, choose the loser's path by putting off handling the situation.", "title" : "How to Handle an Angry Client", "thumbnail" : "", "sourceName" : "Entrepreneur.com", "link" : "http://www.entrepreneur.com/article/77404", "suggestion" : 3, "complexity" : 0, "wordCount" : 710, "isDubious" : false, "governmentSource" : false, "sourceId" : "", "language" : "EN"},
 			
@@ -206,7 +210,7 @@ module.exports = [
 	{
 		"id" : "22",
 		"index" : "19",
-		"stake" : 0,
+		"stake" : 500,
 		"perceivedStake" : 0,
 		"resources" : [
             {"id" : "", "sample" : "Faits saillants", "title" : "Rapport Sur le marché Locatif", "thumbnail" : "", "sourceName" : "SCHL", "link" : "http://www.cmhc-schl.gc.ca/odpub/esub/64449/64449_2014_A01.pdf", "suggestion" : 0, "complexity" : 0, "wordCount" : 11370, "isDubious" : false, "governmentSource" : false, "sourceId" : "", "language" : "FR"},
@@ -234,10 +238,14 @@ module.exports = [
 	{
 		"id" : "23",
 		"index" : "20",
-		"stake" : 0,
-		"perceivedStake" : 0,
+		"stake" : function(user, answer){
+			return (answer.rrsp + answer.tfsa + answer.spoil) * 1.16;
+		},
+		"perceivedStake" : function(user, answer){
+			return answer.rrsp + answer.tfsa + answer.spoil;
+		},
 		"resources" : [
-			{"id" : "", "sample" : "Les liens suivant donnent accès aux renseignements pour les rentiers, cotisants, et bénéficiaires des régimes enregistrés pour la retraite, l'achat ou la construction d'une habitation admissible, ou pour l'éducation permanente.", "title" : "REER et régimes connexes", "thumbnail" : "", "sourceName" : "Agence du Revenu du Canada", "link" : "http://www.cra-arc.gc.ca/tx/ndvdls/tpcs/rrsp-reer/menu-fra.html", "suggestion" : null, "complexity" : 0, "wordCount" : 258, "isDubious" : false, "governmentSource" : true, "sourceId" : "", "language" : "FR"},
+			{"id" : "", "sample" : "Les liens suivants donnent accès aux renseignements pour les rentiers, cotisants, et bénéficiaires des régimes enregistrés pour la retraite, l'achat ou la construction d'une habitation admissible, ou pour l'éducation permanente.", "title" : "REER et régimes connexes", "thumbnail" : "", "sourceName" : "Agence du Revenu du Canada", "link" : "http://www.cra-arc.gc.ca/tx/ndvdls/tpcs/rrsp-reer/menu-fra.html", "suggestion" : null, "complexity" : 0, "wordCount" : 258, "isDubious" : false, "governmentSource" : true, "sourceId" : "", "language" : "FR"},
 			
             {"id" : "", "sample" : "Vous avez 21 ans, vous venez de terminer vos études et d’entamer une carrière, et pour la première fois de votre vie, vous avez mis un peu d’argent de côté.", "title" : "L’importance de commencer jeune à épargner et à investir!", "thumbnail" : "", "sourceName" : "Groupe Investors", "link" : "http://www.groupeinvestors.com/fr/dans-les-medias/articles/placements/l-importance-de-commencer-jeune", "suggestion" : null, "complexity" : 0, "wordCount" : 542, "isDubious" : false, "governmentSource" : false, "sourceId" : "", "language" : "FR"},
 			
