@@ -9,6 +9,7 @@ var MILISECONDS_PER_HOUR = 3600000;
 var GAME_STAKE_MAX = 30;
 var GAME_STAKE_MIN = 10;
 var GAME_STAKE_MEAN = GAME_STAKE_MIN+((GAME_STAKE_MAX-GAME_STAKE_MIN)/2);
+var MEAN_TIME_FOR_QUESTION = MILISECONDS_PER_HOUR/24;
 
 var QUESTION_ORDER = [1,2,4,5,6,8,10,11,12,17,19,20];
 var RISKY_CHOICES = [0, 0, 0];
@@ -251,11 +252,15 @@ var runAnalysis = function(users, callback) {
 			user["resourceTrustIndex"] = user["totalResourcesUsed"] > 0 ? user["resourceAdvicesHeeded"]/user["totalResourcesUsed"] : 0;
 			
 			user["email"] = null;
-
-			answeredGameQuestions.forEach(function(answeredQuestion){
+			
+			var startTime;
+			answeredGameQuestions.forEach(function(answeredQuestion, aqi){
 				var effortBase = 0, 
 					effortCostSalary = 0,
 					effortCostBonus = 0;
+				if (!aqi) {
+					startTime = answeredQuestion.begunOn;
+				}
 				
 				answeredQuestion.usedResources.forEach(function(resource, rIndex){
 					resource["wordsRead"] = resource["timeSpent"] * user["wordsPerSecond"];
@@ -283,9 +288,19 @@ var runAnalysis = function(users, callback) {
 				answeredQuestion["effortBase"] = effortBase;
 				answeredQuestion["effortCostSalary"] = effortCostSalary;
 				answeredQuestion["effortCostBonus"] = effortCostBonus;
+				
+				answeredQuestion.isLateStart = null;
+				answeredQuestion.isLateEnd = null;
+				if (aqi) {
+					answeredQuestion.isLateStart = (answeredQuestion.begunOn - startTime) > (MEAN_TIME_FOR_QUESTION * aqi);
+				}
+				answeredQuestion.isLateEnd = (answeredQuestion.answeredOn - startTime) > (MEAN_TIME_FOR_QUESTION * (aqi+1));
+				answeredQuestion.isLate = answeredQuestion.isLateStart || answeredQuestion.isLateEnd;
 			});
-
-			answeredGameQuestions.forEach(function(answeredQuestion){
+			
+			
+			answeredGameQuestions.forEach(function(answeredQuestion, aqi){
+				
 				answeredQuestion.usedResources.forEach(function(resource, rIndex){
 					var resourceClone = JSON.parse(JSON.stringify(resource));
 					userAttributesToKeep.forEach(function(attr){
@@ -301,8 +316,6 @@ var runAnalysis = function(users, callback) {
 				userAttributesToKeep.forEach(function(attr){
 					questionClone[prefixify("user", attr)] = user[attr];
 				});
-				questionClone.questionIndex = answeredQuestion.index;
-				questionClone.questionTime = answeredQuestion.timeSpent;
 				questionClone.usedResources = questionClone.usedResources.length;
 				allQuestions.push(questionClone);
 			});
