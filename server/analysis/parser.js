@@ -353,7 +353,7 @@ var parseQuestions = function(){
 	});
 	
 	var keys = Object.keys(allQuestionsKeys);
-	allQuestions.forEach(function(parsedQuestion){
+	allQuestions.forEach(function(parsedQuestion, i){
 		var newEntry = {};
 		keys.forEach(function(key){
 			newEntry[key] = parsedQuestion[key]===undefined ? null : parsedQuestion[key];
@@ -368,6 +368,7 @@ var replaceBooleans = function(object) {
 			object[key] = object[key] ? 1 : 0;
 		}
 	});
+	return object;
 };
 
 
