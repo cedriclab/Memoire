@@ -341,7 +341,7 @@ var parseResources = function(){
 		keys.forEach(function(key){
 			newEntry[key] = parsedResource[key]===undefined ? null : parsedResource[key];
 		});
-		normalizedResources.push(newEntry);
+		normalizedResources.push(replaceBooleans(newEntry));
 	});
 };
 
@@ -358,7 +358,15 @@ var parseQuestions = function(){
 		keys.forEach(function(key){
 			newEntry[key] = parsedQuestion[key]===undefined ? null : parsedQuestion[key];
 		});
-		normalizedQuestions.push(newEntry);
+		normalizedQuestions.push(replaceBooleans(newEntry));
+	});
+};
+
+var replaceBooleans = function(object) {
+	Object.keys(object).forEach(function(key){
+		if (typeof(object[key])=="boolean") {
+			object[key] = object[key] ? 1 : 0;
+		}
 	});
 };
 
