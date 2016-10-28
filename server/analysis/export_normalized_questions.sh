@@ -1,3 +1,11 @@
+touch users_parsed.csv
 touch normalized_questions.csv
+touch normalized_resources.csv
 
 mongoexport --db memoire_manips --collection normalized_questions --type=csv --fields id,index,begunOn,answeredOn,answer,usedResources,instantImpact,recurringImpact,previousBalance,timeSpent,timeBeforeFirstResource,articlesRead,rawDataUsed,adviceUsed,dubiousArticlesRead,dubiousArticlesHeeded,trustedArticlesRead,trustedArticlesHeeded,heededResourceAdvice,heededAdviceAdvice,rightAnswer,stake,percievedStake,effortBase,effortCostSalary,effortCostBonus,isLateStart,isLateEnd,isLate,user_id,userBalance,userResourceTrustIndex,userRiskAversionIndex,userGullibilityIndex,userSkillIndex,userMathSkillIndex,userFieldOfStudy,userEnglishSkills,userArticlesRead,userRawDataUsed,userAdviceUsed,userDubiousArticlesRead,userDubiousArticlesHeeded,userTrustedArticlesRead,userTrustedArticlesHeeded,userAdviceAdvicesHeeded,userTotalResourcesUsed --out normalized_questions.csv
+
+Rscript analysis.Rd ${pwd}
+
+rm users_parsed.csv
+rm normalized_questions.csv
+rm normalized_resources.csv
