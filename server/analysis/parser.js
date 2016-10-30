@@ -173,6 +173,8 @@ var runAnalysis = function(users, callback) {
 				answeredQuestion["heededResourceAdvice"] = false;
 				answeredQuestion["heededAdviceAdvice"] = false;
 				
+				answeredQuestion["requiresMath"] = additionalData.requiresMath || false;
+				
 				answeredQuestion["rightAnswer"] = false;
 				if (localAviceData.heedCheck) {
 					answeredQuestion["rightAnswer"] = localAviceData.heedCheck(answeredQuestion);

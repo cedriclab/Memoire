@@ -1,11 +1,11 @@
 #
-#	UniversitÃ© de Sherbrooke
+#	Université de Sherbrooke
 #	
-#	MÃ©moire de recherche en vue de l'obtention du grade de M.Sc. Ã‰conomie
+#	MÃ©moire de recherche en vue de l'obtention du grade de M.Sc. Économie
 #	
-#	CÃ©dric Levasseur-Laberge
+#	Cédric Levasseur-Laberge
 #
-#	Sous la supervision de DorothÃ©e Boccanfuso et Kim Lehrer
+#	Sous la supervision de Dorothée Boccanfuso et Kim Lehrer
 #
 #	2016
 #
@@ -30,6 +30,8 @@ questionData[["logPerceivedStake"]] = log(questionData$perceivedStake+1);
 questionData[["logEffortBase"]] = log(questionData$effortBase+1);
 questionData[["logEffortCostSalary"]] = log(questionData$effortCostSalary+1);
 questionData[["logEffortCostBonus"]] = log(questionData$effortCostBonus+1);
+questionData[["logTimeCostSalary"]] = log(questionData$timeCostSalary+1);
+questionData[["logTimeCostBonus"]] = log(questionData$timeCostBonus+1);
 
 #	Parse into data.frame objects
 userDataFrame <- data.frame(userData);
@@ -64,3 +66,27 @@ summary(model6Results);
 
 model6aResults <- lm(model6, answeredQuestionDataFrame);
 summary(model6aResults);
+
+model7 <- as.formula("timeCostSalary ~ logStake + userSkillIndex + userRiskAversionIndex + isLate");
+model7Results <- lm(model7, answeredQuestionDataFrame);
+summary(model7Results);
+
+model8 <- as.formula("timeCostSalary ~ logPerceivedStake + userSkillIndex + userRiskAversionIndex + isLate");
+model8Results <- lm(model8, answeredQuestionDataFrame);
+summary(model8Results);
+
+model9 <- as.formula("timeCostBonus ~ logStake + userSkillIndex + userRiskAversionIndex + isLate");
+model9Results <- lm(model9, answeredQuestionDataFrame);
+summary(model9Results);
+
+model10 <- as.formula("timeCostBonus ~ logPerceivedStake + userSkillIndex + userRiskAversionIndex + isLate");
+model10Results <- lm(model10, answeredQuestionDataFrame);
+summary(model10Results);
+
+model11 <- as.formula("logEffortBase ~ logPerceivedStake + userSkillIndex + userRiskAversionIndex + isLate");
+model11Results <- lm(model11, questionDataFrame);
+summary(model11Results);
+
+model12 <- as.formula("logEffortBase ~ logPerceivedStake + userRiskAversionIndex + isLate");
+model12Results <- lm(model12, questionDataFrame);
+summary(model12Results);
