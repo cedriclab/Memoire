@@ -10,21 +10,35 @@
 #	2016
 #
 
+QUESTION_COUNT <- 12;
+QUESTION_ORDER <- c(0,1,3,4,5,7,9,10,11,16,18,19);
+QUESTIONS_WITH_CHOICES = c(0,1,3,4,5,9,10,11,16,18);
+currentOS <- Sys.info()['sysname'];
+
+
 if (length(args) == 1) {
 	setwd(args[1]);
+} else if (currentOS=edriclevasseur-laberge/Documents/Cours/Memoire/server/analysis");
+} else if (currentOS="Darwin") {
+	setwd("/Users/c=="Windows") {
+	setwd("/Users/Cedric/Documents/Cours/Memoire/server/analysis");
 }
 
-setwd("/Users/cedriclevasseur-laberge/Documents/Cours/Memoire/server/analysis");
+mode <- function(x) {
+	ux <- unique(x);
+	ux[which.max(tabulate(match(x, ux)))];
+};
 
-QUESTION_COUNT <- 12;
+modes <- rep(NA,QUESTION_COUNT);
+
 
 #	Load data files
-userDataFileName <- "./users_parsed.csv";
-userData <- read.csv(userDataFileName, header=TRUE);
+#userDataFileName <- "./users_parsed.csv";
+#userData <- read.csv(userDataFileName, header=TRUE);
 questionDataFileName <- "./normalized_questions.csv";
 questionData <- read.csv(questionDataFileName, header=TRUE);
-resourceDataFileName <- "./normalized_resources.csv";
-resourceData <- read.csv(resourceDataFileName, header=TRUE);
+#resourceDataFileName <- "./normalized_resources.csv";
+#resourceData <- read.csv(resourceDataFileName, header=TRUE);
 
 questionData[["logStake"]] = log(questionData$stake+1);
 questionData[["logPerceivedStake"]] = log(questionData$perceivedStake+1);
@@ -49,10 +63,20 @@ questionData[["usedAdvice"]] = as.integer(as.logical(questionData$adviceUsed));
 #	Parse into data.frame objects
 userDataFrame <- data.frame(userData);
 questionDataFrame <- data.frame(questionData);
-answeredQuestionDataFrame <- subset(questionDataFrame, timeSpent > 0);
+answeredQuestionDataFrame <- subset(questionDataFrame, !is.null(answer));
 answeredQuestionDataFrameExcludingFirst <- subset(answeredQuestionDataFrame, index > 0);
 answeredQuestionDataFrameWithEffortIndex <- subset(answeredQuestionDataFrame, is.finite(logEffortIndex));
 resourceDataFrame <- data.frame(resourceData);
+
+counter <- 0;
+for (i in QUESTION_ORDER) {
+	counter = counter+1;
+	if (!is.na(match(i, QUESTIONS_WITH_CHOICES))) {
+		y <- subset(answeredQuestionDataFrame, index==i)[["answer"]];
+		t <- mode(as.numeric(levels(y))[y]);
+		modes[counter] <- t;
+	}
+}
 
 #	Test models
 model1 <- as.formula("logEffortCostBonus ~ logStake + userSkillIndex + userRiskAversionIndex + isLate");
