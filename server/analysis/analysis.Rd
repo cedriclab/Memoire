@@ -84,9 +84,13 @@ model10Results <- lm(model10, answeredQuestionDataFrame);
 summary(model10Results);
 
 model11 <- as.formula("logEffortBase ~ logPerceivedStake + userSkillIndex + userRiskAversionIndex + isLate");
-model11Results <- lm(model11, questionDataFrame);
+model11Results <- lm(model11, answeredQuestionDataFrame);
 summary(model11Results);
 
 model12 <- as.formula("logEffortBase ~ logPerceivedStake + userRiskAversionIndex + isLate");
-model12Results <- lm(model12, questionDataFrame);
+model12Results <- lm(model12, answeredQuestionDataFrame);
 summary(model12Results);
+
+model13 <- as.formula("logEffortBase ~ logPerceivedStake + userRiskAversionIndex + isLateStart");
+model13Results <- lm(model13, subset(answeredQuestionDataFrame, index > 0));
+summary(model13Results);
