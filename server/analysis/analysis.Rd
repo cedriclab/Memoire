@@ -14,6 +14,8 @@ if (length(args) == 1) {
 	setwd(args[1]);
 }
 
+setwd("/Users/cedriclevasseur-laberge/Documents/Cours/Memoire/server/analysis");
+
 QUESTION_COUNT <- 12;
 
 #	Load data files
@@ -27,16 +29,29 @@ resourceData <- read.csv(resourceDataFileName, header=TRUE);
 questionData[["logStake"]] = log(questionData$stake+1);
 questionData[["logPerceivedStake"]] = log(questionData$perceivedStake+1);
 
+questionData[["stakeFromImpact"]] = questionData$instantImpact + questionData$recurringImpact;
+questionData[["perceivedStakeFromImpact"]] = (questionData$instantImpact + questionData$recurringImpact + questionData$perceivedStake)/2;
+questionData[["logStakeFromImpact"]] = log(questionData$stakeFromImpact+1);
+questionData[["logPerceivedStakeFromImpact"]] = log(questionData$perceivedStakeFromImpact+1);
+
 questionData[["logEffortBase"]] = log(questionData$effortBase+1);
 questionData[["logEffortCostSalary"]] = log(questionData$effortCostSalary+1);
 questionData[["logEffortCostBonus"]] = log(questionData$effortCostBonus+1);
+questionData[["logTimeSpent"]] = log(questionData$timeSpent+1);
 questionData[["logTimeCostSalary"]] = log(questionData$timeCostSalary+1);
 questionData[["logTimeCostBonus"]] = log(questionData$timeCostBonus+1);
+
+questionData[["logEffortIndex"]] = (questionData$logEffortBase-log(questionData$userMinEffort+1))/(log(questionData$userMaxEffort+1)-log(questionData$userMinEffort+1));
+
+questionData[["usedAnyResource"]] = as.integer(as.logical(questionData$usedResources));
+questionData[["usedAdvice"]] = as.integer(as.logical(questionData$adviceUsed));
 
 #	Parse into data.frame objects
 userDataFrame <- data.frame(userData);
 questionDataFrame <- data.frame(questionData);
-answeredQuestionDataFrame <- subset(questionDataFrame, timeSpent > 0 & answer != NULL);
+answeredQuestionDataFrame <- subset(questionDataFrame, timeSpent > 0);
+answeredQuestionDataFrameExcludingFirst <- subset(answeredQuestionDataFrame, index > 0);
+answeredQuestionDataFrameWithEffortIndex <- subset(answeredQuestionDataFrame, is.finite(logEffortIndex));
 resourceDataFrame <- data.frame(resourceData);
 
 #	Test models
@@ -90,3 +105,56 @@ summary(model11Results);
 model12 <- as.formula("logEffortBase ~ logPerceivedStake + userRiskAversionIndex + isLate");
 model12Results <- lm(model12, questionDataFrame);
 summary(model12Results);
+
+model13 <- as.formula("logEffortBase ~ logPerceivedStakeFromImpact + userRiskAversionIndex + isLate");
+model13Results <- lm(model13, answeredQuestionDataFrame);
+summary(model13Results);
+
+model14 <- as.formula("logEffortBase ~ logPerceivedStakeFromImpact + userRiskAversionIndex + isLate + bigNumbers");
+model14Results <- lm(model14, answeredQuestionDataFrame);
+summary(model14Results);
+
+model15 <- as.formula("logEffortBase ~ logPerceivedStakeFromImpact + userRiskAversionIndex + isLate + bigNumbers + justLostMoney");
+model15Results <- lm(model15, answeredQuestionDataFrame);
+summary(model15Results);
+
+model16 <- as.formula("logEffortBase ~ logPerceivedStakeFromImpact + userRiskAversionIndex + isLate + requiresMath + justLostMoney");
+model16Results <- lm(model16, answeredQuestionDataFrame);
+summary(model16Results);
+
+model17 <- as.formula("logEffortBase ~ logPerceivedStakeFromImpact + userRiskAversionIndex + isLate + requiresMath");
+model17Results <- lm(model17, answeredQuestionDataFrame);
+summary(model17Results);
+
+model18 <- as.formula("logEffortBase ~ logPerceivedStakeFromImpact + isLate + requiresMath");
+model18Results <- lm(model18, answeredQuestionDataFrame);
+summary(model18Results);
+
+model19 <- as.formula("logEffortIndex ~ logPerceivedStakeFromImpact + isLate + requiresMath");
+model19Results <- lm(model19, answeredQuestionDataFrameWithEffortIndex);
+summary(model19Results);
+
+model19GLMResults <- glm(model19, answeredQuestionDataFrameWithEffortIndex, family="binomial");
+summary(model19GLMResults);
+
+model20 <- as.formula("usedResources ~ logPerceivedStakeFromImpact + isLate + requiresMath");
+model20Results <- lm(model20, answeredQuestionDataFrame);
+summary(model20Results);
+
+model21 <- as.formula("logTimeSpent ~ logPerceivedStakeFromImpact + isLate + requiresMath");
+model21Results <- lm(model21, answeredQuestionDataFrame);
+summary(model21Results);
+
+model22 <- as.formula("usedAnyResource ~ logPerceivedStakeFromImpact + isLate + requiresMath");
+model22Results <- lm(model22, answeredQuestionDataFrame);
+summary(model22Results);
+
+model22GLMResults <- glm(model22, answeredQuestionDataFrame, family="binomial");
+summary(model22GLMResults);
+
+model23 <- as.formula("usedAdvice ~ logPerceivedStakeFromImpact + isLate + requiresMath");
+model23Results <- lm(model23, answeredQuestionDataFrame);
+summary(model22Results);
+
+model23GLMResults <- glm(model23, answeredQuestionDataFrame, family="binomial");
+summary(model23GLMResults);
