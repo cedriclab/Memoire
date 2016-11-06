@@ -11,6 +11,8 @@ var GAME_STAKE_MIN = 10;
 var GAME_STAKE_MEAN = GAME_STAKE_MIN+((GAME_STAKE_MAX-GAME_STAKE_MIN)/2);
 var MEAN_TIME_FOR_QUESTION = MILISECONDS_PER_HOUR/24;
 
+var INITIAL_DOWRY = 5000;
+
 var QUESTION_ORDER = [1,2,4,5,6,8,10,11,12,17,19,20];
 var RISKY_CHOICES = [0, 0, 0];
 
@@ -52,7 +54,7 @@ var normalizedQuestions = [];
 var prefixify = function(prefix, word){
 	return prefix + word[0].toUpperCase() + word.substring(1);
 };
-var userAttributesToKeep = ["_id", "balance", "resourceTrustIndex", "riskAversionIndex", "gullibilityIndex", "skillIndex", "mathSkillIndex", "fieldOfStudy", "studyProgram", "englishSkills", "articlesRead", "rawDataUsed", "adviceUsed", "dubiousArticlesRead", "dubiousArticlesHeeded", "trustedArticlesRead", "trustedArticlesHeeded", "adviceAdvicesHeeded", "totalResourcesUsed", "resourceTrustIndex", "totalResourcesUsed"];
+var userAttributesToKeep = ["_id", "balance", "resourceTrustIndex", "riskAversionIndex", "gullibilityIndex", "skillIndex", "mathSkillIndex", "fieldOfStudy", "studyProgram", "englishSkills", "articlesRead", "rawDataUsed", "adviceUsed", "dubiousArticlesRead", "dubiousArticlesHeeded", "trustedArticlesRead", "trustedArticlesHeeded", "adviceAdvicesHeeded", "totalResourcesUsed", "resourceTrustIndex", "totalResourcesUsed", "maxEffort", "minEffort"];
 var questionAttributesToKeep = ["index", "timeSpent", "rightAnswer", "stake", "perceivedStake", "effort", "effortBase", "effortCostSalary", "effortCostBonus"];
 
 var countQuestionWords = function(q){
@@ -62,15 +64,12 @@ var countQuestionWords = function(q){
 		return a + b.title.split(" ").length + b.sample.split(" ").length;
 	}, 0) : 0);
 };
-console.log(rawQuestions.length);
 
 questionSuggestions.forEach(function(q, qi){
 	additionalDataHash[q.index] = q;
 	var rawQuestion = rawQuestions[QUESTION_ORDER[qi]+2];
 	q["questionWordCount"] = countQuestionWords(rawQuestion);
 });
-
-console.log(Object.keys(additionalDataHash));
 
 var warmupLengths = [0, 0, 0].map(function(n, i){
 	return countQuestionWords(rawQuestions[i]);
@@ -80,7 +79,6 @@ var numerize = function(value) {
 	if (typeof(value)=="number" && value===value) {
 		return value;
 	} else if (typeof(value)=="string") {
-		console.log("Parsing string answer", value);
 		var fl = parseFloat(value.replace(",", ".").replace(/[^0-9.]/g, ""));
 		return fl===fl ? fl : null;
 	} else if (typeof(value)=="object") {
@@ -156,6 +154,8 @@ var runAnalysis = function(users, callback) {
 			var totalResourcesUsed = 0;
 			
 			var rightAnswers = 0;
+			
+			var maxEffort = 0, minEffort = 0;
 
 			var answeredGameQuestions = QUESTION_ORDER.map(function(qIndex){
 				var answeredQuestion = user.answeredGameQuestions[qIndex-1];
@@ -174,6 +174,7 @@ var runAnalysis = function(users, callback) {
 				answeredQuestion["heededAdviceAdvice"] = false;
 				
 				answeredQuestion["requiresMath"] = additionalData.requiresMath || false;
+				answeredQuestion["bigNumbers"] = additionalData.bigNumbers || false;
 				
 				answeredQuestion["rightAnswer"] = false;
 				if (localAviceData.heedCheck) {
@@ -185,6 +186,9 @@ var runAnalysis = function(users, callback) {
 				if (answeredQuestion["rightAnswer"]) {
 					rightAnswers++;
 				}
+				
+				answeredQuestion["belowStartBudget"] = answeredQuestion["previousBalance"] < INITIAL_DOWRY;
+				answeredQuestion["below1000"] = answeredQuestion["previousBalance"] < 1000;
 
 				answeredQuestion.usedResources.forEach(function(resource, rIndex){
 					
@@ -288,6 +292,15 @@ var runAnalysis = function(users, callback) {
 					startTime = answeredQuestion.begunOn;
 				}
 				
+				answeredQuestion["justLostMoney"] = null;
+				if (aqi) {
+					if (aqi < answeredGameQuestions.length-1) {
+						answeredQuestion["justLostMoney"] = answeredGameQuestions[aqi+1].previousBalance > answeredQuestion.previousBalance;
+					} else {
+						answeredQuestion["justLostMoney"] = user.balance > answeredQuestion.previousBalance;
+					}
+				}
+				
 				answeredQuestion.usedResources.forEach(function(resource, rIndex){
 					resource["wordsRead"] = resource["timeSpent"] * user["wordsPerSecond"];
 					if (resource.language=="EN") {
@@ -316,9 +329,20 @@ var runAnalysis = function(users, callback) {
 					
 					resource["timeCostSalary"] = resource["timeSpent"]*((user.salary || MINIMUM_WAGE)/MILISECONDS_PER_HOUR);
 					resource["timeCostBonus"] = resource["timeSpent"]*(GAME_STAKE_MEAN/(MILISECONDS_PER_HOUR/2));
+
 				});
 				
-				answeredQuestion["effortBase"] = effortBase ? (effortBase + ((answeredQuestion.timeBeforeFirstResource * (10-Math.sqrt(user["skillIndex"])))/10) ) : ((answeredQuestion.timeSpent * (10-Math.sqrt(user["skillIndex"]))/10) ); //uses square root to squeeze distribution
+				effortBase = effortBase ? (effortBase + ((answeredQuestion.timeBeforeFirstResource * (10-Math.sqrt(user["skillIndex"])))/10) ) : ((answeredQuestion.timeSpent * (10-Math.sqrt(user["skillIndex"]))/10) ); //uses square root to squeeze distribution
+				
+				if (!aqi) {
+					maxEffort = effortBase;
+					minEffort = effortBase;
+				}
+					
+				maxEffort = effortBase>maxEffort ? effortBase : maxEffort;
+				minEffort = effortBase<minEffort ? effortBase : minEffort;
+				
+				answeredQuestion["effortBase"] = effortBase;
 				answeredQuestion["effortCostSalary"] = effortBase*((user.salary || MINIMUM_WAGE)/MILISECONDS_PER_HOUR);
 				answeredQuestion["effortCostBonus"] = effortBase*(GAME_STAKE_MEAN/(MILISECONDS_PER_HOUR/2));
 				
@@ -333,7 +357,9 @@ var runAnalysis = function(users, callback) {
 				answeredQuestion.isLateEnd = (answeredQuestion.answeredOn - startTime) > (MEAN_TIME_FOR_QUESTION * (aqi+1));
 				answeredQuestion.isLate = answeredQuestion.isLateStart || answeredQuestion.isLateEnd;
 			});
-			
+
+			user["maxEffort"] = maxEffort;
+			user["minEffort"] = minEffort;
 			
 			answeredGameQuestions.forEach(function(answeredQuestion, aqi){
 				
