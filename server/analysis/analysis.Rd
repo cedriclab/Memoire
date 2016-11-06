@@ -18,10 +18,10 @@ currentOS <- Sys.info()['sysname'];
 
 if (length(args) == 1) {
 	setwd(args[1]);
-} else if (currentOS=edriclevasseur-laberge/Documents/Cours/Memoire/server/analysis");
-} else if (currentOS="Darwin") {
-	setwd("/Users/c=="Windows") {
+} else if (currentOS=="Windows") {
 	setwd("/Users/Cedric/Documents/Cours/Memoire/server/analysis");
+} else if (currentOS="Darwin") {
+	setwd("/Users/cedriclevasseur-laberge/Documents/Cours/Memoire/server/analysis");
 }
 
 mode <- function(x) {
@@ -63,9 +63,7 @@ questionData[["usedAdvice"]] = as.integer(as.logical(questionData$adviceUsed));
 #	Parse into data.frame objects
 userDataFrame <- data.frame(userData);
 questionDataFrame <- data.frame(questionData);
-answeredQuestionDataFrame <- subset(questionDataFrame, !is.null(answer));
-answeredQuestionDataFrameExcludingFirst <- subset(answeredQuestionDataFrame, index > 0);
-answeredQuestionDataFrameWithEffortIndex <- subset(answeredQuestionDataFrame, is.finite(logEffortIndex));
+answeredQuestionDataFrame <- subset(questionDataFrame, timeSpent > 0);
 resourceDataFrame <- data.frame(resourceData);
 
 counter <- 0;
@@ -77,6 +75,13 @@ for (i in QUESTION_ORDER) {
 		modes[counter] <- t;
 	}
 }
+
+questionDataFrame$questionMode <- modes[match(questionDataFrame$index, QUESTION_ORDER)];
+
+answeredQuestionDataFrame <- subset(questionDataFrame, timeSpent > 0);
+answeredQuestionDataFrameExcludingFirst <- subset(answeredQuestionDataFrame, index > 0);
+answeredQuestionDataFrameWithEffortIndex <- subset(answeredQuestionDataFrame, is.finite(logEffortIndex));
+
 
 #	Test models
 model1 <- as.formula("logEffortCostBonus ~ logStake + userSkillIndex + userRiskAversionIndex + isLate");
