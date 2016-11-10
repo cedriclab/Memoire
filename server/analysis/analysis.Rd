@@ -49,8 +49,8 @@ questionData[["logStakeFromImpact"]] = log(questionData$stakeFromImpact+1);
 questionData[["logPerceivedStakeFromImpact"]] = log(questionData$perceivedStakeFromImpact+1);
 
 questionData[["logEffortBase"]] = log(questionData$effortBase+1);
-questionData[["logEffortCostSalary"]] = log(questionData$effortCostSalary+1);
-questionData[["logEffortCostBonus"]] = log(questionData$effortCostBonus+1);
+questionData[["logCostSalary"]] = log(questionData$costSalary+1);
+questionData[["logCostBonus"]] = log(questionData$costBonus+1);
 questionData[["logTimeSpent"]] = log(questionData$timeSpent+1);
 questionData[["logTimeCostSalary"]] = log(questionData$timeCostSalary+1);
 questionData[["logTimeCostBonus"]] = log(questionData$timeCostBonus+1);
@@ -85,23 +85,23 @@ answeredQuestionDataFrameWithEffortIndex <- subset(answeredQuestionDataFrame, is
 
 
 #	Test models
-model1 <- as.formula("logEffortCostBonus ~ logStake + userSkillIndex + userRiskAversionIndex + isLate");
+model1 <- as.formula("logCostBonus ~ logStake + userSkillIndex + userRiskAversionIndex + isLate");
 model1Results <- lm(model1, questionDataFrame);
 summary(model1Results);
 
-model2 <- as.formula("logEffortCostSalary ~ logStake + userSkillIndex + userRiskAversionIndex + isLate");
+model2 <- as.formula("logCostSalary ~ logStake + userSkillIndex + userRiskAversionIndex + isLate");
 model2Results <- lm(model2, questionDataFrame);
 summary(model2Results);
 
-model3 <- as.formula("logEffortCostBonus ~ logPerceivedStake + userSkillIndex + userRiskAversionIndex + isLate");
+model3 <- as.formula("logCostBonus ~ logPerceivedStake + userSkillIndex + userRiskAversionIndex + isLate");
 model3Results <- lm(model3, questionDataFrame);
 summary(model3Results);
 
-model4 <- as.formula("logEffortCostSalary ~ logPerceivedStake + userSkillIndex + userRiskAversionIndex + isLate");
+model4 <- as.formula("logCostSalary ~ logPerceivedStake + userSkillIndex + userRiskAversionIndex + isLate");
 model4Results <- lm(model4, questionDataFrame);
 summary(model4Results);
 
-model5 <- as.formula("logEffortCostBonus ~ logStake + isLate");
+model5 <- as.formula("logCostBonus ~ logStake + isLate");
 model5Results <- lm(model5, questionDataFrame);
 summary(model5Results);
 
