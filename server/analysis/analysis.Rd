@@ -20,7 +20,7 @@ if (length(args) == 1) {
 	setwd(args[1]);
 } else if (currentOS=="Windows") {
 	setwd("/Users/Cedric/Documents/Cours/Memoire/server/analysis");
-} else if (currentOS="Darwin") {
+} else if (currentOS=="Darwin") {
 	setwd("/Users/cedriclevasseur-laberge/Documents/Cours/Memoire/server/analysis");
 }
 
@@ -77,6 +77,7 @@ for (i in QUESTION_ORDER) {
 }
 
 questionDataFrame$questionMode <- modes[match(questionDataFrame$index, QUESTION_ORDER)];
+questionDataFrame$answerIsMode <- as.numeric(as.logical(questionDataFrame$answer == questionDataFrame$questionMode));
 
 answeredQuestionDataFrame <- subset(questionDataFrame, timeSpent > 0);
 answeredQuestionDataFrameExcludingFirst <- subset(answeredQuestionDataFrame, index > 0);
