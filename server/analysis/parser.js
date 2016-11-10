@@ -319,8 +319,8 @@ var runAnalysis = function(users, callback) {
 					
 					if (resource.resource=="advice") {
 						resource["effortBase"] = resource["timeSpent"];
-						resource["costSalary"] = resource["amountSpent"];
-						resource["costBonus"] = resource["amountSpent"];
+						resource["costSalary"] = resource["amountSpent"] + resource["timeSpent"]*((user.salary || MINIMUM_WAGE)/MILISECONDS_PER_HOUR);
+						resource["costBonus"] = resource["amountSpent"] + resource["timeSpent"]*GAME_STAKE_BONUS_PER_MILISECOND;
 					} else {
 						if (resource.resource=="rawData") {
 							resource["effortBase"] = resource["timeSpent"]*user["userMathSkillWeight"]; //uses square root to squeeze distribution
