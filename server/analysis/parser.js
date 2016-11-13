@@ -56,7 +56,7 @@ var normalizedQuestions = [];
 var prefixify = function(prefix, word){
 	return prefix + word[0].toUpperCase() + word.substring(1);
 };
-var userAttributesToKeep = ["_id", "balance", "resourceTrustIndex", "riskAversionIndex", "gullibilityIndex", "skillIndex", "mathSkillIndex", "fieldOfStudy", "studyProgram", "englishSkills", "articlesRead", "rawDataUsed", "adviceUsed", "dubiousArticlesRead", "dubiousArticlesHeeded", "trustedArticlesRead", "trustedArticlesHeeded", "adviceAdvicesHeeded", "totalResourcesUsed", "resourceTrustIndex", "totalResourcesUsed", "maxEffort", "minEffort", "mathSkillWeight", "skillWeight"];
+var userAttributesToKeep = ["_id", "balance", "resourceTrustIndex", "riskAversionIndex", "gullibilityIndex", "skillIndex", "mathSkillIndex", "fieldOfStudy", "studyProgram", "englishSkills", "articlesRead", "wordsPerSecond", "rawDataUsed", "adviceUsed", "dubiousArticlesRead", "dubiousArticlesHeeded", "trustedArticlesRead", "trustedArticlesHeeded", "adviceAdvicesHeeded", "totalResourcesUsed", "resourceTrustIndex", "totalResourcesUsed", "maxEffort", "minEffort", "mathSkillWeight", "skillWeight", "rightAnswers"];
 var questionAttributesToKeep = ["index", "timeSpent", "rightAnswer", "stake", "perceivedStake", "effort", "effortBase", "costSalary", "costBonus"];
 
 var countQuestionWords = function(q){
@@ -319,7 +319,7 @@ var runAnalysis = function(users, callback) {
 					
 					if (resource.resource=="advice") {
 						resource["effortBase"] = resource["timeSpent"];
-						resource["costSalary"] = resource["amountSpent"] + resource["timeSpent"]*((user.salary || MINIMUM_WAGE)/MILISECONDS_PER_HOUR);
+						resource["costSalary"] = resource["amountSpent"] + resource["timeSpent"]*((user.salary || MINIMUM_WAGE)/MILISECONDS_PER_HOUR); //NO!!! they didn't spent 20$ out of pocket! it's 20$ in the GAME!!!
 						resource["costBonus"] = resource["amountSpent"] + resource["timeSpent"]*GAME_STAKE_BONUS_PER_MILISECOND;
 					} else {
 						if (resource.resource=="rawData") {

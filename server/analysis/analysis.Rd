@@ -61,10 +61,10 @@ questionData[["usedAnyResource"]] = as.integer(as.logical(questionData$usedResou
 questionData[["usedAdvice"]] = as.integer(as.logical(questionData$adviceUsed));
 
 #	Parse into data.frame objects
-userDataFrame <- data.frame(userData);
+#userDataFrame <- data.frame(userData);
 questionDataFrame <- data.frame(questionData);
 answeredQuestionDataFrame <- subset(questionDataFrame, timeSpent > 0);
-resourceDataFrame <- data.frame(resourceData);
+#resourceDataFrame <- data.frame(resourceData);
 
 counter <- 0;
 for (i in QUESTION_ORDER) {
@@ -79,38 +79,38 @@ for (i in QUESTION_ORDER) {
 questionDataFrame$questionMode <- modes[match(questionDataFrame$index, QUESTION_ORDER)];
 questionDataFrame$answerIsMode <- as.numeric(as.logical(questionDataFrame$answer == questionDataFrame$questionMode));
 
+questionDataFrame$rightAnswerZScore = scale(questionDataFrame$rightAnswers, center=TRUE, scale=TRUE);
+questionDataFrame$userSkillZScore = scale(questionDataFrame$userSkillIndex, center=TRUE, scale=TRUE);
+
 answeredQuestionDataFrame <- subset(questionDataFrame, timeSpent > 0);
-answeredQuestionDataFrameExcludingFirst <- subset(answeredQuestionDataFrame, index > 0);
+answeredQuestionDataFrame$isLateStart <- as.numeric(as.logical(answeredQuestionDataFrame$isLateStart==1 & !is.na(answeredQuestionDataFrame$isLateStart)));
 answeredQuestionDataFrameWithEffortIndex <- subset(answeredQuestionDataFrame, is.finite(logEffortIndex));
 
 
 #	Test models
-model1 <- as.formula("logCostBonus ~ logStake + userSkillIndex + userRiskAversionIndex + isLate");
-model1Results <- lm(model1, questionDataFrame);
+model1 <- as.formula("logCostBonus ~ logStake + userRiskAversionIndex + isLateStart");
+model1Results <- lm(model1, answeredQuestionDataFrame);
 summary(model1Results);
 
-model2 <- as.formula("logCostSalary ~ logStake + userSkillIndex + userRiskAversionIndex + isLate");
-model2Results <- lm(model2, questionDataFrame);
+model2 <- as.formula("logCostSalary ~ logStake + userRiskAversionIndex + isLateStart");
+model2Results <- lm(model2, answeredQuestionDataFrame);
 summary(model2Results);
 
-model3 <- as.formula("logCostBonus ~ logPerceivedStake + userSkillIndex + userRiskAversionIndex + isLate");
-model3Results <- lm(model3, questionDataFrame);
+model3 <- as.formula("logCostBonus ~ logPerceivedStake + userRiskAversionIndex + isLateStart");
+model3Results <- lm(model3, answeredQuestionDataFrame);
 summary(model3Results);
 
-model4 <- as.formula("logCostSalary ~ logPerceivedStake + userSkillIndex + userRiskAversionIndex + isLate");
-model4Results <- lm(model4, questionDataFrame);
+model4 <- as.formula("logCostSalary ~ logPerceivedStake + userRiskAversionIndex + isLateStart");
+model4Results <- lm(model4, answeredQuestionDataFrame);
 summary(model4Results);
 
-model5 <- as.formula("logCostBonus ~ logStake + isLate");
-model5Results <- lm(model5, questionDataFrame);
+model5 <- as.formula("logCostBonus ~ logStake + isLateStart");
+model5Results <- lm(model5, answeredQuestionDataFrame);
 summary(model5Results);
 
-model6 <- as.formula("logEffortBase ~ logPerceivedStake + userSkillIndex + userRiskAversionIndex + isLate");
-model6Results <- lm(model6, questionDataFrame);
+model6 <- as.formula("logEffortBase ~ logPerceivedStake + userRiskAversionIndex + isLate");
+model6Results <- lm(model6, answeredQuestionDataFrame);
 summary(model6Results);
-
-model6aResults <- lm(model6, answeredQuestionDataFrame);
-summary(model6aResults);
 
 model7 <- as.formula("timeCostSalary ~ logStake + userSkillIndex + userRiskAversionIndex + isLate");
 model7Results <- lm(model7, answeredQuestionDataFrame);
