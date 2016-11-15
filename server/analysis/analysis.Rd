@@ -56,6 +56,11 @@ questionData[["logTimeCostSalary"]] = log(questionData$timeCostSalary+1);
 questionData[["logTimeCostBonus"]] = log(questionData$timeCostBonus+1);
 
 questionData[["logEffortIndex"]] = (questionData$logEffortBase-log(questionData$userMinEffort+1))/(log(questionData$userMaxEffort+1)-log(questionData$userMinEffort+1));
+questionData[["logCostSalaryIndex"]] = (questionData$logCostSalary-log(questionData$userMinCostSalary+1))/(log(questionData$userMaxCostSalary+1)-log(questionData$userMinCostSalary+1));
+questionData[["logCostBonusIndex"]] = (questionData$logCostBonus-log(questionData$userMinCostBonus+1))/(log(questionData$userMaxCostBonus+1)-log(questionData$userMinCostBonus+1));
+
+questionData[["costSalaryIndex"]] = (questionData$costSalary - questionData$userMinCostSalary) / (questionData$userMaxCostSalary - questionData$userMinCostSalary);
+questionData[["costBonusIndex"]] = (questionData$costBonus - questionData$userMinCostBonus) / (questionData$userMaxCostBonus - questionData$userMinCostBonus);
 
 questionData[["usedAnyResource"]] = as.integer(as.logical(questionData$usedResources));
 questionData[["usedAdvice"]] = as.integer(as.logical(questionData$adviceUsed));
@@ -79,11 +84,10 @@ for (i in QUESTION_ORDER) {
 questionDataFrame$questionMode <- modes[match(questionDataFrame$index, QUESTION_ORDER)];
 questionDataFrame$answerIsMode <- as.numeric(as.logical(questionDataFrame$answer == questionDataFrame$questionMode));
 
-questionDataFrame$rightAnswerZScore = scale(questionDataFrame$rightAnswers, center=TRUE, scale=TRUE);
+questionDataFrame$rightAnswerZScore = scale(questionDataFrame$userRightAnswers, center=TRUE, scale=TRUE);
 questionDataFrame$userSkillZScore = scale(questionDataFrame$userSkillIndex, center=TRUE, scale=TRUE);
 
 answeredQuestionDataFrame <- subset(questionDataFrame, timeSpent > 0);
-answeredQuestionDataFrame$isLateStart <- as.numeric(as.logical(answeredQuestionDataFrame$isLateStart==1 & !is.na(answeredQuestionDataFrame$isLateStart)));
 answeredQuestionDataFrameWithEffortIndex <- subset(answeredQuestionDataFrame, is.finite(logEffortIndex));
 
 
@@ -190,3 +194,7 @@ summary(model22Results);
 
 model23GLMResults <- glm(model23, answeredQuestionDataFrame, family="binomial");
 summary(model23GLMResults);
+
+model24 <- as.formula("costSalaryIndex ~ logPerceivedStakeFromImpact + isLate + requiresMath");
+model24Results <- lm(model24, answeredQuestionDataFrame);
+summary(model24Results);

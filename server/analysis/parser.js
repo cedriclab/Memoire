@@ -56,7 +56,7 @@ var normalizedQuestions = [];
 var prefixify = function(prefix, word){
 	return prefix + word[0].toUpperCase() + word.substring(1);
 };
-var userAttributesToKeep = ["_id", "balance", "resourceTrustIndex", "riskAversionIndex", "gullibilityIndex", "skillIndex", "mathSkillIndex", "fieldOfStudy", "studyProgram", "englishSkills", "articlesRead", "wordsPerSecond", "rawDataUsed", "adviceUsed", "dubiousArticlesRead", "dubiousArticlesHeeded", "trustedArticlesRead", "trustedArticlesHeeded", "adviceAdvicesHeeded", "totalResourcesUsed", "resourceTrustIndex", "totalResourcesUsed", "maxEffort", "minEffort", "mathSkillWeight", "skillWeight", "rightAnswers"];
+var userAttributesToKeep = ["_id", "balance", "resourceTrustIndex", "riskAversionIndex", "gullibilityIndex", "skillIndex", "mathSkillIndex", "fieldOfStudy", "studyProgram", "englishSkills", "articlesRead", "wordsPerSecond", "rawDataUsed", "adviceUsed", "dubiousArticlesRead", "dubiousArticlesHeeded", "trustedArticlesRead", "trustedArticlesHeeded", "adviceAdvicesHeeded", "totalResourcesUsed", "resourceTrustIndex", "totalResourcesUsed", "maxEffort", "minEffort", "skillWeight", "rightAnswers", "maxCostSalary", "minCostSalary", "maxCostBonus", "minCostBonus"];
 var questionAttributesToKeep = ["index", "timeSpent", "rightAnswer", "stake", "perceivedStake", "effort", "effortBase", "costSalary", "costBonus"];
 
 var countQuestionWords = function(q){
@@ -140,7 +140,7 @@ var runAnalysis = function(users, callback) {
 	
 	empiricalAverageWordPerSecond = userWordsPerSecond.length ? userWordsPerSecond.reduce(function(a, b){return a + b;}, 0)/userWordsPerSecond.length : null;
 	
-	users.forEach(function(user){
+	users.forEach(function(user, userIndex){
 		try {
 			var linksClicked = [];
 			
@@ -157,7 +157,7 @@ var runAnalysis = function(users, callback) {
 			
 			var rightAnswers = 0;
 			
-			var maxEffort = 0, minEffort = 0;
+			var maxEffort = 0, minEffort = 0, maxCostSalary = 0, minCostSalary = 0, maxCostBonus = 0, minCostBonus = 0;
 			
 			user.englishSkills = parseFloat(user.englishSkills || 10)/10;
 
@@ -238,6 +238,7 @@ var runAnalysis = function(users, callback) {
 						answeredQuestion["adviceUsed"] += 1;
 			
 						resource["amountSpent"] = localAdviceData.cost;
+						resource["relativeAmountSpent"] = (localAdviceData.cost/INITIAL_DOWRY) * GAME_STAKE_BONUS;
 						resource["suggestion"] = localAdviceData.suggestion;
 
 						resource["heededAdvice"] = answeredQuestion["rightAnswer"];
@@ -272,7 +273,7 @@ var runAnalysis = function(users, callback) {
 			user["rightAnswers"] = rightAnswers;
 			
 			user["mathSkillIndex"] = (MATH_SKILLS[user.studyProgram] || MATH_SKILLS[user.fieldOfStudy] || 10)/10 || 1;
-			user["skillIndex"] = (user["mathSkillIndex"] + user.englishSkills + (user["wordsPerSecond"]/empiricalAverageWordPerSecond) + (rightAnswers/12))/4; 
+			user["skillIndex"] = (user.englishSkills + (rightAnswers/12))/2; 
 			
 			user["articlesRead"] = articlesRead;
 			user["rawDataUsed"] = rawDataUsed;
@@ -286,8 +287,7 @@ var runAnalysis = function(users, callback) {
 			user["totalResourcesUsed"] = articlesRead + rawDataUsed + adviceUsed;
 			user["resourceTrustIndex"] = user["totalResourcesUsed"] > 0 ? user["resourceAdvicesHeeded"]/user["totalResourcesUsed"] : 0;
 			
-			user["userMathSkillWeight"] = (10-Math.sqrt(user["mathSkillIndex"] || 1))/10;
-			user["userSkillWeight"] = (10-Math.sqrt(user["mathSkillIndex"] || 1))/10;
+			user["userSkillWeight"] = (10-Math.sqrt(user["skillIndex"] || 1))/10; //uses square root to squeeze distribution
 			
 			user["email"] = null;
 			
@@ -308,6 +308,7 @@ var runAnalysis = function(users, callback) {
 						answeredQuestion["justLostMoney"] = user.balance > answeredQuestion.previousBalance;
 					}
 				}
+				var userSalary = (user.salary || MINIMUM_WAGE)/MILISECONDS_PER_HOUR;
 				
 				answeredQuestion.usedResources.forEach(function(resource, rIndex){
 					resource["wordsRead"] = resource["timeSpent"] * user["wordsPerSecond"];
@@ -316,48 +317,67 @@ var runAnalysis = function(users, callback) {
 					}
 					resource["wordsRead"] = resource["wordsRead"] > resource.wordCount ? resource.wordCount : resource["wordsRead"];
 					resource["pctRead"] = resource["wordsRead"]/resource.wordCount;
+						
+					resource["effortBase"] = resource["timeSpent"]*user["userSkillWeight"];
+					resource["costSalary"] = resource["timeSpent"]*userSalary;
+					resource["costBonus"] = resource["timeSpent"]*GAME_STAKE_BONUS_PER_MILISECOND;
 					
 					if (resource.resource=="advice") {
-						resource["effortBase"] = resource["timeSpent"];
-						resource["costSalary"] = resource["amountSpent"] + resource["timeSpent"]*((user.salary || MINIMUM_WAGE)/MILISECONDS_PER_HOUR); //NO!!! they didn't spent 20$ out of pocket! it's 20$ in the GAME!!!
-						resource["costBonus"] = resource["amountSpent"] + resource["timeSpent"]*GAME_STAKE_BONUS_PER_MILISECOND;
-					} else {
-						if (resource.resource=="rawData") {
-							resource["effortBase"] = resource["timeSpent"]*user["userMathSkillWeight"]; //uses square root to squeeze distribution
-						} else {
-							resource["effortBase"] = resource["timeSpent"]*user["userSkillWeight"]; //uses square root to squeeze distribution
-						}
-						resource["costSalary"] = resource["timeSpent"]*((user.salary || MINIMUM_WAGE)/MILISECONDS_PER_HOUR);
-						resource["costBonus"] = resource["timeSpent"]*GAME_STAKE_BONUS_PER_MILISECOND;
-					}
+						resource["costSalary"] += resource["relativeAmountSpent"]; 
+						resource["costBonus"] += resource["relativeAmountSpent"];
+					} 
 					
 					effortBase += resource["effortBase"];
 					costSalary += resource["costSalary"];
 					costBonus += resource["costBonus"];		
 					
-					resource["timeCostSalary"] = resource["timeSpent"]*((user.salary || MINIMUM_WAGE)/MILISECONDS_PER_HOUR);
+					resource["timeCostSalary"] = resource["timeSpent"]*userSalary;
 					resource["timeCostBonus"] = resource["timeSpent"]*GAME_STAKE_BONUS_PER_MILISECOND;
 
 				});
 				
-				effortBase = effortBase ? (effortBase + (answeredQuestion.timeBeforeFirstResource * user["userSkillWeight"])) : (answeredQuestion.timeSpent * user["userSkillWeight"]); //uses square root to squeeze distribution
+				var priorWeightedTime = answeredQuestion.timeBeforeFirstResource * user["userSkillWeight"];
+				var weightedTime = answeredQuestion.timeSpent * user["userSkillWeight"];
+				
+				effortBase = effortBase ? (effortBase + priorWeightedTime) : weightedTime; //uses square root to squeeze distribution
+				costSalary = costSalary ? costSalary + priorWeightedTime*userSalary : weightedTime*userSalary;
+				costBonus = costBonus ? costBonus + priorWeightedTime*GAME_STAKE_BONUS_PER_MILISECOND : weightedTime*GAME_STAKE_BONUS_PER_MILISECOND;
 				
 				if (!aqi) {
 					maxEffort = effortBase;
 					minEffort = effortBase;
+					maxCostSalary = costSalary;
+					minCostSalary = costSalary;
+					maxCostBonus = costBonus;
+					minCostBonus = costBonus;
 				}
-					
-				maxEffort = effortBase>maxEffort ? effortBase : maxEffort;
-				minEffort = effortBase<minEffort ? effortBase : minEffort;
 				
+				if (effortBase>maxEffort) {
+					maxEffort = effortBase;
+				} else if (effortBase<minEffort) {
+					minEffort = effortBase;
+				}
+				
+				if (costSalary>maxCostSalary) {
+					maxCostSalary = costSalary;
+				} else if (costSalary<minCostSalary) {
+					minCostSalary = costSalary;
+				}
+				
+				if (costBonus>maxCostBonus) {
+					maxCostBonus = costBonus;
+				} else if (costBonus<minCostBonus) {
+					minCostBonus = costBonus;
+				}
+
 				answeredQuestion["effortBase"] = effortBase;
-				answeredQuestion["costSalary"] = effortBase*((user.salary || MINIMUM_WAGE)/MILISECONDS_PER_HOUR);
-				answeredQuestion["costBonus"] = effortBase*GAME_STAKE_BONUS_PER_MILISECOND;
+				answeredQuestion["costSalary"] = costSalary;
+				answeredQuestion["costBonus"] = costBonus;
 				
 				answeredQuestion["timeCostSalary"] = answeredQuestion.timeSpent*((user.salary || MINIMUM_WAGE)/MILISECONDS_PER_HOUR);
 				answeredQuestion["timeCostBonus"] = answeredQuestion.timeSpent*GAME_STAKE_BONUS_PER_MILISECOND;
 				
-				answeredQuestion.isLateStart = null;
+				answeredQuestion.isLateStart = false;
 				answeredQuestion.isLateEnd = null;
 				if (aqi) {
 					answeredQuestion.isLateStart = (answeredQuestion.begunOn - startTime) > (MEAN_TIME_FOR_QUESTION * aqi);
@@ -368,6 +388,10 @@ var runAnalysis = function(users, callback) {
 
 			user["maxEffort"] = maxEffort;
 			user["minEffort"] = minEffort;
+			user["maxCostSalary"] = maxCostSalary;
+			user["minCostSalary"] = minCostSalary;
+			user["maxCostBonus"] = maxCostBonus;
+			user["minCostBonus"] = minCostBonus;
 			
 			answeredGameQuestions.forEach(function(answeredQuestion, aqi){
 				
