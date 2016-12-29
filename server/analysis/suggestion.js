@@ -241,7 +241,7 @@ module.exports = [
 		"id" : "22",
 		"index" : "19",
 		"stake" : 500,
-		"perceivedStake" : 0,
+		"perceivedStake" : 0, // change -> makes no sense, given that friend advice is given a perspective
 		"requiresMath" : false,
 		"difficulty" : 0,
 		"bigNumbers" : true,

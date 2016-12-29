@@ -1,3 +1,12 @@
+/*
+Faire le tri des variables, préparer une version du document avec seulement les variables utilisées MAIS étoffer
+
+Croisement de variables : e.g.: isLateStart et aversion (e.g.: plus de stress)
+
+*/
+
+
+
 var AVERAGE_WORDS_PER_SECOND = 3.33;
 var TURNS_PLAYED = 12;
 var TOTAL_TURNS = 60;
