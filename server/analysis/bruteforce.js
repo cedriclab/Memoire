@@ -42,7 +42,7 @@ exports.getPossibleAnswers = function(questionID, parameters){
 				var step = sum/stepPrecision;
 
 				for (var i=0; i<possCount; i++) {
-					possibilities[i] = question.fields.forEach(function(object, field){
+					possibilities[i] = question.fields.reduce(function(object, field){
 						object[field.name] = 0; 
 						return object;
 					}, {});

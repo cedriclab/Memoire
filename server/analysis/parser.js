@@ -65,8 +65,8 @@ var normalizedQuestions = [];
 var prefixify = function(prefix, word){
 	return prefix + word[0].toUpperCase() + word.substring(1);
 };
-var userAttributesToKeep = ["_id", "balance", "resourceTrustIndex", "riskAversionIndex", "gullibilityIndex", "skillIndex", "mathSkillIndex", "fieldOfStudy", "studyProgram", "englishSkills", "articlesRead", "wordsPerSecond", "rawDataUsed", "adviceUsed", "dubiousArticlesRead", "dubiousArticlesHeeded", "trustedArticlesRead", "trustedArticlesHeeded", "adviceAdvicesHeeded", "totalResourcesUsed", "resourceTrustIndex", "totalResourcesUsed", "maxEffort", "minEffort", "skillWeight", "rightAnswers", "maxCostSalary", "minCostSalary", "maxCostBonus", "minCostBonus"];
-var questionAttributesToKeep = ["index", "timeSpent", "rightAnswer", "stake", "perceivedStake", "effort", "effortBase", "costSalary", "costBonus"];
+var userAttributesToKeep = ["_id", "balance", "resourceTrustIndex", "riskAversionIndex", "gullibilityIndex", "skillIndex", "mathSkillIndex", "fieldOfStudy", "studyProgram", "englishSkills", "articlesRead", "wordsPerSecond", "rawDataUsed", "adviceUsed", "dubiousArticlesRead", "dubiousArticlesHeeded", "trustedArticlesRead", "trustedArticlesHeeded", "adviceAdvicesHeeded", "totalResourcesUsed", "resourceTrustIndex", "totalResourcesUsed", "maxEffort", "minEffort", "skillWeight", "rightAnswers", "maxCostSalary", "minCostSalary", "maxCostBonus", "minCostBonus", "totalGameTime"];
+var questionAttributesToKeep = ["index", "timeSpent", "timeSpentFraction", "rightAnswer", "stake", "perceivedStake", "effort", "effortBase", "costSalary", "costBonus"];
 
 var countQuestionWords = function(q){
 	return q.text.split(" ").length + (q.options ? q.options.reduce(function(a, b){
@@ -115,6 +115,7 @@ var runAnalysis = function(users, callback) {
 	users.forEach(function(user){
 		try {
 			var wordsPerSecond = [];
+			var totalTime = 0;
 			var answeredGameQuestions = QUESTION_ORDER.map(function(qIndex){
 				var answeredQuestion = user.answeredGameQuestions[qIndex-1];
 				var additionalData = additionalDataHash[String(answeredQuestion.index+1)];
@@ -128,7 +129,10 @@ var runAnalysis = function(users, callback) {
 					answeredQuestion["timeBeforeFirstResource"] = t;
 					wordsPerSecond.push(additionalData.questionWordCount*1000 / t);
 				}
+				
+				totalTime += answeredQuestion["timeSpent"];
 			});
+			user["totalGameTime"] = totalTime;
 			
 			user["wordsPerSecond"] = wordsPerSecond.length ? wordsPerSecond.reduce(function(a, b){return a + b;}, 0)/wordsPerSecond.length : null;
 			if (user["wordsPerSecond"]) {
@@ -176,6 +180,8 @@ var runAnalysis = function(users, callback) {
 				
 				var localAdviceData = adviceData[String(qIndex)];
 
+				answeredQuestion["timeSpentFraction"] = answeredQuestion["timeSpent"] / user["totalGameTime"];
+				
 				answeredQuestion["articlesRead"] = 0;
 				answeredQuestion["rawDataUsed"] = 0;
 				answeredQuestion["adviceUsed"] = 0;
