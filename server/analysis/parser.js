@@ -318,7 +318,7 @@ var runAnalysis = function(users, callback) {
 					resource["wordsRead"] = resource["wordsRead"] > resource.wordCount ? resource.wordCount : resource["wordsRead"];
 					resource["pctRead"] = resource["wordsRead"]/resource.wordCount;
 						
-					resource["effortBase"] = resource["timeSpent"]*user["userSkillWeight"];
+					resource["effortBase"] = (resource["timeSpent"]/user["userSkillWeight"])*(resource.language=="EN" ? (2-(user.englishSkills || 1)) : 1);
 					resource["costSalary"] = resource["timeSpent"]*userSalary;
 					resource["costBonus"] = resource["timeSpent"]*GAME_STAKE_BONUS_PER_MILISECOND;
 					
@@ -336,8 +336,8 @@ var runAnalysis = function(users, callback) {
 
 				});
 				
-				var priorWeightedTime = answeredQuestion.timeBeforeFirstResource * user["userSkillWeight"];
-				var weightedTime = answeredQuestion.timeSpent * user["userSkillWeight"];
+				var priorWeightedTime = answeredQuestion.timeBeforeFirstResource / user["userSkillWeight"];
+				var weightedTime = answeredQuestion.timeSpent / user["userSkillWeight"];
 				
 				effortBase = effortBase ? (effortBase + priorWeightedTime) : weightedTime; //uses square root to squeeze distribution
 				costSalary = costSalary ? costSalary + priorWeightedTime*userSalary : weightedTime*userSalary;
