@@ -7,7 +7,7 @@ module.exports = [
 		"id" : "4",
 		"index" : "1",
 		"stake" : 20800,
-		"perceivedStake" : 4160,
+		"perceivedStake" : 20800,
 		"requiresMath" : false,
 		"difficulty" : 0,
 		"bigNumbers" : true,
@@ -30,7 +30,7 @@ module.exports = [
 		"id" : "5",
 		"index" : "2",
 		"stake" : 26500,
-		"perceivedStake" : 20000,
+		"perceivedStake" : 15000,
 		"requiresMath" : true,
 		"difficulty" : 0,
 		"bigNumbers" : true,
@@ -51,7 +51,7 @@ module.exports = [
 		"id" : "7",
 		"index" : "4",
 		"stake" : 0,
-		"perceivedStake" : 240000,
+		"perceivedStake" : 120000,
 		"requiresMath" : true,
 		"difficulty" : 0,
 		"bigNumbers" : true,
@@ -72,7 +72,7 @@ module.exports = [
 		"id" : "8",
 		"index" : "5",
 		"stake" : 1000,
-		"perceivedStake" : 2000,
+		"perceivedStake" : 1000,
 		"requiresMath" : false,
 		"difficulty" : 0,
 		"bigNumbers" : false,
@@ -97,7 +97,7 @@ module.exports = [
 		"id" : "9",
 		"index" : "6",
 		"stake" : 0,
-		"perceivedStake" : 150,
+		"perceivedStake" : 80,
 		"requiresMath" : true,
 		"difficulty" : 0,
 		"bigNumbers" : false,
@@ -127,7 +127,7 @@ module.exports = [
 			return (answer ? (answer.rrsp + answer.tfsa + answer.debt) : 5800) * 1.28;
 		},
 		"perceivedStake" : function(user, answer){
-			return 90;
+			return (answer ? (answer.rrsp + answer.tfsa + answer.debt) : 5800)/2;
 		},
 		"requiresMath" : true,
 		"difficulty" : 0,
@@ -155,7 +155,7 @@ module.exports = [
 		"id" : "13",
 		"index" : "10",
 		"stake" : 4,
-		"perceivedStake" : 15,
+		"perceivedStake" : 10,
 		"requiresMath" : false,
 		"difficulty" : 0,
 		"bigNumbers" : false,
@@ -179,7 +179,7 @@ module.exports = [
 		"id" : "14",
 		"index" : "11",
 		"stake" : 500,
-		"perceivedStake" : 5000,
+		"perceivedStake" : 2500,
 		"requiresMath" : false,
 		"difficulty" : 0,
 		"bigNumbers" : false,
@@ -197,7 +197,7 @@ module.exports = [
 		"id" : "15",
 		"index" : "12",
 		"stake" : 450,
-		"perceivedStake" : 150,
+		"perceivedStake" : 125,
 		"requiresMath" : false,
 		"difficulty" : 0,
 		"bigNumbers" : false,
@@ -217,7 +217,9 @@ module.exports = [
 		"id" : "20",
 		"index" : "17",
 		"stake" : 500,
-		"perceivedStake" : 100000,
+		"perceivedStake" : function(user, answer){
+			return (200000*(Math.log(1+((user.assets.timeSpentWithDifficultClient || 0)/29.098835343466323))*0.9))/20;
+		},
 		"requiresMath" : false,
 		"difficulty" : 0,
 		"bigNumbers" : true,
@@ -240,8 +242,18 @@ module.exports = [
 	{
 		"id" : "22",
 		"index" : "19",
-		"stake" : 500,
-		"perceivedStake" : 0, // change -> makes no sense, given that friend advice is given a perspective
+		"stake" : function(user, answer){
+			var weight = 0;
+			var weights = [0, 0.01, 0.05, 0.1];
+			weight = weights[parseInt(user.answers[0].answer)-1];
+			return weight*200000;
+		},
+		"perceivedStake" : function(user, answer){
+			var weight = 0;
+			var weights = [0, 0.01, 0.05, 0.1];
+			weight = weights[parseInt(user.answers[0].answer)-1];
+			return weight*300000;
+		},
 		"requiresMath" : false,
 		"difficulty" : 0,
 		"bigNumbers" : true,
