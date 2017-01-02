@@ -251,8 +251,8 @@ module.exports = [
 		"perceivedStake" : function(user, answer){
 			var weight = 0;
 			var weights = [0, 0.01, 0.05, 0.1];
-			weight = weights[parseInt(user.answers[0].answer)-1] + 1;
-			return weight*200000;
+			weight = weights[parseInt(user.answers[0].answer)-1] + 0.5;
+			return weight*300000;
 		},
 		"requiresMath" : false,
 		"difficulty" : 0,

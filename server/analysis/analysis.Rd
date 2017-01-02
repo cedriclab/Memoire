@@ -40,16 +40,14 @@ modes <- rep(NA,QUESTION_COUNT);
 #userData <- read.csv(userDataFileName, header=TRUE);
 questionDataFileName <- "./normalized_questions.csv";
 questionData <- read.csv(questionDataFileName, header=TRUE);
+questionAveragesDataFileName <- "./questions_averages.csv";
+questionAveragesData <- read.csv(questionAveragesDataFileName, header=TRUE);
 #resourceDataFileName <- "./normalized_resources.csv";
 #resourceData <- read.csv(resourceDataFileName, header=TRUE);
 
 questionData[["logStake"]] <- log(questionData$stake+1);
 questionData[["logPerceivedStake"]] <- log(questionData$perceivedStake+1);
-
-questionData[["stakeFromImpact"]] <- questionData$instantImpact + questionData$recurringImpact;
-questionData[["perceivedStakeFromImpact"]] <- (questionData$instantImpact + questionData$recurringImpact + questionData$perceivedStake)/2;
-questionData[["logStakeFromImpact"]] <- log(questionData$stakeFromImpact+1);
-questionData[["logPerceivedStakeFromImpact"]] <- log(questionData$perceivedStakeFromImpact+1);
+questionData[["logPerceivedStakeBias"]] <- questionData$perceivedStake - questionData$logStake;
 
 questionData[["logEffortBase"]] <- log(questionData$effortBase+1);
 questionData[["logCostSalary"]] <- log(questionData$costSalary+1);
@@ -57,6 +55,12 @@ questionData[["logCostBonus"]] <- log(questionData$costBonus+1);
 questionData[["logTimeSpent"]] <- log(questionData$timeSpent+1);
 questionData[["logTimeCostSalary"]] <- log(questionData$timeCostSalary+1);
 questionData[["logTimeCostBonus"]] <- log(questionData$timeCostBonus+1);
+
+questionAveragesData[["logMeanTime"]] <- log(questionAveragesData$meanTime+1);
+questionAveragesData[["logMeanTimeCostSalary"]] <- log(questionAveragesData$meanTimeCostSalary+1);
+questionAveragesData[["logMeanTimeCostBonus"]] <- log(questionAveragesData$meanTimeCostBonus+1);
+questionAveragesData[["logMeanStake"]] <- log(questionAveragesData$meanStake+1);
+questionAveragesData[["logMeanPerceivedStake"]] <- log(questionAveragesData$meanPerceivedStake+1);
 
 questionData[["logEffortIndex"]] <- (questionData$logEffortBase-log(questionData$userMinEffort+1))/(log(questionData$userMaxEffort+1)-log(questionData$userMinEffort+1));
 questionData[["logEffortAboveAverage"]] <- as.integer(as.logical(questionData$logEffortIndex > 0.5));
@@ -72,7 +76,11 @@ questionData[["usedAdvice"]] <- as.integer(as.logical(questionData$adviceUsed));
 #	Parse into data.frame objects
 #userDataFrame <- data.frame(userData);
 questionDataFrame <- data.frame(questionData);
-answeredQuestionDataFrame <- subset(questionDataFrame, timeSpent > 0);
+questionAveragesDataFrame <- data.frame(questionAveragesData);
+questionAveragesDataFrame[, "logMaxMeanStake"] <- apply(questionAveragesDataFrame[c("logMeanStake", "logMeanPerceivedStake")], 1, max)
+
+questionDataFrame[["timeSpentFractionDelta"]] <- questionDataFrame$timeSpentFraction - (1/QUESTION_COUNT);
+answeredQuestionDataFrame <- subset(questionDataFrame, timeSpent > 0 & timeSpentFraction > 0 & timeSpentFraction < 1);
 #resourceDataFrame <- data.frame(resourceData);
 
 counter <- 0;
@@ -93,11 +101,16 @@ questionDataFrame$usedRawData <- as.numeric(as.logical(questionDataFrame$rawData
 questionDataFrame$rightAnswerZScore = scale(questionDataFrame$userRightAnswers, center=TRUE, scale=TRUE);
 questionDataFrame$userSkillZScore = scale(questionDataFrame$userSkillIndex, center=TRUE, scale=TRUE);
 
-answeredQuestionDataFrame <- subset(questionDataFrame, timeSpent > 0);
+answeredQuestionDataFrame <- subset(questionDataFrame, timeSpent > 0 & timeSpentFraction > 0 & timeSpentFraction < 1);
 answeredQuestionDataFrameWithEffortIndex <- subset(answeredQuestionDataFrame, is.finite(logEffortIndex));
 
+plot(questionAveragesDataFrame$isText, questionAveragesDataFrame$logMeanTime)
 
 #	Test models
+model <- as.formula("logCostBonus ~ logPerceivedStake + isText + requiresMath");
+modelResults <- lm(model, answeredQuestionDataFrame);
+summary(modelResults);
+
 model1 <- as.formula("logCostBonus ~ logStake + userRiskAversionIndex + isLateStart");
 model1Results <- lm(model1, answeredQuestionDataFrame);
 summary(model1Results);
