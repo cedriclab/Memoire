@@ -10,6 +10,9 @@
 #	2016
 #
 
+library("clusterSEs");
+require("plm");
+
 QUESTION_COUNT <- 12;
 QUESTION_ORDER <- c(0,1,3,4,5,7,9,10,11,16,18,19);
 QUESTIONS_WITH_CHOICES = c(0,1,3,4,5,9,10,11,16,18);
@@ -37,38 +40,47 @@ modes <- rep(NA,QUESTION_COUNT);
 #userData <- read.csv(userDataFileName, header=TRUE);
 questionDataFileName <- "./normalized_questions.csv";
 questionData <- read.csv(questionDataFileName, header=TRUE);
+questionAveragesDataFileName <- "./questions_averages.csv";
+questionAveragesData <- read.csv(questionAveragesDataFileName, header=TRUE);
 #resourceDataFileName <- "./normalized_resources.csv";
 #resourceData <- read.csv(resourceDataFileName, header=TRUE);
 
-questionData[["logStake"]] = log(questionData$stake+1);
-questionData[["logPerceivedStake"]] = log(questionData$perceivedStake+1);
+questionData[["logStake"]] <- log(questionData$stake+1);
+questionData[["logPerceivedStake"]] <- log(questionData$perceivedStake+1);
+questionData[["logPerceivedStakeBias"]] <- questionData$perceivedStake - questionData$logStake;
 
-questionData[["stakeFromImpact"]] = questionData$instantImpact + questionData$recurringImpact;
-questionData[["perceivedStakeFromImpact"]] = (questionData$instantImpact + questionData$recurringImpact + questionData$perceivedStake)/2;
-questionData[["logStakeFromImpact"]] = log(questionData$stakeFromImpact+1);
-questionData[["logPerceivedStakeFromImpact"]] = log(questionData$perceivedStakeFromImpact+1);
+questionData[["logEffortBase"]] <- log(questionData$effortBase+1);
+questionData[["logCostSalary"]] <- log(questionData$costSalary+1);
+questionData[["logCostBonus"]] <- log(questionData$costBonus+1);
+questionData[["logTimeSpent"]] <- log(questionData$timeSpent+1);
+questionData[["logTimeCostSalary"]] <- log(questionData$timeCostSalary+1);
+questionData[["logTimeCostBonus"]] <- log(questionData$timeCostBonus+1);
 
-questionData[["logEffortBase"]] = log(questionData$effortBase+1);
-questionData[["logCostSalary"]] = log(questionData$costSalary+1);
-questionData[["logCostBonus"]] = log(questionData$costBonus+1);
-questionData[["logTimeSpent"]] = log(questionData$timeSpent+1);
-questionData[["logTimeCostSalary"]] = log(questionData$timeCostSalary+1);
-questionData[["logTimeCostBonus"]] = log(questionData$timeCostBonus+1);
+questionAveragesData[["logMeanTime"]] <- log(questionAveragesData$meanTime+1);
+questionAveragesData[["logMeanTimeCostSalary"]] <- log(questionAveragesData$meanTimeCostSalary+1);
+questionAveragesData[["logMeanTimeCostBonus"]] <- log(questionAveragesData$meanTimeCostBonus+1);
+questionAveragesData[["logMeanStake"]] <- log(questionAveragesData$meanStake+1);
+questionAveragesData[["logMeanPerceivedStake"]] <- log(questionAveragesData$meanPerceivedStake+1);
 
-questionData[["logEffortIndex"]] = (questionData$logEffortBase-log(questionData$userMinEffort+1))/(log(questionData$userMaxEffort+1)-log(questionData$userMinEffort+1));
-questionData[["logCostSalaryIndex"]] = (questionData$logCostSalary-log(questionData$userMinCostSalary+1))/(log(questionData$userMaxCostSalary+1)-log(questionData$userMinCostSalary+1));
-questionData[["logCostBonusIndex"]] = (questionData$logCostBonus-log(questionData$userMinCostBonus+1))/(log(questionData$userMaxCostBonus+1)-log(questionData$userMinCostBonus+1));
+questionData[["logEffortIndex"]] <- (questionData$logEffortBase-log(questionData$userMinEffort+1))/(log(questionData$userMaxEffort+1)-log(questionData$userMinEffort+1));
+questionData[["logEffortAboveAverage"]] <- as.integer(as.logical(questionData$logEffortIndex > 0.5));
+questionData[["logCostSalaryIndex"]] <- (questionData$logCostSalary-log(questionData$userMinCostSalary+1))/(log(questionData$userMaxCostSalary+1)-log(questionData$userMinCostSalary+1));
+questionData[["logCostBonusIndex"]] <- (questionData$logCostBonus-log(questionData$userMinCostBonus+1))/(log(questionData$userMaxCostBonus+1)-log(questionData$userMinCostBonus+1));
 
-questionData[["costSalaryIndex"]] = (questionData$costSalary - questionData$userMinCostSalary) / (questionData$userMaxCostSalary - questionData$userMinCostSalary);
-questionData[["costBonusIndex"]] = (questionData$costBonus - questionData$userMinCostBonus) / (questionData$userMaxCostBonus - questionData$userMinCostBonus);
+questionData[["costSalaryIndex"]] <- (questionData$costSalary - questionData$userMinCostSalary) / (questionData$userMaxCostSalary - questionData$userMinCostSalary);
+questionData[["costBonusIndex"]] <- (questionData$costBonus - questionData$userMinCostBonus) / (questionData$userMaxCostBonus - questionData$userMinCostBonus);
 
-questionData[["usedAnyResource"]] = as.integer(as.logical(questionData$usedResources));
-questionData[["usedAdvice"]] = as.integer(as.logical(questionData$adviceUsed));
+questionData[["usedAnyResource"]] <- as.integer(as.logical(questionData$usedResources));
+questionData[["usedAdvice"]] <- as.integer(as.logical(questionData$adviceUsed));
 
 #	Parse into data.frame objects
 #userDataFrame <- data.frame(userData);
 questionDataFrame <- data.frame(questionData);
-answeredQuestionDataFrame <- subset(questionDataFrame, timeSpent > 0);
+questionAveragesDataFrame <- data.frame(questionAveragesData);
+questionAveragesDataFrame[, "logMaxMeanStake"] <- apply(questionAveragesDataFrame[c("logMeanStake", "logMeanPerceivedStake")], 1, max)
+
+questionDataFrame[["timeSpentFractionDelta"]] <- questionDataFrame$timeSpentFraction - (1/QUESTION_COUNT);
+answeredQuestionDataFrame <- subset(questionDataFrame, timeSpent > 0 & timeSpentFraction > 0 & timeSpentFraction < 1);
 #resourceDataFrame <- data.frame(resourceData);
 
 counter <- 0;
@@ -84,14 +96,21 @@ for (i in QUESTION_ORDER) {
 questionDataFrame$questionMode <- modes[match(questionDataFrame$index, QUESTION_ORDER)];
 questionDataFrame$answerIsMode <- as.numeric(as.logical(questionDataFrame$answer == questionDataFrame$questionMode));
 
+questionDataFrame$usedRawData <- as.numeric(as.logical(questionDataFrame$rawDataUsed));
+
 questionDataFrame$rightAnswerZScore = scale(questionDataFrame$userRightAnswers, center=TRUE, scale=TRUE);
 questionDataFrame$userSkillZScore = scale(questionDataFrame$userSkillIndex, center=TRUE, scale=TRUE);
 
-answeredQuestionDataFrame <- subset(questionDataFrame, timeSpent > 0);
+answeredQuestionDataFrame <- subset(questionDataFrame, timeSpent > 0 & timeSpentFraction > 0 & timeSpentFraction < 1);
 answeredQuestionDataFrameWithEffortIndex <- subset(answeredQuestionDataFrame, is.finite(logEffortIndex));
 
+plot(questionAveragesDataFrame$isText, questionAveragesDataFrame$logMeanTime)
 
 #	Test models
+model <- as.formula("logCostBonus ~ logPerceivedStake + isText + requiresMath");
+modelResults <- lm(model, answeredQuestionDataFrame);
+summary(modelResults);
+
 model1 <- as.formula("logCostBonus ~ logStake + userRiskAversionIndex + isLateStart");
 model1Results <- lm(model1, answeredQuestionDataFrame);
 summary(model1Results);
@@ -112,7 +131,7 @@ model5 <- as.formula("logCostBonus ~ logStake + isLateStart");
 model5Results <- lm(model5, answeredQuestionDataFrame);
 summary(model5Results);
 
-model6 <- as.formula("logEffortBase ~ logPerceivedStake + userRiskAversionIndex + isLate");
+model6 <- as.formula("logEffortBase ~ logPerceivedStake + userRiskAversionIndex + isLateStart");
 model6Results <- lm(model6, answeredQuestionDataFrame);
 summary(model6Results);
 
@@ -198,3 +217,19 @@ summary(model23GLMResults);
 model24 <- as.formula("costSalaryIndex ~ logPerceivedStakeFromImpact + isLate + requiresMath");
 model24Results <- lm(model24, answeredQuestionDataFrame);
 summary(model24Results);
+
+model25 <- as.formula("logEffortIndex ~ logStake + isLate + requiresMath");
+model25Results <- lm(model25, answeredQuestionDataFrame);
+summary(model25Results);
+
+model25bResults <- cluster.bs.plm(model25, answeredQuestionDataFrame, cluster.se=TRUE, cluster="user_id");
+summary(model25bResults);
+
+
+model26 <- as.formula("logTimeSpent ~ logPerceivedStake + isLateStart + userRiskAversionIndex + requiresMath");
+model26Results <- lm(model26, answeredQuestionDataFrame);
+summary(model26Results);
+
+model27 <- as.formula("logTimeSpent ~ logPerceivedStake + isLateStart + userRiskAversionIndex + bigNumbers");
+model27Results <- lm(model27, answeredQuestionDataFrame);
+summary(model27Results);

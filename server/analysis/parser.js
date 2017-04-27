@@ -41,6 +41,8 @@ var MATH_SKILLS = {
 
 var empiricalAverageWordPerSecond;
 
+var fs = require('fs');
+
 var MongoDB = require('mongodb');
 var DBConnectionString = "mongodb://localhost:27017/memoire_manips";
 var MongoClient = MongoDB.MongoClient;
@@ -62,11 +64,16 @@ var allQuestions = [];
 var allQuestionsKeys = {};
 var normalizedQuestions = [];
 
+var questionMatrix = QUESTION_ORDER.reduce(function(object,item,index){
+	object[item] = {"index" : item, "orderIndex" : index+1, "meanTime" : 0, "meanTimeCostSalary" : 0, "meanTimeCostBonus" : 0, "meanTimeFraction" : 0, "meanArticles" : 0, "meanRawData" : 0, "meanAdvice" : 0, "meanBestAnswer" : 0, "meanStake" : 0, "meanPerceivedStake" : 0, "isText" : 0, "count" : 0};
+	return object;
+}, {});
+
 var prefixify = function(prefix, word){
 	return prefix + word[0].toUpperCase() + word.substring(1);
 };
-var userAttributesToKeep = ["_id", "balance", "resourceTrustIndex", "riskAversionIndex", "gullibilityIndex", "skillIndex", "mathSkillIndex", "fieldOfStudy", "studyProgram", "englishSkills", "articlesRead", "wordsPerSecond", "rawDataUsed", "adviceUsed", "dubiousArticlesRead", "dubiousArticlesHeeded", "trustedArticlesRead", "trustedArticlesHeeded", "adviceAdvicesHeeded", "totalResourcesUsed", "resourceTrustIndex", "totalResourcesUsed", "maxEffort", "minEffort", "skillWeight", "rightAnswers", "maxCostSalary", "minCostSalary", "maxCostBonus", "minCostBonus", "totalGameTime"];
-var questionAttributesToKeep = ["index", "timeSpent", "timeSpentFraction", "rightAnswer", "stake", "perceivedStake", "effort", "effortBase", "costSalary", "costBonus"];
+var userAttributesToKeep = ["_id", "group", "balance", "resourceTrustIndex", "riskAversionIndex", "gullibilityIndex", "skillIndex", "mathSkillIndex", "fieldOfStudy", "studyProgram", "englishSkills", "articlesRead", "wordsPerSecond", "rawDataUsed", "adviceUsed", "dubiousArticlesRead", "dubiousArticlesHeeded", "trustedArticlesRead", "trustedArticlesHeeded", "adviceAdvicesHeeded", "totalResourcesUsed", "resourceTrustIndex", "totalResourcesUsed", "maxEffort", "minEffort", "skillWeight", "rightAnswers", "maxCostSalary", "minCostSalary", "maxCostBonus", "minCostBonus", "totalGameTime"];
+var questionAttributesToKeep = ["index", "timeSpent", "timeSpentFraction", "rightAnswer", "stake", "perceivedStake", "effort", "effortBase", "costSalary", "costBonus", "isText", "questionWordCount"];
 
 var countQuestionWords = function(q){
 	return q.text.split(" ").length + (q.options ? q.options.reduce(function(a, b){
@@ -80,6 +87,8 @@ questionSuggestions.forEach(function(q, qi){
 	additionalDataHash[q.index] = q;
 	var rawQuestion = rawQuestions[QUESTION_ORDER[qi]+2];
 	q["questionWordCount"] = countQuestionWords(rawQuestion);
+	q["questionTextWordCount"] = rawQuestion.text.split(" ").length;
+	q["isText"] = rawQuestion.answerForm != "select";
 });
 
 var warmupLengths = [0, 0, 0].map(function(n, i){
@@ -123,6 +132,7 @@ var runAnalysis = function(users, callback) {
 				answeredQuestion.answer = numerize(answeredQuestion.answer);
 				
 				answeredQuestion["timeSpent"] = answeredQuestion.answeredOn - answeredQuestion.begunOn;
+				answeredQuestion["isText"] = additionalData.isText ? 1 : 0;
 				answeredQuestion["timeBeforeFirstResource"] = 0;
 				if (answeredQuestion.usedResources.length) {
 					var t = answeredQuestion.usedResources[0].timeUsed - answeredQuestion.begunOn;
@@ -333,7 +343,7 @@ var runAnalysis = function(users, callback) {
 					resource["wordsRead"] = resource["wordsRead"] > resource.wordCount ? resource.wordCount : resource["wordsRead"];
 					resource["pctRead"] = resource["wordsRead"]/resource.wordCount;
 						
-					resource["effortBase"] = resource["timeSpent"]*user["userSkillWeight"];
+					resource["effortBase"] = (resource["timeSpent"]/user["userSkillWeight"])*(resource.language=="EN" ? (2-(user.englishSkills || 1)) : 1);
 					resource["costSalary"] = resource["timeSpent"]*userSalary;
 					resource["costBonus"] = resource["timeSpent"]*GAME_STAKE_BONUS_PER_MILISECOND;
 					
@@ -351,8 +361,8 @@ var runAnalysis = function(users, callback) {
 
 				});
 				
-				var priorWeightedTime = answeredQuestion.timeBeforeFirstResource * user["userSkillWeight"];
-				var weightedTime = answeredQuestion.timeSpent * user["userSkillWeight"];
+				var priorWeightedTime = answeredQuestion.timeBeforeFirstResource / user["userSkillWeight"];
+				var weightedTime = answeredQuestion.timeSpent / user["userSkillWeight"];
 				
 				effortBase = effortBase ? (effortBase + priorWeightedTime) : weightedTime; //uses square root to squeeze distribution
 				costSalary = costSalary ? costSalary + priorWeightedTime*userSalary : weightedTime*userSalary;
@@ -421,6 +431,25 @@ var runAnalysis = function(users, callback) {
 					allResources.push(resourceClone);
 				});
 				
+				if (answeredQuestion.timeSpent > 0 && answeredQuestion.timeSpentFraction > 0 && answeredQuestion.timeSpentFraction < 1) {
+					var questionMatrixEntry = questionMatrix[parseInt(answeredQuestion.index)+1];
+					
+					questionMatrixEntry.count += 1;
+					questionMatrixEntry.meanTime += answeredQuestion.timeSpent;
+					questionMatrixEntry.meanTimeCostSalary += answeredQuestion.timeCostSalary;
+					questionMatrixEntry.meanTimeCostBonus += answeredQuestion.timeCostBonus;
+					questionMatrixEntry.meanTimeFraction += answeredQuestion.timeSpentFraction;
+					questionMatrixEntry.meanArticles += answeredQuestion.articlesRead;
+					questionMatrixEntry.meanRawData += answeredQuestion.rawDataUsed;
+					questionMatrixEntry.meanAdvice += answeredQuestion.adviceUsed;
+					questionMatrixEntry.meanStake += answeredQuestion.stake;
+					questionMatrixEntry.meanPerceivedStake += answeredQuestion.perceivedStake;
+					questionMatrixEntry.meanBestAnswer += answeredQuestion.rightAnswer ? 1 : 0;
+					if (answeredQuestion.isText) {
+						questionMatrixEntry.isText = 1;
+					}
+				}
+
 				var questionClone = JSON.parse(JSON.stringify(answeredQuestion));
 				userAttributesToKeep.forEach(function(attr){
 					questionClone[prefixify("user", attr)] = user[attr];
@@ -480,6 +509,31 @@ var replaceBooleans = function(object) {
 	return object;
 };
 
+var parseQuestionAverages = function(){
+	var questionMatrixKeys = Object.keys(questionMatrix[1]);
+	
+	
+	fs.writeFile('questions_averages.csv', questionMatrixKeys.join(',')+'\n'+Object.keys(questionMatrix).map(function(qmi){
+		var questionMatrixEntry = questionMatrix[qmi];
+				
+		questionMatrixEntry.meanTime /= questionMatrixEntry.count;
+		questionMatrixEntry.meanTimeCostSalary /= questionMatrixEntry.count;
+		questionMatrixEntry.meanTimeCostBonus /= questionMatrixEntry.count;
+		questionMatrixEntry.meanTimeFraction /= questionMatrixEntry.count;
+		questionMatrixEntry.meanArticles /= questionMatrixEntry.count;
+		questionMatrixEntry.meanRawData /= questionMatrixEntry.count;
+		questionMatrixEntry.meanAdvice /= questionMatrixEntry.count;
+		questionMatrixEntry.meanStake /= questionMatrixEntry.count;
+		questionMatrixEntry.meanPerceivedStake /= questionMatrixEntry.count;
+		questionMatrixEntry.meanBestAnswer /= questionMatrixEntry.count;
+		
+		return questionMatrixKeys.map(function(qmk){
+			return String(questionMatrixEntry[qmk]);
+		}).join(',');
+	}).join('\n'), function(err){
+		console.log("questions_averages.csv written with [", (err ? err.message : ""), "] as error.");
+	});
+};
 
 MongoClient.connect(DBConnectionString, function(err, db) {
 	db.collection("users").find({"email" : {$ne : null}}).toArray(function(error, cursorArray){
@@ -510,6 +564,8 @@ MongoClient.connect(DBConnectionString, function(err, db) {
 					pre = e;
 				}
 				console.log("Normalized resources parsed with", normalizedResources.length, "as length and", pre, "as error.");
+				
+				parseQuestionAverages();
 				
 				db.collection("normalized_resources").insertMany(normalizedResources, function(erro, result){
 					console.log("Inserted in 'normalized_resources' with", erro, "as error.");
