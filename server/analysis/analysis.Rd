@@ -80,6 +80,7 @@ questionAveragesDataFrame <- data.frame(questionAveragesData);
 questionAveragesDataFrame[, "logMaxMeanStake"] <- apply(questionAveragesDataFrame[c("logMeanStake", "logMeanPerceivedStake")], 1, max)
 
 questionDataFrame[["timeSpentFractionDelta"]] <- questionDataFrame$timeSpentFraction - (1/QUESTION_COUNT);
+questionDataFrame[["timeSpentAboveAverage"]] <- ifelse(questionDataFrame$timeSpentFraction > 0 & questionDataFrame$timeSpentFraction > (1/QUESTION_COUNT), 1, 0);
 answeredQuestionDataFrame <- subset(questionDataFrame, timeSpent > 0 & timeSpentFraction > 0 & timeSpentFraction < 1);
 #resourceDataFrame <- data.frame(resourceData);
 
@@ -98,138 +99,145 @@ questionDataFrame$answerIsMode <- as.numeric(as.logical(questionDataFrame$answer
 
 questionDataFrame$usedRawData <- as.numeric(as.logical(questionDataFrame$rawDataUsed));
 
+questionDataFrame$adviceUsed <- ifelse(questionDataFrame$adviceUsed > 0, 1, 0);
+
 questionDataFrame$rightAnswerZScore = scale(questionDataFrame$userRightAnswers, center=TRUE, scale=TRUE);
 questionDataFrame$userSkillZScore = scale(questionDataFrame$userSkillIndex, center=TRUE, scale=TRUE);
 
 answeredQuestionDataFrame <- subset(questionDataFrame, timeSpent > 0 & timeSpentFraction > 0 & timeSpentFraction < 1);
 answeredQuestionDataFrameWithEffortIndex <- subset(answeredQuestionDataFrame, is.finite(logEffortIndex));
 
-plot(questionAveragesDataFrame$isText, questionAveragesDataFrame$logMeanTime)
+firstHalfAnsweredQuestionDataFrame <- subset(answeredQuestionDataFrame, index < 10);
+secondHalfAnsweredQuestionDataFrame <- subset(answeredQuestionDataFrame, index > 9);
+
+#	Test various thresholds
+thresholdsGLM <- function(depVar, indepMatrix, threshCount=10) {
+	minDepVar <- min(depVar);
+    step <- (max(depVar) - minDepVar)/threshCount;
+    
+    lMaxAIC <- 0;
+    lBestFit <- NULL;
+    lBestThreshold <- 0;
+    lData <- NULL;
+    
+    for (i in 1:threshCount) {
+        localDepVar <- ifelse(depVar > (minDepVar + (i*step)), 1, 0);
+        localDF <- data.frame(indepMatrix);
+        
+        formula <- reformulate(termlabels = colnames(localDF), response = 'y');
+        localDF[["y"]] <- localDepVar;
+        localReg <- glm(formula, family=binomial(link='logit'), data= localDF);
+
+        if (lMaxAIC < localReg$aic) {
+            lMaxAIC <- localReg$aic;
+            lBestFit <- summary(localReg);
+            lBestThreshold <- i*step;
+            lData <- localDepVar;
+        }
+    }
+    
+    return(
+    	list(
+    		"stepSize" = step,
+    		"maxAIC" = lMaxAIC, 
+    		"bestFit" = lBestFit, 
+    		"bestThreshold" = minDepVar + (i*step)
+    	)
+    );
+};
 
 #	Test models
-model <- as.formula("logCostBonus ~ logPerceivedStake + isText + requiresMath");
+
+model <- as.formula("timeSpent ~ stake");
 modelResults <- lm(model, answeredQuestionDataFrame);
 summary(modelResults);
 
-model1 <- as.formula("logCostBonus ~ logStake + userRiskAversionIndex + isLateStart");
-model1Results <- lm(model1, answeredQuestionDataFrame);
-summary(model1Results);
+model <- as.formula("timeSpent ~ perceivedStake");
+modelResults <- lm(model, answeredQuestionDataFrame);
+summary(modelResults);
 
-model2 <- as.formula("logCostSalary ~ logStake + userRiskAversionIndex + isLateStart");
-model2Results <- lm(model2, answeredQuestionDataFrame);
-summary(model2Results);
+model <- as.formula("logTimeSpent ~ logStake");
+modelResults <- lm(model, answeredQuestionDataFrame);
+summary(modelResults);
 
-model3 <- as.formula("logCostBonus ~ logPerceivedStake + userRiskAversionIndex + isLateStart");
-model3Results <- lm(model3, answeredQuestionDataFrame);
-summary(model3Results);
+model <- as.formula("logTimeSpent ~ logPerceivedStake");
+modelResults <- lm(model, answeredQuestionDataFrame);
+summary(modelResults);
 
-model4 <- as.formula("logCostSalary ~ logPerceivedStake + userRiskAversionIndex + isLateStart");
-model4Results <- lm(model4, answeredQuestionDataFrame);
-summary(model4Results);
+model <- as.formula("logTimeSpent ~ logStake + userRiskAversionIndex + isLateStart");
+modelResults <- lm(model, answeredQuestionDataFrame);
+summary(modelResults);
 
-model5 <- as.formula("logCostBonus ~ logStake + isLateStart");
-model5Results <- lm(model5, answeredQuestionDataFrame);
-summary(model5Results);
+model <- as.formula("logTimeSpent ~ logPerceivedStake + userRiskAversionIndex + isLateStart");
+modelResults <- lm(model, answeredQuestionDataFrame);
+summary(modelResults);
 
-model6 <- as.formula("logEffortBase ~ logPerceivedStake + userRiskAversionIndex + isLateStart");
-model6Results <- lm(model6, answeredQuestionDataFrame);
-summary(model6Results);
+#	Now with split datasets
 
-model7 <- as.formula("timeCostSalary ~ logStake + userSkillIndex + userRiskAversionIndex + isLate");
-model7Results <- lm(model7, answeredQuestionDataFrame);
-summary(model7Results);
+model <- as.formula("logTimeSpent ~ logStake + userRiskAversionIndex");
+modelResults <- lm(model, firstHalfAnsweredQuestionDataFrame);
+summary(modelResults);
 
-model8 <- as.formula("timeCostSalary ~ logPerceivedStake + userSkillIndex + userRiskAversionIndex + isLate");
-model8Results <- lm(model8, answeredQuestionDataFrame);
-summary(model8Results);
+model <- as.formula("logTimeSpent ~ logPerceivedStake + userRiskAversionIndex");
+modelResults <- lm(model, firstHalfAnsweredQuestionDataFrame);
+summary(modelResults);
 
-model9 <- as.formula("timeCostBonus ~ logStake + userSkillIndex + userRiskAversionIndex + isLate");
-model9Results <- lm(model9, answeredQuestionDataFrame);
-summary(model9Results);
+model <- as.formula("logTimeSpent ~ logStake + isLateStart");
+modelResults <- lm(model, secondHalfAnsweredQuestionDataFrame);
+summary(modelResults);
 
-model10 <- as.formula("timeCostBonus ~ logPerceivedStake + userSkillIndex + userRiskAversionIndex + isLate");
-model10Results <- lm(model10, answeredQuestionDataFrame);
-summary(model10Results);
+model <- as.formula("logTimeSpent ~ logPerceivedStake + isLateStart");
+modelResults <- lm(model, secondHalfAnsweredQuestionDataFrame);
+summary(modelResults);
 
-model11 <- as.formula("logEffortBase ~ logPerceivedStake + userSkillIndex + userRiskAversionIndex + isLate");
-model11Results <- lm(model11, answeredQuestionDataFrame);
-summary(model11Results);
+model <- as.formula("logTimeSpent ~ logStake + adviceUsed");
+modelResults <- lm(model, answeredQuestionDataFrame);
+summary(modelResults);
 
-model12 <- as.formula("logEffortBase ~ logPerceivedStake + userRiskAversionIndex + isLate");
-model12Results <- lm(model12, answeredQuestionDataFrame);
-summary(model12Results);
+model <- as.formula("logTimeSpent ~ logPerceivedStake + adviceUsed");
+modelResults <- lm(model, answeredQuestionDataFrame);
+summary(modelResults);
 
-model13 <- as.formula("logEffortBase ~ logPerceivedStakeFromImpact + userRiskAversionIndex + isLate");
-model13Results <- lm(model13, answeredQuestionDataFrame);
-model13bResults <- lm(model1, subset(answeredQuestionDataFrame, index > 0));
-summary(model13Results);
-summary(model13bResults);
+#	Testing for possible interaction effects
+model <- as.formula("adviceUsed ~ logStake + isLateStart");
+modelResults <- glm(model, family=binomial(link='logit'), data=answeredQuestionDataFrame);
+summary(modelResults);
 
-model14 <- as.formula("logEffortBase ~ logPerceivedStakeFromImpact + userRiskAversionIndex + isLate + bigNumbers");
-model14Results <- lm(model14, answeredQuestionDataFrame);
-summary(model14Results);
+model <- as.formula("adviceUsed ~ logPerceivedStake + isLateStart");
+modelResults <- glm(model, family=binomial(link='logit'), data=answeredQuestionDataFrame);
+summary(modelResults);
 
-model15 <- as.formula("logEffortBase ~ logPerceivedStakeFromImpact + userRiskAversionIndex + isLate + bigNumbers + justLostMoney");
-model15Results <- lm(model15, answeredQuestionDataFrame);
-summary(model15Results);
+#	Model with logit
+model <- as.formula("timeSpentAboveAverage ~ logStake");
+modelResults <- glm(model, family=binomial(link='logit'), data=answeredQuestionDataFrame);
+summary(modelResults);
 
-model16 <- as.formula("logEffortBase ~ logPerceivedStakeFromImpact + userRiskAversionIndex + isLate + requiresMath + justLostMoney");
-model16Results <- lm(model16, answeredQuestionDataFrame);
-summary(model16Results);
+model <- as.formula("timeSpentAboveAverage ~ logPerceivedStake");
+modelResults <- glm(model, family=binomial(link='logit'), data=answeredQuestionDataFrame);
+summary(modelResults);
 
-model17 <- as.formula("logEffortBase ~ logPerceivedStakeFromImpact + userRiskAversionIndex + isLate + requiresMath");
-model17Results <- lm(model17, answeredQuestionDataFrame);
-summary(model17Results);
+model <- as.formula("timeSpentAboveAverage ~ logStake + userRiskAversionIndex + isLateStart");
+modelResults <- glm(model, family=binomial(link='logit'), data=answeredQuestionDataFrame);
+summary(modelResults);
 
-model18 <- as.formula("logEffortBase ~ logPerceivedStakeFromImpact + isLate + requiresMath");
-model18Results <- lm(model18, answeredQuestionDataFrame);
-summary(model18Results);
+model <- as.formula("timeSpentAboveAverage ~ logPerceivedStake + userRiskAversionIndex + isLateStart");
+modelResults <- glm(model, family=binomial(link='logit'), data=answeredQuestionDataFrame);
+summary(modelResults);
 
-model19 <- as.formula("logEffortIndex ~ logPerceivedStakeFromImpact + isLate + requiresMath");
-model19Results <- lm(model19, answeredQuestionDataFrameWithEffortIndex);
-summary(model19Results);
+modelResults <- thresholdsGLM(answeredQuestionDataFrame$logTimeSpent, answeredQuestionDataFrame["logStake"], 100);
+print(modelResults$bestFit);
 
-model19GLMResults <- glm(model19, answeredQuestionDataFrameWithEffortIndex, family="binomial");
-summary(model19GLMResults);
+modelResults <- thresholdsGLM(answeredQuestionDataFrame$logTimeSpent, answeredQuestionDataFrame[c("logStake", "isLateStart")], 100);
+print(modelResults$bestFit);
 
-model20 <- as.formula("usedResources ~ logPerceivedStakeFromImpact + isLate + requiresMath");
-model20Results <- lm(model20, answeredQuestionDataFrame);
-summary(model20Results);
+modelResults <- thresholdsGLM(answeredQuestionDataFrame$logTimeSpent, answeredQuestionDataFrame[c("logStake", "isLateStart", "adviceUsed")], 100);
+print(modelResults$bestFit);
 
-model21 <- as.formula("logTimeSpent ~ logPerceivedStakeFromImpact + isLate + requiresMath");
-model21Results <- lm(model21, answeredQuestionDataFrame);
-summary(model21Results);
+modelResults <- thresholdsGLM(answeredQuestionDataFrame$logTimeSpent, answeredQuestionDataFrame["logPerceivedStake"], 100);
+print(modelResults$bestFit);
 
-model22 <- as.formula("usedAnyResource ~ logPerceivedStakeFromImpact + isLate + requiresMath");
-model22Results <- lm(model22, answeredQuestionDataFrame);
-summary(model22Results);
+modelResults <- thresholdsGLM(answeredQuestionDataFrame$logTimeSpent, answeredQuestionDataFrame[c("logPerceivedStake", "isLateStart")], 100);
+print(modelResults$bestFit);
 
-model22GLMResults <- glm(model22, answeredQuestionDataFrame, family="binomial");
-summary(model22GLMResults);
-
-model23 <- as.formula("usedAdvice ~ logPerceivedStakeFromImpact + isLate + requiresMath");
-model23Results <- lm(model23, answeredQuestionDataFrame);
-summary(model22Results);
-
-model23GLMResults <- glm(model23, answeredQuestionDataFrame, family="binomial");
-summary(model23GLMResults);
-
-model24 <- as.formula("costSalaryIndex ~ logPerceivedStakeFromImpact + isLate + requiresMath");
-model24Results <- lm(model24, answeredQuestionDataFrame);
-summary(model24Results);
-
-model25 <- as.formula("logEffortIndex ~ logStake + isLate + requiresMath");
-model25Results <- lm(model25, answeredQuestionDataFrame);
-summary(model25Results);
-
-model25bResults <- cluster.bs.plm(model25, answeredQuestionDataFrame, cluster.se=TRUE, cluster="user_id");
-summary(model25bResults);
-
-
-model26 <- as.formula("logTimeSpent ~ logPerceivedStake + isLateStart + userRiskAversionIndex + requiresMath");
-model26Results <- lm(model26, answeredQuestionDataFrame);
-summary(model26Results);
-
-model27 <- as.formula("logTimeSpent ~ logPerceivedStake + isLateStart + userRiskAversionIndex + bigNumbers");
-model27Results <- lm(model27, answeredQuestionDataFrame);
-summary(model27Results);
+modelResults <- thresholdsGLM(answeredQuestionDataFrame$logTimeSpent, answeredQuestionDataFrame[c("logPerceivedStake", "isLateStart", "adviceUsed")], 100);
+print(modelResults$bestFit);
