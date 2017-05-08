@@ -182,6 +182,14 @@ shaqdf_MODELS <- c(
 	"logTimeSpent ~ logPerceivedStake + isLateStart"
 );
 
+glm_MODELS <- c(
+	"logTimeSpent ~ logStake",
+	"logTimeSpent ~ logStake + isLateStart",
+	"logTimeSpent ~ logStake + isLateStart + adviceUsed",
+	"logTimeSpent ~ logPerceivedStake",
+	"logTimeSpent ~ logPerceivedStake + isLateStart"
+);
+
 
 #	Test models
 for (modelDescription in aqdf_MODELS) {
@@ -230,26 +238,14 @@ model <- as.formula("timeSpentAboveAverage ~ logPerceivedStake + userRiskAversio
 modelResults <- glm(model, family=binomial(link='logit'), data=answeredQuestionDataFrame);
 summary(modelResults);
 
-modelResults <- thresholdsGLM(answeredQuestionDataFrame$logTimeSpent, answeredQuestionDataFrame["logStake"], 100);
-print(modelResults$bestFit);
-
-modelResults <- thresholdsGLM(answeredQuestionDataFrame$logTimeSpent, answeredQuestionDataFrame[c("logStake", "isLateStart")], 100);
-print(modelResults$bestFit);
-
-modelResults <- thresholdsGLM(answeredQuestionDataFrame$logTimeSpent, answeredQuestionDataFrame[c("logStake", "isLateStart", "adviceUsed")], 100);
-print(modelResults$bestFit);
-
-modelResults <- thresholdsGLM(answeredQuestionDataFrame$logTimeSpent, answeredQuestionDataFrame["logPerceivedStake"], 100);
-print(modelResults$bestFit);
-
-modelResults <- thresholdsGLM(answeredQuestionDataFrame$logTimeSpent, answeredQuestionDataFrame[c("logPerceivedStake", "isLateStart")], 100);
-print(modelResults$bestFit);
-
-modelResults <- thresholdsGLM(answeredQuestionDataFrame$logTimeSpent, answeredQuestionDataFrame[c("logPerceivedStake", "isLateStart", "adviceUsed")], 100);
-print(modelResults$bestFit);
+for (glmModel in glm_MODELS) {
+	mVars <- all.vars(glmModel);
+	modelResults <- thresholdsGLM(answeredQuestionDataFrame$logTimeSpent, answeredQuestionDataFrame[mVars[2:length(mVars)]], 100);
+	print(modelResults$bestFit);
+}
 
 #	
-regressPerUser <- function(modelDescription, dataFrame) {
+regressPerUser <- function(modelDescription, dataFrame, testFunction=lm) {
 	userIds <- unique(dataFrame$user_id);
 	userCount <- length(userIds);
 	
@@ -265,7 +261,7 @@ regressPerUser <- function(modelDescription, dataFrame) {
 		userId <- userIds[i];
 		userDF <- subset(dataFrame, user_id == userId);
 		
-		userModelResults <- lm(model, userDF);
+		userModelResults <- testFunction(model, userDF);
 		userModelResultsCoefficients <- coef(summary(userModelResults));
 		coefficient[i] = userModelResultsCoefficients[all.vars(model)[2], "Estimate"];
 		pValue[i] <- lmp(userModelResults);
@@ -288,13 +284,13 @@ regressPerUser <- function(modelDescription, dataFrame) {
 };
 
 #	
-testMultipleModels <- function(models, criterionFunction, dataFrame) {
+testMultipleModels <- function(models, criterionFunction, dataFrame, testFunction) {
 	val <- 0;
 	model <- NULL;
 	modelData <- NULL;
 	
 	for (m in models) {
-		localM <- data.frame(regressPerUser(m, dataFrame));
+		localM <- data.frame(regressPerUser(m, dataFrame, testFunction));
 		criterionValue <- criterionFunction(localM);
 		
 		if (criterionValue > val) {
@@ -313,9 +309,16 @@ testMultipleModels <- function(models, criterionFunction, dataFrame) {
 	);
 };
 
-bestModel <- testMultipleModels(aqdf_MODELS, function(df){
+bestLinearModel <- testMultipleModels(aqdf_MODELS, function(df){
 	return(sum(df$significant5pct));
-}, answeredQuestionDataFrame);
+}, answeredQuestionDataFrame, lm);
 
 balanceOrder <- sort(bestModel$modelDataFrame$balance, decreasing=TRUE);
 bestModel$modelDataFrame$balanceRank <- match(bestModel$modelDataFrame$balance, balanceOrder);
+
+bestLogitModel <- testMultipleModels(glm_MODELS, function(df){
+	return(sum(df$significant5pct));
+}, answeredQuestionDataFrame, function(m, df){
+	mVars <- all.vars(m);
+	return(thresholdsGLM(df$logTimeSpent, df[mVars[2:length(mVars)]], 100));
+});
