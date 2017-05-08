@@ -34,6 +34,16 @@ mode <- function(x) {
 
 modes <- rep(NA,QUESTION_COUNT);
 
+#	La fonction LMP extrait la p-value du F-test d'un modèle linéaire
+#	Stephen Turner, 2011
+#	http://www.gettinggeneticsdone.com/2011/01/rstats-function-for-extracting-f-test-p.html
+lmp <- function (modelobject) {
+	if (class(modelobject) != "lm") stop("Not an object of class 'lm' ")
+	f <- summary(modelobject)$fstatistic
+	p <- pf(f[1],f[2],f[3],lower.tail=F)
+	attributes(p) <- NULL
+	return(p)
+};
 
 #	Load data files
 #userDataFileName <- "./users_parsed.csv";
@@ -101,6 +111,8 @@ questionDataFrame$usedRawData <- as.numeric(as.logical(questionDataFrame$rawData
 
 questionDataFrame$adviceUsed <- ifelse(questionDataFrame$adviceUsed > 0, 1, 0);
 
+questionDataFrame$isLateStartSecondHalf <- questionDataFrame$isLateStart * ifelse(questionDataFrame$index > 9, 1, 0);
+
 questionDataFrame$rightAnswerZScore = scale(questionDataFrame$userRightAnswers, center=TRUE, scale=TRUE);
 questionDataFrame$userSkillZScore = scale(questionDataFrame$userSkillIndex, center=TRUE, scale=TRUE);
 
@@ -146,57 +158,51 @@ thresholdsGLM <- function(depVar, indepMatrix, threshCount=10) {
     );
 };
 
+#	Model descriptions
+aqdf_MODELS <- c(
+	"timeSpent ~ stake",
+	"timeSpent ~ perceivedStake",
+	"logTimeSpent ~ logStake",
+	"logTimeSpent ~ logPerceivedStake",
+	"logTimeSpent ~ logStake + userRiskAversionIndex + isLateStart",
+	"logTimeSpent ~ logPerceivedStake + userRiskAversionIndex + isLateStart",
+	"logTimeSpent ~ logStake + userRiskAversionIndex + isLateStartSecondHalf",
+	"logTimeSpent ~ logPerceivedStake + userRiskAversionIndex + isLateStartSecondHalf",
+	"logTimeSpent ~ logStake + adviceUsed",
+	"logTimeSpent ~ logPerceivedStake + adviceUsed"
+);
+
+fhaqdf_MODELS <- c(
+	"logTimeSpent ~ logStake + userRiskAversionIndex",
+	"logTimeSpent ~ logStake + adviceUsed"
+);
+
+shaqdf_MODELS <- c(
+	"logTimeSpent ~ logStake + isLateStart",
+	"logTimeSpent ~ logPerceivedStake + isLateStart"
+);
+
+
 #	Test models
-
-model <- as.formula("timeSpent ~ stake");
-modelResults <- lm(model, answeredQuestionDataFrame);
-summary(modelResults);
-
-model <- as.formula("timeSpent ~ perceivedStake");
-modelResults <- lm(model, answeredQuestionDataFrame);
-summary(modelResults);
-
-model <- as.formula("logTimeSpent ~ logStake");
-modelResults <- lm(model, answeredQuestionDataFrame);
-summary(modelResults);
-
-model <- as.formula("logTimeSpent ~ logPerceivedStake");
-modelResults <- lm(model, answeredQuestionDataFrame);
-summary(modelResults);
-
-model <- as.formula("logTimeSpent ~ logStake + userRiskAversionIndex + isLateStart");
-modelResults <- lm(model, answeredQuestionDataFrame);
-summary(modelResults);
-
-model <- as.formula("logTimeSpent ~ logPerceivedStake + userRiskAversionIndex + isLateStart");
-modelResults <- lm(model, answeredQuestionDataFrame);
-summary(modelResults);
+for (modelDescription in aqdf_MODELS) {
+	model <- as.formula(modelDescription);
+	modelResults <- lm(model, answeredQuestionDataFrame);
+	summary(modelResults);
+}
 
 #	Now with split datasets
+for (modelDescription in fhaqdf_MODELS) {
+	model <- as.formula(modelDescription);
+	modelResults <- lm(model, firstHalfAnsweredQuestionDataFrame);
+	summary(modelResults);
+}
 
-model <- as.formula("logTimeSpent ~ logStake + userRiskAversionIndex");
-modelResults <- lm(model, firstHalfAnsweredQuestionDataFrame);
-summary(modelResults);
+for (modelDescription in shaqdf_MODELS) {
+	model <- as.formula(modelDescription);
+	modelResults <- lm(model, secondHalfAnsweredQuestionDataFrame);
+	summary(modelResults);
+}
 
-model <- as.formula("logTimeSpent ~ logPerceivedStake + userRiskAversionIndex");
-modelResults <- lm(model, firstHalfAnsweredQuestionDataFrame);
-summary(modelResults);
-
-model <- as.formula("logTimeSpent ~ logStake + isLateStart");
-modelResults <- lm(model, secondHalfAnsweredQuestionDataFrame);
-summary(modelResults);
-
-model <- as.formula("logTimeSpent ~ logPerceivedStake + isLateStart");
-modelResults <- lm(model, secondHalfAnsweredQuestionDataFrame);
-summary(modelResults);
-
-model <- as.formula("logTimeSpent ~ logStake + adviceUsed");
-modelResults <- lm(model, answeredQuestionDataFrame);
-summary(modelResults);
-
-model <- as.formula("logTimeSpent ~ logPerceivedStake + adviceUsed");
-modelResults <- lm(model, answeredQuestionDataFrame);
-summary(modelResults);
 
 #	Testing for possible interaction effects
 model <- as.formula("adviceUsed ~ logStake + isLateStart");
@@ -241,3 +247,75 @@ print(modelResults$bestFit);
 
 modelResults <- thresholdsGLM(answeredQuestionDataFrame$logTimeSpent, answeredQuestionDataFrame[c("logPerceivedStake", "isLateStart", "adviceUsed")], 100);
 print(modelResults$bestFit);
+
+#	
+regressPerUser <- function(modelDescription, dataFrame) {
+	userIds <- unique(dataFrame$user_id);
+	userCount <- length(userIds);
+	
+	coefficient <- rep(NA, userCount);
+	pValue <- rep(NA, userCount);
+	userRiskAversionIndex <- rep(NA, userCount);
+	balance <- rep(NA, userCount);
+	significant5pct <- rep(NA, userCount);
+	
+	model <- as.formula(modelDescription);
+
+	for (i in 1:userCount) {
+		userId <- userIds[i];
+		userDF <- subset(dataFrame, user_id == userId);
+		
+		userModelResults <- lm(model, userDF);
+		userModelResultsCoefficients <- coef(summary(userModelResults));
+		coefficient[i] = userModelResultsCoefficients[all.vars(model)[2], "Estimate"];
+		pValue[i] <- lmp(userModelResults);
+		significant5pct[i] <- ifelse(pValue[i] < 0.05, 1, 0);
+		
+		userRiskAversionIndex[i] <- mean(userDF$userRiskAversionIndex);
+		balance[i] <- mean(userDF$userBalance);
+	}
+	
+	return(
+		cbind(
+			"user_id" = userIds,
+			"coefficient" = coefficient,
+			"pValue" = pValue,
+			"significant5pct" = significant5pct,
+			"userRiskAversionIndex" = userRiskAversionIndex,
+			"balance" = balance
+		)
+	);
+};
+
+#	
+testMultipleModels <- function(models, criterionFunction, dataFrame) {
+	val <- 0;
+	model <- NULL;
+	modelData <- NULL;
+	
+	for (m in models) {
+		localM <- data.frame(regressPerUser(m, dataFrame));
+		criterionValue <- criterionFunction(localM);
+		
+		if (criterionValue > val) {
+			val <- criterionValue;
+			model <- m;
+			modelData <- localM;
+		}
+	}
+	
+	return(
+		list(
+			"val" = val,
+			"model" = model,
+			"modelDataFrame" = modelData
+		)
+	);
+};
+
+bestModel <- testMultipleModels(aqdf_MODELS, function(df){
+	return(sum(df$significant5pct));
+}, answeredQuestionDataFrame);
+
+balanceOrder <- sort(bestModel$modelDataFrame$balance, decreasing=TRUE);
+bestModel$modelDataFrame$balanceRank <- match(bestModel$modelDataFrame$balance, balanceOrder);
