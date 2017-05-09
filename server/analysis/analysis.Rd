@@ -245,7 +245,7 @@ for (glmModel in glm_MODELS) {
 }
 
 #	
-regressPerUser <- function(modelDescription, dataFrame, testFunction=lm) {
+regressPerUser <- function(modelDescription, dataFrame, testFunction=lm, significanceFunction=mlp) {
 	userIds <- unique(dataFrame$user_id);
 	userCount <- length(userIds);
 	
@@ -264,7 +264,7 @@ regressPerUser <- function(modelDescription, dataFrame, testFunction=lm) {
 		userModelResults <- testFunction(model, userDF);
 		userModelResultsCoefficients <- coef(summary(userModelResults));
 		coefficient[i] = userModelResultsCoefficients[all.vars(model)[2], "Estimate"];
-		pValue[i] <- lmp(userModelResults);
+		pValue[i] <- significanceFunction(userModelResults);
 		significant5pct[i] <- ifelse(pValue[i] < 0.05, 1, 0);
 		
 		userRiskAversionIndex[i] <- mean(userDF$userRiskAversionIndex);
@@ -284,13 +284,13 @@ regressPerUser <- function(modelDescription, dataFrame, testFunction=lm) {
 };
 
 #	
-testMultipleModels <- function(models, criterionFunction, dataFrame, testFunction) {
+testMultipleModels <- function(models, criterionFunction, dataFrame, testFunction, significanceFunction) {
 	val <- 0;
 	model <- NULL;
 	modelData <- NULL;
 	
 	for (m in models) {
-		localM <- data.frame(regressPerUser(m, dataFrame, testFunction));
+		localM <- data.frame(regressPerUser(m, dataFrame, testFunction, significanceFunction));
 		criterionValue <- criterionFunction(localM);
 		
 		if (criterionValue > val) {
@@ -321,4 +321,12 @@ bestLogitModel <- testMultipleModels(glm_MODELS, function(df){
 }, answeredQuestionDataFrame, function(m, df){
 	mVars <- all.vars(m);
 	return(thresholdsGLM(df$logTimeSpent, df[mVars[2:length(mVars)]], 100));
+}, function(results){
+	mFormula <- results$formula;
+	mVars <- all.vars(mFormula);
+	nullModelFormula <- reformulate(termlabels = "1", response = mVars[1]);
+	
+	nullModelResults <- glm(nullModelFormula, family=results$family, data=results$data);
+
+	return(with(anova(results, nullModelResults), pchisq(Deviance, Df, lower.tail=FALSE)[2]));
 });
