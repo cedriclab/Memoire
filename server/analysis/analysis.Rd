@@ -142,7 +142,7 @@ thresholdsGLM <- function(depVar, indepMatrix, threshCount=10) {
 
         if (lMaxAIC < localReg$aic) {
             lMaxAIC <- localReg$aic;
-            lBestFit <- summary(localReg);
+            lBestFit <- localReg;
             lBestThreshold <- i*step;
             lData <- localDepVar;
         }
@@ -241,36 +241,37 @@ summary(modelResults);
 for (glmModel in glm_MODELS) {
 	mVars <- all.vars(glmModel);
 	modelResults <- thresholdsGLM(answeredQuestionDataFrame$logTimeSpent, answeredQuestionDataFrame[mVars[2:length(mVars)]], 100);
-	print(modelResults$bestFit);
+	print(summary(modelResults$bestFit));
 }
 
 #	
-regressPerUser <- function(modelDescription, dataFrame, testFunction=lm, significanceFunction=mlp) {
+regressPerUser <- function(modelDescription, dataFrame, testFunction=lm, significanceFunction=lmp) {
 	userIds <- unique(dataFrame$user_id);
 	userCount <- length(userIds);
-	
+
 	coefficient <- rep(NA, userCount);
 	pValue <- rep(NA, userCount);
 	userRiskAversionIndex <- rep(NA, userCount);
 	balance <- rep(NA, userCount);
 	significant5pct <- rep(NA, userCount);
-	
+
 	model <- as.formula(modelDescription);
 
 	for (i in 1:userCount) {
 		userId <- userIds[i];
 		userDF <- subset(dataFrame, user_id == userId);
-		
+
 		userModelResults <- testFunction(model, userDF);
 		userModelResultsCoefficients <- coef(summary(userModelResults));
 		coefficient[i] = userModelResultsCoefficients[all.vars(model)[2], "Estimate"];
 		pValue[i] <- significanceFunction(userModelResults);
 		significant5pct[i] <- ifelse(pValue[i] < 0.05, 1, 0);
-		
+
 		userRiskAversionIndex[i] <- mean(userDF$userRiskAversionIndex);
+
 		balance[i] <- mean(userDF$userBalance);
 	}
-	
+
 	return(
 		cbind(
 			"user_id" = userIds,
@@ -311,16 +312,18 @@ testMultipleModels <- function(models, criterionFunction, dataFrame, testFunctio
 
 bestLinearModel <- testMultipleModels(aqdf_MODELS, function(df){
 	return(sum(df$significant5pct));
-}, answeredQuestionDataFrame, lm);
+}, answeredQuestionDataFrame, lm, lmp);
 
-balanceOrder <- sort(bestModel$modelDataFrame$balance, decreasing=TRUE);
-bestModel$modelDataFrame$balanceRank <- match(bestModel$modelDataFrame$balance, balanceOrder);
+balanceOrder <- sort(bestLinearModel$modelDataFrame$balance, decreasing=TRUE);
+bestLinearModel$modelDataFrame$balanceRank <- match(bestLinearModel$modelDataFrame$balance, balanceOrder);
 
 bestLogitModel <- testMultipleModels(glm_MODELS, function(df){
 	return(sum(df$significant5pct));
 }, answeredQuestionDataFrame, function(m, df){
 	mVars <- all.vars(m);
-	return(thresholdsGLM(df$logTimeSpent, df[mVars[2:length(mVars)]], 100));
+	mThresh <- thresholdsGLM(df$logTimeSpent, df[mVars[2:length(mVars)]], 100);
+	print(mThresh$bestThreshold);
+	return(mThresh$bestFit);
 }, function(results){
 	mFormula <- results$formula;
 	mVars <- all.vars(mFormula);
@@ -328,5 +331,5 @@ bestLogitModel <- testMultipleModels(glm_MODELS, function(df){
 	
 	nullModelResults <- glm(nullModelFormula, family=results$family, data=results$data);
 
-	return(with(anova(results, nullModelResults), pchisq(Deviance, Df, lower.tail=FALSE)[2]));
+	return(pchisq(deviance(nullModelResults)-deviance(results), df.residual(nullModelResults)-df.residual(results), lower.tail=FALSE));
 });
