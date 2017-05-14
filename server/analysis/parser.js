@@ -56,6 +56,8 @@ var adviceData = require("../data/advice.js");
 var rawQuestions = require("../data/questions.js");
 var warmupLengths = [0, 0, 0];
 
+var allPossibleResources = {};
+
 var allResources = [];
 var allResourcesKeys = {};
 var normalizedResources = [];
@@ -73,7 +75,7 @@ var prefixify = function(prefix, word){
 	return prefix + word[0].toUpperCase() + word.substring(1);
 };
 var userAttributesToKeep = ["_id", "group", "balance", "resourceTrustIndex", "riskAversionIndex", "gullibilityIndex", "skillIndex", "mathSkillIndex", "fieldOfStudy", "studyProgram", "englishSkills", "articlesRead", "wordsPerSecond", "rawDataUsed", "adviceUsed", "dubiousArticlesRead", "dubiousArticlesHeeded", "trustedArticlesRead", "trustedArticlesHeeded", "adviceAdvicesHeeded", "totalResourcesUsed", "resourceTrustIndex", "totalResourcesUsed", "maxEffort", "minEffort", "skillWeight", "rightAnswers", "maxCostSalary", "minCostSalary", "maxCostBonus", "minCostBonus", "totalGameTime"];
-var questionAttributesToKeep = ["index", "timeSpent", "timeSpentFraction", "rightAnswer", "stake", "perceivedStake", "effort", "effortBase", "costSalary", "costBonus", "isText", "questionWordCount"];
+var questionAttributesToKeep = ["index", "timeSpent", "timeSpentFraction", "rightAnswer", "stake", "perceivedStake", "effort", "effortBase", "costSalary", "costBonus", "isText", "questionWordCount", "adviceCost"];
 
 var countQuestionWords = function(q){
 	return q.text.split(" ").length + (q.options ? q.options.reduce(function(a, b){
@@ -128,6 +130,19 @@ var runAnalysis = function(users, callback) {
 			var answeredGameQuestions = QUESTION_ORDER.map(function(qIndex){
 				var answeredQuestion = user.answeredGameQuestions[qIndex-1];
 				var additionalData = additionalDataHash[String(answeredQuestion.index+1)];
+                
+                additionalData.resources.forEach(function(resource, resourceIndex){
+                    allPossibleResources[(user._id + "-" + String(qIndex) + "-" + resourceIndex)] = {
+                        "user_id" : user._id,
+                        "questionIndex" : qIndex,
+                        "resourceIndex" : resourceIndex,
+                        "isTrusted" : false,
+                        "isDubious" : resource.isDubious || false,
+                        "used" : false,
+                        "questionStake" : additionalData.stake,
+                        "questionPerceivedStake" : additionalData.perceivedStake,
+                    };
+                });
 				
 				answeredQuestion.answer = numerize(answeredQuestion.answer);
 				
@@ -223,6 +238,8 @@ var runAnalysis = function(users, callback) {
 				answeredQuestion.usedResources.forEach(function(resource, rIndex){
 					
 					totalResourcesUsed++;
+                    
+                    var possibleResource = allPossibleResources[(user._id + "-" + String(qIndex) + "-" + String(resource.resource-1))];
 
 					if (rIndex != answeredQuestion.usedResources.length-1) {
 						resource["timeSpent"] = answeredQuestion.usedResources[rIndex+1].timeUsed - resource.timeUsed;
@@ -239,9 +256,13 @@ var runAnalysis = function(users, callback) {
 						});
 						resource["linkUsedBefore"] = linksClicked.indexOf(resourceInfo.link) != -1;
 						linksClicked.push(resourceInfo.link);
-						resource["linkFamiliar"] = resourceInfo.sourceId ? user.preferredMedia.indexOf(parseInt(resourceInfo.sourceId)) : false;
+						resource["linkFamiliar"] = resourceInfo.sourceId ? (user.preferredMedia.indexOf(parseInt(resourceInfo.sourceId)) != -1) : false;
 						
 						resource["isTrusted"] = resource["linkUsedBefore"] || resource["linkFamiliar"] || resource["governmentSource"];
+                        
+                        possibleResource["isTrusted"] = resource["isTrusted"];
+                        possibleResource["used"] = true;
+                        
 						if (resource["isTrusted"] && resource["timeSpent"] > RESOURCE_USED_THRESHOLD) {
 							answeredQuestion["trustedArticlesRead"] += 1;
 							if (resource["heededAdvice"]) {
@@ -509,6 +530,12 @@ var replaceBooleans = function(object) {
 	return object;
 };
 
+var parseAllResources = function() {
+    return Object.keys(allPossibleResources).map(function(allPossibleResourceId){
+        return replaceBooleans(allPossibleResources[allPossibleResourceId]);
+    });
+};
+
 var parseQuestionAverages = function(){
 	var questionMatrixKeys = Object.keys(questionMatrix[1]);
 	
@@ -564,6 +591,15 @@ MongoClient.connect(DBConnectionString, function(err, db) {
 					pre = e;
 				}
 				console.log("Normalized resources parsed with", normalizedResources.length, "as length and", pre, "as error.");
+                
+                var prea = null,
+                    allAndAllResources;
+				try {
+					allAndAllResources = parseAllResources();
+				} catch (e) {
+					prea = e;
+				}
+				console.log("Normalized ALL resources parsed with", allAndAllResources.length, "as length and", prea, "as error.");
 				
 				parseQuestionAverages();
 				
@@ -571,8 +607,11 @@ MongoClient.connect(DBConnectionString, function(err, db) {
 					console.log("Inserted in 'normalized_resources' with", erro, "as error.");
 					db.collection("normalized_questions").insertMany(normalizedQuestions, function(erroq, result){
 						console.log("Inserted in 'normalized_questions' with", erroq, "as error.");
-						db.close();
-						console.log("Done.");
+						db.collection("normalized_all_resources").insertMany(allAndAllResources, function(erroa, result){
+                            console.log("Inserted in 'normalized_all_resources' with", erroa, "as error.");
+                            db.close();
+                            console.log("Done.");
+                        });
 					});
 				});
 			});

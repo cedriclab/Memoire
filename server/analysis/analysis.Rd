@@ -52,12 +52,22 @@ questionDataFileName <- "./normalized_questions.csv";
 questionData <- read.csv(questionDataFileName, header=TRUE);
 questionAveragesDataFileName <- "./questions_averages.csv";
 questionAveragesData <- read.csv(questionAveragesDataFileName, header=TRUE);
-#resourceDataFileName <- "./normalized_resources.csv";
-#resourceData <- read.csv(resourceDataFileName, header=TRUE);
+resourceDataFileName <- "./normalized_resources.csv";
+resourceData <- read.csv(resourceDataFileName, header=TRUE);
+allResourceDataFileName <- "./normalized_all_resources.csv";
+allResourceData <- read.csv(allResourceDataFileName, header=TRUE);
 
 questionData[["logStake"]] <- log(questionData$stake+1);
 questionData[["logPerceivedStake"]] <- log(questionData$perceivedStake+1);
 questionData[["logPerceivedStakeBias"]] <- questionData$perceivedStake - questionData$logStake;
+
+resourceData[["logTimeSpent"]] <- log(resourceData$timeSpent+1);
+resourceData[["logQuestionStake"]] <- log(resourceData$questionStake+1);
+resourceData[["logQuestionPerceivedStake"]] <- log(resourceData$questionPerceivedStake+1);
+resourceData[["logQuestionTimeSpent"]] <- log(resourceData$questionTimeSpent+1);
+
+allResourceData[["logQuestionStake"]] <- log(allResourceData $questionStake+1);
+allResourceData[["logQuestionPerceivedStake"]] <- log(allResourceData $questionPerceivedStake+1);
 
 questionData[["logEffortBase"]] <- log(questionData$effortBase+1);
 questionData[["logCostSalary"]] <- log(questionData$costSalary+1);
@@ -92,7 +102,14 @@ questionAveragesDataFrame[, "logMaxMeanStake"] <- apply(questionAveragesDataFram
 questionDataFrame[["timeSpentFractionDelta"]] <- questionDataFrame$timeSpentFraction - (1/QUESTION_COUNT);
 questionDataFrame[["timeSpentAboveAverage"]] <- ifelse(questionDataFrame$timeSpentFraction > 0 & questionDataFrame$timeSpentFraction > (1/QUESTION_COUNT), 1, 0);
 answeredQuestionDataFrame <- subset(questionDataFrame, timeSpent > 0 & timeSpentFraction > 0 & timeSpentFraction < 1);
-#resourceDataFrame <- data.frame(resourceData);
+
+resourceDataFrame <- data.frame(resourceData);
+resourceDataFrame$linkFamiliar[is.na(resourceDataFrame$linkFamiliar)] <- 0;
+resourceDataFrame$isTrusted[is.na(resourceDataFrame$isTrusted)] <- 0;
+resourceDataFrame$governmentSource[is.na(resourceDataFrame$governmentSource)] <- 0;
+resourceDataFrame$heededAdvice[is.na(resourceDataFrame$heededAdvice)] <- 0;
+
+allResourceDataFrame <- data.frame(allResourceData);
 
 counter <- 0;
 for (i in QUESTION_ORDER) {
@@ -111,7 +128,16 @@ questionDataFrame$usedRawData <- as.numeric(as.logical(questionDataFrame$rawData
 
 questionDataFrame$adviceUsed <- ifelse(questionDataFrame$adviceUsed > 0, 1, 0);
 
+questionDataFrame$logStakeFirstHalf <- questionDataFrame$logStake * ifelse(questionDataFrame$index > 9, 0, 1);
+questionDataFrame$logStakeSecondHalf <- questionDataFrame$logStake * ifelse(questionDataFrame$index > 9, 1, 0);
+questionDataFrame$logPerceivedStakeFirstHalf <- questionDataFrame$logPerceivedStake * ifelse(questionDataFrame$index > 9, 0, 1);
+questionDataFrame$logPerceivedStakeSecondHalf <- questionDataFrame$logPerceivedStake * ifelse(questionDataFrame$index > 9, 1, 0);
+
+questionDataFrame$isLateStartFirstHalf <- questionDataFrame$isLateStart * ifelse(questionDataFrame$index > 9, 0, 1);
 questionDataFrame$isLateStartSecondHalf <- questionDataFrame$isLateStart * ifelse(questionDataFrame$index > 9, 1, 0);
+
+questionDataFrame$isLateEndFirstHalf <- questionDataFrame$isLateEnd * ifelse(questionDataFrame$index > 9, 0, 1);
+questionDataFrame$isLateEndSecondHalf <- questionDataFrame$isLateEnd * ifelse(questionDataFrame$index > 9, 1, 0);
 
 questionDataFrame$rightAnswerZScore = scale(questionDataFrame$userRightAnswers, center=TRUE, scale=TRUE);
 questionDataFrame$userSkillZScore = scale(questionDataFrame$userSkillIndex, center=TRUE, scale=TRUE);
@@ -166,8 +192,8 @@ aqdf_MODELS <- c(
 	"logTimeSpent ~ logPerceivedStake",
 	"logTimeSpent ~ logStake + userRiskAversionIndex + isLateStart",
 	"logTimeSpent ~ logPerceivedStake + userRiskAversionIndex + isLateStart",
-	"logTimeSpent ~ logStake + userRiskAversionIndex + isLateStartSecondHalf",
-	"logTimeSpent ~ logPerceivedStake + userRiskAversionIndex + isLateStartSecondHalf",
+	"logTimeSpent ~ logStake + userRiskAversionIndex + isLateStartFirstHalf + isLateStartSecondHalf",
+	"logTimeSpent ~ logPerceivedStake + userRiskAversionIndex + isLateStartFirstHalf + isLateStartSecondHalf",
 	"logTimeSpent ~ logStake + adviceUsed",
 	"logTimeSpent ~ logPerceivedStake + adviceUsed"
 );
@@ -184,11 +210,20 @@ shaqdf_MODELS <- c(
 
 glm_MODELS <- c(
 	"logTimeSpent ~ logStake",
-	"logTimeSpent ~ logStake + isLateStartSecondHalf",
-	"logTimeSpent ~ logStake + isLateStartSecondHalf + adviceUsed",
+	"logTimeSpent ~ logStake + isLateStartFirstHalf + isLateStartSecondHalf",
+	"logTimeSpent ~ logStake + isLateStartFirstHalf + isLateStartSecondHalf + adviceUsed",
 	"logTimeSpent ~ logPerceivedStake",
-	"logTimeSpent ~ logPerceivedStake + isLateStartSecondHalf",
-	"logTimeSpent ~ logPerceivedStake + isLateStartSecondHalf + adviceUsed"
+	"logTimeSpent ~ logPerceivedStake + isLateStartFirstHalf + isLateStartSecondHalf",
+	"logTimeSpent ~ logPerceivedStake + isLateStartFirstHalf + isLateStartSecondHalf + adviceUsed"
+);
+
+glm_split_MODELS <- c(
+	"logTimeSpent ~ logStakeFirstHalf + logStakeSecondHalf",
+	"logTimeSpent ~ logStakeFirstHalf + logStakeSecondHalf + isLateStartFirstHalf + isLateStartSecondHalf",
+	"logTimeSpent ~ logStakeFirstHalf + logStakeSecondHalf + isLateStartFirstHalf + isLateStartSecondHalf + adviceUsed",
+	"logTimeSpent ~ logPerceivedStakeFirstHalf + logPerceivedStakeSecondHalf",
+	"logTimeSpent ~ logPerceivedStakeFirstHalf + logPerceivedStakeSecondHalf + isLateStartFirstHalf + isLateStartSecondHalf",
+	"logTimeSpent ~ logPerceivedStakeFirstHalf + logPerceivedStakeSecondHalf + isLateStartFirstHalf + isLateStartSecondHalf + adviceUsed"
 );
 
 
@@ -196,20 +231,20 @@ glm_MODELS <- c(
 for (modelDescription in aqdf_MODELS) {
 	model <- as.formula(modelDescription);
 	modelResults <- lm(model, answeredQuestionDataFrame);
-	summary(modelResults);
+	print(summary(modelResults));
 }
 
 #	Now with split datasets
 for (modelDescription in fhaqdf_MODELS) {
 	model <- as.formula(modelDescription);
 	modelResults <- lm(model, firstHalfAnsweredQuestionDataFrame);
-	summary(modelResults);
+	print(summary(modelResults));
 }
 
 for (modelDescription in shaqdf_MODELS) {
 	model <- as.formula(modelDescription);
 	modelResults <- lm(model, secondHalfAnsweredQuestionDataFrame);
-	summary(modelResults);
+	print(summary(modelResults));
 }
 
 
@@ -243,7 +278,22 @@ for (glmModel in glm_MODELS) {
 	glmModelFormula <- as.formula(glmModel);
 	mVars <- all.vars(glmModelFormula);
 	modelResults <- thresholdsGLM(answeredQuestionDataFrame$logTimeSpent, answeredQuestionDataFrame[mVars[2:length(mVars)]], 100);
+	print(modelResults$bestThreshold);
 	print(summary(modelResults$bestFit));
+}
+
+for (glmModel in glm_split_MODELS) {
+	glmModelFormula <- as.formula(glmModel);
+	mVars <- all.vars(glmModelFormula);
+	modelResults <- thresholdsGLM(answeredQuestionDataFrame$logTimeSpent, answeredQuestionDataFrame[mVars[2:length(mVars)]], 100);
+	print(modelResults$bestThreshold);
+	print(summary(modelResults$bestFit));
+}
+
+for (modelDescription in glm_split_MODELS) {
+	model <- as.formula(modelDescription);
+	modelResults <- lm(model, answeredQuestionDataFrame);
+	print(summary(modelResults));
 }
 
 #	
@@ -312,16 +362,21 @@ testMultipleModels <- function(models, criterionFunction, dataFrame, testFunctio
 	);
 };
 
-bestLinearModel <- testMultipleModels(aqdf_MODELS, function(df){
+by5pctSignificant <- function(df){
 	return(sum(df$significant5pct));
-}, answeredQuestionDataFrame, lm, lmp);
+};
+
+byPValue <- function(df){
+	return(sum(1 - df$pValue));
+};
+
+bestLinearModel <- testMultipleModels(glm_split_MODELS, by5pctSignificant, answeredQuestionDataFrame, lm, lmp);
+bestLinearModel <- testMultipleModels(glm_split_MODELS, byPValue, answeredQuestionDataFrame, lm, lmp);
 
 balanceOrder <- sort(bestLinearModel$modelDataFrame$balance, decreasing=TRUE);
 bestLinearModel$modelDataFrame$balanceRank <- match(bestLinearModel$modelDataFrame$balance, balanceOrder);
 
-bestLogitModel <- testMultipleModels(glm_MODELS, function(df){
-	return(sum(1 - df$pValue));
-}, answeredQuestionDataFrame, function(m, df){
+bestLogitModel <- testMultipleModels(glm_split_MODELS, byPValue, answeredQuestionDataFrame, function(m, df){
 	mVars <- all.vars(m);
 	mThresh <- thresholdsGLM(df$logTimeSpent, df[mVars[2:length(mVars)]], 100);
 	return(mThresh$bestFit);
@@ -335,26 +390,106 @@ bestLogitModel <- testMultipleModels(glm_MODELS, function(df){
 	return(pchisq(deviance(nullModelResults)-deviance(results), df.residual(nullModelResults)-df.residual(results), lower.tail=FALSE));
 });
 
+meanIsLateStartFirstHalf <- rep(0, 12);
 meanIsLateStartSecondHalf <- rep(0, 12);
-for (i in 7:12) {
+for (i in 1:length(QUESTION_ORDER)) {
 	qIndex <- QUESTION_ORDER[i];
 	questionDf <- subset(answeredQuestionDataFrame, index == qIndex);
-	meanIsLateStartSecondHalf[i] <- mean(questionDf$isLateStart);
+	if (i < 7) {
+		meanIsLateStartFirstHalf[i] <- mean(questionDf$isLateStart);
+	} else {
+		meanIsLateStartSecondHalf[i] <- mean(questionDf$isLateStart);
+	}
 }
+questionAveragesDataFrame[, "meanIsLateStartFirstHalf"] <- meanIsLateStartFirstHalf;
 questionAveragesDataFrame[, "meanIsLateStartSecondHalf"] <- meanIsLateStartSecondHalf;
+questionAveragesDataFrame[, "logMeanStakeFirstHalf"] <- questionAveragesDataFrame$logMeanStake * ifelse(questionAveragesDataFrame$orderIndex < 7, 0, 1);
+questionAveragesDataFrame[, "logMeanPerceivedStakeFirstHalf"] <- questionAveragesDataFrame$logMeanPerceivedStake * ifelse(questionAveragesDataFrame$orderIndex < 7, 0, 1);
+questionAveragesDataFrame[, "logMeanStakeSecondHalf"] <- questionAveragesDataFrame$logMeanStake * ifelse(questionAveragesDataFrame$orderIndex < 7, 1, 0);
+questionAveragesDataFrame[, "logMeanPerceivedStakeSecondHalf"] <- questionAveragesDataFrame$logMeanPerceivedStake * ifelse(questionAveragesDataFrame$orderIndex < 7, 1, 0);
 
 #	Question models
-question_linear_MODELS <- c(
-"logMeanTime ~ logMeanStake",
-"logMeanTime ~ logMeanPerceivedStake",
-"logMeanTime ~ logMeanStake + meanIsLateStartSecondHalf",
-"logMeanTime ~ logMeanPerceivedStake + meanIsLateStartSecondHalf",
-"logMeanTime ~ logMeanStake + meanIsLateStartSecondHalf + meanAdvice",
-"logMeanTime ~ logMeanPerceivedStake + meanIsLateStartSecondHalf + meanAdvice"
+question_linear_split_MODELS <- c(
+	"logMeanTime ~ logMeanStakeFirstHalf + logMeanStakeSecondHalf",
+	"logMeanTime ~ logMeanStakeFirstHalf + logMeanStakeSecondHalf + meanIsLateStartFirstHalf + meanIsLateStartSecondHalf",
+	"logMeanTime ~ logMeanStakeFirstHalf + logMeanStakeSecondHalf + meanIsLateStartFirstHalf + meanIsLateStartSecondHalf + meanAdvice",
+	"logMeanTime ~ logMeanPerceivedStakeFirstHalf + logMeanPerceivedStakeSecondHalf",
+	"logMeanTime ~ logMeanPerceivedStakeFirstHalf + logMeanPerceivedStakeSecondHalf + meanIsLateStartFirstHalf + meanIsLateStartSecondHalf",
+	"logMeanTime ~ logMeanPerceivedStakeFirstHalf + logMeanPerceivedStakeSecondHalf + meanIsLateStartFirstHalf + meanIsLateStartSecondHalf + meanAdvice"
 );
 
-for (modelDescription in question_linear_MODELS) {
+for (modelDescription in question_linear_split_MODELS) {
 	model <- as.formula(modelDescription);
-	modelResults <- lm(model, firstHalfAnsweredQuestionDataFrame);
-	summary(modelResults);
+	modelResults <- lm(model, questionAveragesDataFrame);
+	print(summary(modelResults));
+}
+
+for (modelDescription in question_linear_split_MODELS) {
+	glmModelFormula <- as.formula(modelDescription);
+	mVars <- all.vars(glmModelFormula);
+	modelResults <- thresholdsGLM(questionAveragesDataFrame$logMeanTime, questionAveragesDataFrame[mVars[2:length(mVars)]], 100);
+	print(summary(modelResults$bestFit));
+}
+
+answeredQuestionDataFrame$adviceCostRatio <- answeredQuestionDataFrame$adviceCost / (answeredQuestionDataFrame$logStake + 1);
+answeredQuestionDataFrame$adviceCostPerceivedRatio <- answeredQuestionDataFrame$adviceCost / (answeredQuestionDataFrame$logPerceivedStake + 1);
+
+model <- as.formula("usedRawData ~ logTimeSpent");
+modelResults <- glm(model, family=binomial(link='logit'), data=answeredQuestionDataFrame);
+print(summary(modelResults));
+
+model <- as.formula("articlesRead ~ logTimeSpent");
+modelResults <- lm(model, data=answeredQuestionDataFrame);
+print(summary(modelResults));
+
+advice_MODELS <- c(
+	"adviceUsed ~ logTimeSpent + adviceCostRatio",
+	"adviceUsed ~ logTimeSpent + adviceCostPerceivedRatio"
+);
+
+advice_late_MODELS <- c(
+	"adviceUsed ~ isLateEndFirstHalf + isLateEndSecondHalf + adviceCostRatio",
+	"adviceUsed ~ isLateEndFirstHalf + isLateEndSecondHalf + adviceCostRatio + articlesRead",
+	"adviceUsed ~ isLateEndFirstHalf + isLateEndSecondHalf + adviceCostRatio + articlesRead + usedRawData",
+	"adviceUsed ~ isLateEndFirstHalf + isLateEndSecondHalf + adviceCostPerceivedRatio",
+	"adviceUsed ~ isLateEndFirstHalf + isLateEndSecondHalf + adviceCostPerceivedRatio + articlesRead",
+	"adviceUsed ~ isLateEndFirstHalf + isLateEndSecondHalf + adviceCostPerceivedRatio + articlesRead + usedRawData"
+);
+
+for (modelDescription in advice_MODELS) {
+	model <- as.formula(modelDescription);
+	modelResults <- glm(model, family=binomial(link='logit'), data=answeredQuestionDataFrame);
+	print(summary(modelResults));
+}
+
+for (modelDescription in advice_late_MODELS) {
+	model <- as.formula(modelDescription);
+	modelResults <- glm(model, family=binomial(link='logit'), data=answeredQuestionDataFrame);
+	print(summary(modelResults));
+}
+
+resource_MODELS <- c(
+	"heededAdvice ~ isTrusted",
+	"heededAdvice ~ linkFamiliar + governmentSource"
+);
+
+resource_time_MODELS <- c(
+	"logTimeSpent ~ isTrusted",
+	"logTimeSpent ~ linkFamiliar + governmentSource"
+);
+
+for (modelDescription in resource_MODELS) {
+	model <- as.formula(modelDescription);
+	modelResults <- glm(model, family=binomial(link='logit'), data=resourceDataFrame);
+	print(summary(modelResults));
+}
+
+model <- as.formula("used ~ isTrusted");
+modelResults <- glm(model, family=binomial(link='logit'), data=allResourceDataFrame);
+print(summary(modelResults));
+
+for (modelDescription in resource_time_MODELS) {
+	model <- as.formula(modelDescription);
+	modelResults <- lm(model, data=resourceDataFrame);
+	print(summary(modelResults));
 }
