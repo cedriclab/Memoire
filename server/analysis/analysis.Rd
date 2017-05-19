@@ -226,6 +226,11 @@ glm_split_MODELS <- c(
 	"logTimeSpent ~ logPerceivedStakeFirstHalf + logPerceivedStakeSecondHalf + isLateStartFirstHalf + isLateStartSecondHalf + adviceUsed"
 );
 
+impact_MODELS <- c(
+	"rightAnswer ~ logTimeSpent",
+	"rightAnswer ~ adviceUsed",
+	"rightAnswer ~ articlesRead"
+);
 
 #	Test models
 for (modelDescription in aqdf_MODELS) {
@@ -247,6 +252,18 @@ for (modelDescription in shaqdf_MODELS) {
 	print(summary(modelResults));
 }
 
+#Testing for impact of behavior on outcomes
+model <- as.formula("rightAnswer ~ logTimeSpent");
+modelResults <- glm(model, family=binomial(link='logit'), data=firstHalfAnsweredQuestionDataFrame); #Using first half because of "hurry" effect in latter half
+summary(modelResults);
+
+model <- as.formula("rightAnswer ~ adviceUsed");
+modelResults <- glm(model, family=binomial(link='logit'), data=answeredQuestionDataFrame); 
+summary(modelResults);
+
+model <- as.formula("rightAnswer ~ articlesRead");
+modelResults <- glm(model, family=binomial(link='logit'), data=answeredQuestionDataFrame); 
+summary(modelResults);
 
 #	Testing for possible interaction effects
 model <- as.formula("adviceUsed ~ logStake + isLateStart");
