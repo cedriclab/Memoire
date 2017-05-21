@@ -10,8 +10,6 @@
 #	2016
 #
 
-library("clusterSEs");
-require("plm");
 
 QUESTION_COUNT <- 12;
 QUESTION_ORDER <- c(0,1,3,4,5,7,9,10,11,16,18,19);
@@ -229,7 +227,9 @@ glm_split_MODELS <- c(
 impact_MODELS <- c(
 	"rightAnswer ~ logTimeSpent",
 	"rightAnswer ~ adviceUsed",
-	"rightAnswer ~ articlesRead"
+	"rightAnswer ~ articlesRead",
+	"rightAnswer ~ dubiousArticlesRead",
+	"rightAnswer ~ trustedArticlesRead"
 );
 
 #	Test models
@@ -258,11 +258,15 @@ modelResults <- glm(model, family=binomial(link='logit'), data=firstHalfAnswered
 summary(modelResults);
 
 model <- as.formula("rightAnswer ~ adviceUsed");
-modelResults <- glm(model, family=binomial(link='logit'), data=answeredQuestionDataFrame); 
+modelResults <- glm(model, family=binomial(link='logit'), data= answeredQuestionDataFrame); 
 summary(modelResults);
 
 model <- as.formula("rightAnswer ~ articlesRead");
-modelResults <- glm(model, family=binomial(link='logit'), data=answeredQuestionDataFrame); 
+modelResults <- glm(model, family=binomial(link='logit'), data= answeredQuestionDataFrame); 
+summary(modelResults);
+
+model <- as.formula("rightAnswer ~ trustedArticlesRead + dubiousArticlesRead");
+modelResults <- glm(model, family=binomial(link='logit'), data= answeredQuestionDataFrame); 
 summary(modelResults);
 
 #	Testing for possible interaction effects
