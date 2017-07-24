@@ -17,13 +17,10 @@ QUESTIONS_WITH_CHOICES = c(0,1,3,4,5,9,10,11,16,18);
 currentOS <- Sys.info()['sysname'];
 
 
-if (length(args) == 1) {
-	setwd(args[1]);
-} else if (currentOS=="Windows") {
-	setwd("/Users/Cedric/Documents/Cours/Memoire/server/analysis");
-} else if (currentOS=="Darwin") {
-	setwd("/Users/cedriclevasseur-laberge/Documents/Cours/Memoire/server/analysis");
-}
+#setwd(args[1]);
+#setwd("/Users/Cedric/Documents/Cours/Memoire/server/analysis");
+setwd("/Users/cedriclevasseur-laberge/Documents/Cours/Memoire/server/analysis");
+
 
 mode <- function(x) {
 	ux <- unique(x);
@@ -59,6 +56,7 @@ questionData[["logStake"]] <- log(questionData$stake+1);
 questionData[["logPerceivedStake"]] <- log(questionData$perceivedStake+1);
 questionData[["logPerceivedStakeBias"]] <- questionData$perceivedStake - questionData$logStake;
 
+resourceData$timeSpent <- (resourceData$timeSpent / 1000);
 resourceData[["logTimeSpent"]] <- log(resourceData$timeSpent+1);
 resourceData[["logQuestionStake"]] <- log(resourceData$questionStake+1);
 resourceData[["logQuestionPerceivedStake"]] <- log(resourceData$questionPerceivedStake+1);
@@ -70,10 +68,13 @@ allResourceData[["logQuestionPerceivedStake"]] <- log(allResourceData $questionP
 questionData[["logEffortBase"]] <- log(questionData$effortBase+1);
 questionData[["logCostSalary"]] <- log(questionData$costSalary+1);
 questionData[["logCostBonus"]] <- log(questionData$costBonus+1);
+
+questionData$timeSpent <- questionData$timeSpent / 1000;
 questionData[["logTimeSpent"]] <- log(questionData$timeSpent+1);
 questionData[["logTimeCostSalary"]] <- log(questionData$timeCostSalary+1);
 questionData[["logTimeCostBonus"]] <- log(questionData$timeCostBonus+1);
 
+questionAveragesData$meanTime <- (questionAveragesData$meanTime / 1000)
 questionAveragesData[["logMeanTime"]] <- log(questionAveragesData$meanTime+1);
 questionAveragesData[["logMeanTimeCostSalary"]] <- log(questionAveragesData$meanTimeCostSalary+1);
 questionAveragesData[["logMeanTimeCostBonus"]] <- log(questionAveragesData$meanTimeCostBonus+1);
