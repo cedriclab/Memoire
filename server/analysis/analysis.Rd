@@ -28,6 +28,7 @@ mode <- function(x) {
 };
 
 modes <- rep(NA,QUESTION_COUNT);
+timeMeans <- rep(NA,QUESTION_COUNT);
 
 #	La fonction LMP extrait la p-value du F-test d'un modèle linéaire
 #	Stephen Turner, 2011
@@ -114,14 +115,18 @@ counter <- 0;
 for (i in QUESTION_ORDER) {
 	counter = counter+1;
 	if (!is.na(match(i, QUESTIONS_WITH_CHOICES))) {
-		y <- subset(answeredQuestionDataFrame, index==i)[["answer"]];
+	  thisQuestionDf <- subset(answeredQuestionDataFrame, index==i);
+		y <- thisQuestionDf[["answer"]];
 		t <- mode(as.numeric(levels(y))[y]);
 		modes[counter] <- t;
+		timeMeans[counter] <- mean(thisQuestionDf$logTimeSpent);
 	}
 }
 
 questionDataFrame$questionMode <- modes[match(questionDataFrame$index, QUESTION_ORDER)];
 questionDataFrame$answerIsMode <- as.numeric(as.logical(questionDataFrame$answer == questionDataFrame$questionMode));
+
+questionDataFrame$logTimeSpentOverAvg <- questionDataFrame$logTimeSpent - timeMeans[match(questionDataFrame$index, QUESTION_ORDER)];
 
 questionDataFrame$usedRawData <- as.numeric(as.logical(questionDataFrame$rawDataUsed));
 
@@ -144,8 +149,12 @@ questionDataFrame$userSkillZScore = scale(questionDataFrame$userSkillIndex, cent
 answeredQuestionDataFrame <- subset(questionDataFrame, timeSpent > 0 & timeSpentFraction > 0 & timeSpentFraction < 1);
 answeredQuestionDataFrameWithEffortIndex <- subset(answeredQuestionDataFrame, is.finite(logEffortIndex));
 
+
+
 firstHalfAnsweredQuestionDataFrame <- subset(answeredQuestionDataFrame, index < 10);
 secondHalfAnsweredQuestionDataFrame <- subset(answeredQuestionDataFrame, index > 9);
+
+
 
 #	Test various thresholds
 thresholdsGLM <- function(depVar, indepMatrix, threshCount=10) {
@@ -227,6 +236,7 @@ glm_split_MODELS <- c(
 
 impact_MODELS <- c(
 	"rightAnswer ~ logTimeSpent",
+	"rightAnswer ~ logTimeSpentOverAvg",
 	"rightAnswer ~ adviceUsed",
 	"rightAnswer ~ articlesRead",
 	"rightAnswer ~ dubiousArticlesRead",
@@ -256,6 +266,10 @@ for (modelDescription in shaqdf_MODELS) {
 #Testing for impact of behavior on outcomes
 model <- as.formula("rightAnswer ~ logTimeSpent");
 modelResults <- glm(model, family=binomial(link='logit'), data=firstHalfAnsweredQuestionDataFrame); #Using first half because of "hurry" effect in latter half
+summary(modelResults);
+
+model <- as.formula("rightAnswer ~ logTimeSpentOverAvg");
+modelResults <- glm(model, family=binomial(link='logit'), data=answeredQuestionDataFrame); #Using first half because of "hurry" effect in latter half
 summary(modelResults);
 
 model <- as.formula("rightAnswer ~ adviceUsed");
