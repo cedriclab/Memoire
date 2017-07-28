@@ -32,7 +32,7 @@ aqdf_MODELS <- c(
 
 fhaqdf_MODELS <- c(
 	"logTimeSpent ~ logStake + userRiskAversionIndex",
-	"logTimeSpent ~ logStake + adviceUsed"
+	"logTimeSpent ~ logPerceivedStake + userRiskAversionIndex"
 );
 
 shaqdf_MODELS <- c(

@@ -146,8 +146,8 @@ answeredQuestionDataFrameWithEffortIndex <- subset(answeredQuestionDataFrame, is
 
 
 
-firstHalfAnsweredQuestionDataFrame <- subset(answeredQuestionDataFrame, index < 10);
-secondHalfAnsweredQuestionDataFrame <- subset(answeredQuestionDataFrame, index > 9);
+firstHalfAnsweredQuestionDataFrame <- subset(answeredQuestionDataFrame, index < 9);
+secondHalfAnsweredQuestionDataFrame <- subset(answeredQuestionDataFrame, index >= 9);
 
 
 
