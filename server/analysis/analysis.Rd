@@ -11,8 +11,8 @@
 #
 
 #setwd(args[1]);
-#setwd("/Users/Cedric/Documents/Cours/Memoire/server/analysis");
-setwd("/Users/cedriclevasseur-laberge/Documents/Cours/Memoire/server/analysis");
+setwd("/Users/Cedric/Documents/Cours/Memoire/server/analysis");
+#setwd("/Users/cedriclevasseur-laberge/Documents/Cours/Memoire/server/analysis");
 
 source("setup.Rd");
 
@@ -84,6 +84,13 @@ for (modelDescription in fhaqdf_MODELS) {
 for (modelDescription in shaqdf_MODELS) {
 	model <- as.formula(modelDescription);
 	modelResults <- lm(model, secondHalfAnsweredQuestionDataFrame);
+	print(summary(modelResults));
+}
+
+#	Now with split variables
+for (modelDescription in glm_split_MODELS) {
+	model <- as.formula(modelDescription);
+	modelResults <- lm(model, answeredQuestionDataFrame);
 	print(summary(modelResults));
 }
 

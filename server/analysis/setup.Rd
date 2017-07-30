@@ -154,7 +154,9 @@ secondHalfAnsweredQuestionDataFrame <- subset(answeredQuestionDataFrame, index >
 #	Test various thresholds
 thresholdsGLM <- function(depVar, indepMatrix, threshCount=10) {
 	minDepVar <- min(depVar);
-    step <- (max(depVar) - minDepVar)/threshCount;
+	valRange <- max(depVar) - minDepVar;
+    step <- (valRange/2)/threshCount;
+    depVarStart <- minDepVar + (valRange/4);
     
     lMaxAIC <- 0;
     lBestFit <- NULL;
@@ -162,7 +164,7 @@ thresholdsGLM <- function(depVar, indepMatrix, threshCount=10) {
     lData <- NULL;
     
     for (i in 1:threshCount) {
-        localDepVar <- ifelse(depVar > (minDepVar + (i*step)), 1, 0);
+        localDepVar <- ifelse(depVar > (depVarStart + (i*step)), 1, 0);
         localDF <- data.frame(indepMatrix);
         
         formula <- reformulate(termlabels = colnames(localDF), response = 'y');
@@ -172,7 +174,7 @@ thresholdsGLM <- function(depVar, indepMatrix, threshCount=10) {
         if (lMaxAIC < localReg$aic) {
             lMaxAIC <- localReg$aic;
             lBestFit <- localReg;
-            lBestThreshold <- i*step;
+            lBestThreshold <- depVarStart + (i*step);
             lData <- localDepVar;
         }
     }
@@ -182,7 +184,7 @@ thresholdsGLM <- function(depVar, indepMatrix, threshCount=10) {
     		"stepSize" = step,
     		"maxAIC" = lMaxAIC, 
     		"bestFit" = lBestFit, 
-    		"bestThreshold" = minDepVar + (i*step)
+    		"bestThreshold" = lBestThreshold
     	)
     );
 };
