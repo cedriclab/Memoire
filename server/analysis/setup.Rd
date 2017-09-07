@@ -10,6 +10,8 @@
 #	2016
 #
 
+require(strucchange);
+
 
 QUESTION_COUNT <- 12;
 QUESTION_ORDER <- c(0,1,3,4,5,7,9,10,11,16,18,19);
@@ -140,6 +142,8 @@ questionDataFrame$isLateEndSecondHalf <- questionDataFrame$isLateEnd * ifelse(qu
 
 questionDataFrame$rightAnswerZScore = scale(questionDataFrame$userRightAnswers, center=TRUE, scale=TRUE);
 questionDataFrame$userSkillZScore = scale(questionDataFrame$userSkillIndex, center=TRUE, scale=TRUE);
+
+questionDataFrame$realIndex <- match(questionDataFrame$index, QUESTION_ORDER);
 
 answeredQuestionDataFrame <- subset(questionDataFrame, timeSpent > 0 & timeSpentFraction > 0 & timeSpentFraction < 1);
 answeredQuestionDataFrameWithEffortIndex <- subset(answeredQuestionDataFrame, is.finite(logEffortIndex));

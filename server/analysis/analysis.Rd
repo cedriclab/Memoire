@@ -63,8 +63,7 @@ impact_MODELS <- c(
 	"rightAnswer ~ logTimeSpentOverAvg",
 	"rightAnswer ~ adviceUsed",
 	"rightAnswer ~ articlesRead",
-	"rightAnswer ~ dubiousArticlesRead",
-	"rightAnswer ~ trustedArticlesRead"
+	"rightAnswer ~ trustedArticlesRead + dubiousArticlesRead"
 );
 
 #	Test models
@@ -73,6 +72,10 @@ for (modelDescription in aqdf_MODELS) {
 	modelResults <- lm(model, answeredQuestionDataFrame);
 	print(summary(modelResults));
 }
+
+# Structural change test
+chowTest <-sctest(timeSpent ~ trueIndex, data=answeredQuestionDataFrame, point=7, type="Chow");
+print(chowTest);
 
 #	Now with split datasets
 for (modelDescription in fhaqdf_MODELS) {
